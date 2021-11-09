@@ -4,6 +4,30 @@ include_once("./_common.php");
 
 auth_check($auth[$sub_menu], 'w');
 
+//print_r2($_POST);exit;
+
+//수주idx가 반드시 넘어와야 한다
+if(!$_POST['ord_idx'])
+    alert('수주번호를 입력해 주세요.');
+
+//넘어온 수주idx가 반드시 존재하는(사용가능한) idx여야 한다.
+$ord = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$g5['order_table']} WHERE ord_idx = '{$_POST['ord_idx']}' AND ord_status NOT IN('delete','del','trash','cancel') ");
+if(!$ord['cnt'])
+    alert('수주번호가 올바르지 않습니다. 다시 확인해서 정확이 입력해 주세요.');
+
+//해당 수주번호로 등록된 출하목록중에 동일한 bom_idx가 존재하면 안된다
+$ori_sql = " SELECT COUNT(*) AS cnt FROM {$g5['order_out_table']} AS oro
+                LEFT JOIN {$g5['order_item_table']} AS ori ON oro.ori_idx = ori.ori_idx
+                WHERE oro.ord_idx = '{$_POST['ord_idx']}' AND ori.bom_idx = '{$_POST['bom_idx']}' AND oro.oro_status NOT IN('delete','del','trash','cancel')               
+ ";
+$ori = sql_fetch($ori_sql);
+if($ori['cnt'])
+    alert('선택하신 제품이 동일한 수주번호의 출하목록에 이미 포함되어 있습니다.');
+
+if(!$_POST['oro_count'])
+    alert('출하수량을 설정해 주세요.');
+
+
 // 변수 설정, 필드 구조 및 prefix 추출
 $table_name = 'order_out';
 $g5_table_name = $g5[$table_name.'_table'];

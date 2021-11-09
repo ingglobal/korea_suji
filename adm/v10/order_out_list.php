@@ -87,6 +87,7 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 .td_orp_idx span a{color:orange;font-size:1em;}
 .td_oro_part_no, .td_com_name, .td_oro_maker
 ,.td_oro_items, .td_oro_items_title {text-align:left !important;}
+.td_guest_lack_qty span.minus{color:red;}
 .td_oro_count{position:relative;}
 .td_oro_count.td_diff_cnt{background:#737132;}
 .td_oro_count .tip_cnt{position:absolute;top:2px;left:2px;font-size:0.8em;background:#da1111;color:#fff;padding:0 5px;border-radius:3px;}
@@ -116,6 +117,7 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 	<label for="sfl" class="sound_only">검색대상</label>
 	<select name="sfl" id="sfl">
 		<option value="oro.com_idx_customer"<?php echo get_selected($_GET['sfl'], "oro.com_idx_customer"); ?>>거래처번호</option>
+		<option value="oro.oro_idx"<?php echo get_selected($_GET['sfl'], "oro.oro_idx"); ?>>출하번호</option>
 		<option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
 		<option value="oro.ord_idx"<?php echo get_selected($_GET['sfl'], "oro.ord_idx"); ?>>수주번호</option>
 		<option value="oro.ori_idx"<?php echo get_selected($_GET['sfl'], "oro.ori_idx"); ?>>수주상품번호</option>
@@ -291,13 +293,16 @@ $('.data_blank').on('click',function(e){
         <td class="td_bom_name">
             <?=$row['bct_name_tree']?><br>
             <?=$row['bom_name']?>(<?=$row['ori_idx']?>)
+            <input type="hidden" name="bom_idx[<?=$row['oro_idx']?>]" value="<?=$row['bom_idx']?>">
+            <input type="hidden" name="com_idx_customer[<?=$row['com_idx_customer']?>]" value="<?=$row['com_idx_customer']?>">
         </td><!-- 제품 -->
         <td class="td_guest_qty">
             <?php
             $gsql = sql_fetch(" SELECT gst_count FROM {$g5['guest_stock_table']} WHERE gst_date = '{$row['ord_date']}' AND bom_idx = '{$row['bom_idx']}' ");
             $gcnt = $gsql['gst_count'];
-            echo $gcnt;
+            //echo $gcnt;
             ?>
+            <input type="text" name="gst_count[<?php echo $row['oro_idx'] ?>]" oro_idx="<?=$row['oro_idx']?>" value="<?=$gcnt?>" class="tbl_input gst_cnt gst_count_<?php echo $row['oro_idx'] ?>" style="width:45px;text-align:right;" onclick="javascript:lack_num_chk(this);">
         </td><!--고객사재고-->
         <td class="td_ord_d_qty"><?=$row['ori_count']?></td>
         <td class="td_ord_d1_qty">
@@ -319,7 +324,8 @@ $('.data_blank').on('click',function(e){
         <td class="td_guest_lack_qty">
             <?php
             $gbcnt = $gcnt - $row['ori_count'];
-            echo ($gbcnt > 0) ? $gbcnt : '<span style="color:red;">'.$gbcnt.'</span>';
+            $sbminus = ($gbcnt > 0) ? '' : ' minus';
+            echo '<span class="gst_lack_cnt'.$sbminus.'">'.$gbcnt.'</span>';
             ?>
         </td>
         <td class="td_oro_count">
@@ -336,6 +342,7 @@ $('.data_blank').on('click',function(e){
             <?=$row['orp_count']?>
         </td><!-- 실행계획 -->
         <td class="td_ord_date td_ord_date_<?=$row['oro_idx']?>">
+            <input type="hidden" name="ord_date[<?php echo $row['oro_idx'];?>]" value="<?php echo $row['ord_date'];?>">
             <?=substr($row['ord_date'],2,8)?>
         </td><!-- 수주일 -->
         <td class="td_oro_date_plan td_oro_date_plan_<?=$row['oro_idx']?>">
@@ -355,7 +362,7 @@ $('.data_blank').on('click',function(e){
             <input type="text" value="<?php echo $g5['set_oro_status_value'][$row['oro_status']]?>" readonly class="tbl_input readonly oro_status_name_<?php echo $row['oro_idx'] ?>" style="width:60px;text-align:center;">
         </td><!-- 상태 -->
         <td class="td_mng">
-			<?php ;//$s_copy;?>
+			<?php //$s_copy?>
 			<?=$s_mod?>
 		</td>
     </tr>
@@ -374,7 +381,9 @@ $('.data_blank').on('click',function(e){
     <!--input type="submit" name="act_button" value="실행계획개별등록" onclick="document.pressed=this.value" class="btn btn_03"-->
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
-    <!--a href="./order_out_form.php" id="member_add" class="btn btn_01">추가하기</a-->
+    <!--
+    -->
+    <a href="./order_out_form.php" id="member_add" class="btn btn_01">추가하기</a>
     <?php } ?>
 
 </div>
@@ -505,6 +514,14 @@ $('.shf_one').on('keyup',function(e){
     var ask = e.keyCode;
     var oro_idx = $(e.target).attr('oro_idx');
     var oro_n = $(e.target).attr('oro');
+    
+    var RegExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi; //특수문자 패턴
+    var instr = $(this).val();
+    if(RegExp.test(instr)){
+        $(this).val('');
+        return false;
+    }
+    
     if(ask == 38){ //위쪽 화살표 눌렀을 경우
         var trobj = $(this).parent().parent();
         if(trobj.prev().find('td').find('input[oro="'+oro_n+'"]').length)
@@ -522,6 +539,7 @@ $('.shf_one').on('keyup',function(e){
         calsum(oro_idx);
         return false;
     }
+    
     calsum(oro_idx);
 });
 
@@ -773,6 +791,26 @@ function form02_submit(f) {
     return false;
 }
 
+
+// 숫자만 입력
+function lack_num_chk(object){
+    $(object).keyup(function(){
+        $(this).val($(this).val().replace(/[^0-9|-]/g,""));
+        var stock = Number($(this).val());
+        var ori = Number($(this).parent().siblings('.td_ord_d_qty').text());
+        var lack = stock - ori;
+        var lack_sp = $(this).parent().siblings('.td_guest_lack_qty').find('span');
+        lack_sp.text(lack);
+        if(lack < 0){
+            if(!lack_sp.hasClass('minus'))
+                lack_sp.addClass('minus');
+        }
+        else{
+            if(lack_sp.hasClass('minus'))
+                lack_sp.removeClass('minus');
+        }
+    });
+}
 </script>
 
 <?php

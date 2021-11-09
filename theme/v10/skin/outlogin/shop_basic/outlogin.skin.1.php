@@ -32,7 +32,9 @@ $req_nick = !isset($member['mb_nick_date']) || (isset($member['mb_nick_date']) &
         </div>
         <input type="submit" id="ol_submit" value="로그인" class="btn_b02">
         <div id="ol_svc">
+            <!--
             <a href="javascript:" class="reg_btn"><b>회원가입</b></a> /
+            -->
             <a href="javascript:" class="ol_password_lost">정보찾기</a>
         </div>
 

@@ -91,6 +91,7 @@ include_once('./_head.sub.php');
     <input type="hidden" name="frm" value="<?php echo $_GET['frm']; ?>">
     <input type="hidden" name="file_name" value="<?php echo $_REQUEST['file_name']; ?>">
     <input type="hidden" name="com_idx" value="<?php echo $_REQUEST['com_idx']; ?>">
+    <input type="hidden" name="ord_idx" value="<?php echo $_REQUEST['ord_idx']; ?>">
 
     <div id="div_search">
         <select name="sca" id="sca">
@@ -192,8 +193,15 @@ $('.btn_select').click(function(e){
         //$("input[name=bom_idx]", opener.document).val( bom_idx );
         //$("input[name=bom_name]", opener.document).val( bom_name );
         //$("#bom_info", opener.document).hide();
+        //$("#ori_count", opener.document).text(ori_count);
         $("input[name=ori_idx]", opener.document).val(ori_idx);
-        $("#ori_count", opener.document).text(ori_count);
+        $("input[name=oro_count]", opener.document).val(ori_count);
+        $("input[name=oro_1]", opener.document).val(ori_count);
+        $("input[name=oro_2]", opener.document).val('');
+        $("input[name=oro_3]", opener.document).val('');
+        $("input[name=oro_4]", opener.document).val('');
+        $("input[name=oro_5]", opener.document).val('');
+        $("input[name=oro_6]", opener.document).val('');
         $("input[name=bom_idx]", opener.document).val( bom_idx );
         $("input[name=bom_name]", opener.document).val( bom_name );
     <?php

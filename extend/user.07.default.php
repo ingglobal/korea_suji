@@ -301,6 +301,8 @@ if( is_array($g5['set_customer_category']) || $_SESSION['ss_com_idx'] ) {
                 $g5[$value.'_up_names'][$row['term_idx']] = $row['up_names'];
                 //-- 항목명
                 $g5[$value.'_name'][$row['term_idx']] = trim($row['term_name']);
+                //-- 반전명
+                $g5[$value.'_reverse'][$row['term_name']] = trim($row['term_idx']);
                 //-- 정렬 우선순위
                 $g5[$value.'_sort'][$row['term_idx']] = $i;
                 //-- 바로 상위 카테고리 idx
@@ -321,6 +323,7 @@ if( is_array($g5['set_customer_category']) || $_SESSION['ss_com_idx'] ) {
             $term_content .= "\$g5['".$value."_up_idxs']=".var_export($g5[$value.'_up_idxs'], true).";\n";
             $term_content .= "\$g5['".$value."_up_names']=".var_export($g5[$value.'_up_names'], true).";\n";
             $term_content .= "\$g5['".$value."_name']=".var_export($g5[$value.'_name'], true).";\n";
+            $term_content .= "\$g5['".$value."_reverse']=".var_export($g5[$value.'_reverse'], true).";\n";
             $term_content .= "\$g5['".$value."']=".var_export($g5[$value], true).";\n";
             $term_content .= "?>";
             fwrite($handle, $term_content);

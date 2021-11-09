@@ -18,7 +18,7 @@ $qstr .= '&ser_mms_idx='.$ser_mms_idx; // 추가로 확장해서 넘겨야 할 �
 if ($w == '') {
     $sound_only = '<strong class="sound_only">필수</strong>';
     $w_display_none = ';display:none';  // 쓰기에서 숨김
-    
+
     ${$pre}['com_idx'] = $_SESSION['ss_com_idx'];
     ${$pre}['shf_period_type'] = 0;
     // ${$pre}['mms_idx'] = rand(1,4);
@@ -41,23 +41,23 @@ else if ($w == 'u' || $w == 'c') {
     $mms = get_table_meta('mms','mms_idx',${$pre}['mms_idx']);
 
 	// 관련 파일 추출
-	$sql = "SELECT * FROM {$g5['file_table']} 
+	$sql = "SELECT * FROM {$g5['file_table']}
 			WHERE fle_db_table = '".$pre."' AND fle_db_id = '".${$pre}[$pre.'_idx']."' ORDER BY fle_sort, fle_reg_dt DESC ";
 	$rs = sql_query($sql,1);
 //	echo $sql;
 	for($i=0;$row=sql_fetch_array($rs);$i++) {
-		${$pre}[$row['fle_type']][$row['fle_sort']]['file'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['file'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							'&nbsp;&nbsp;'.$row['fle_name_orig'].'&nbsp;&nbsp;<a href="'.G5_USER_ADMIN_URL.'/lib/download.php?file_fullpath='.urlencode(G5_PATH.$row['fle_path'].'/'.$row['fle_name']).'&file_name_orig='.$row['fle_name_orig'].'">파일다운로드</a>'
 							.'&nbsp;&nbsp;<input type="checkbox" name="'.$row['fle_type'].'_del['.$row['fle_sort'].']" value="1"> 삭제'
 							:'';
-		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_name'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_name'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							$row['fle_name'] : '' ;
-		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_path'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['fle_path'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							$row['fle_path'] : '' ;
-		${$pre}[$row['fle_type']][$row['fle_sort']]['exists'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ? 
+		${$pre}[$row['fle_type']][$row['fle_sort']]['exists'] = (is_file(G5_PATH.$row['fle_path'].'/'.$row['fle_name'])) ?
 							1 : 0 ;
 	}
-	
+
 }
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
@@ -69,8 +69,8 @@ for ($i=0;$i<sizeof($check_array);$i++) {
 	${$check_array[$i].'_'.${$pre}[$check_array[$i]]} = ' checked';
 }
 
-$html_title = ($w=='')?'추가':'수정'; 
-$html_title = ($w=='c')?'복제':$html_title; 
+$html_title = ($w=='')?'추가':'수정';
+$html_title = ($w=='c')?'복제':$html_title;
 $g5['title'] = '작업구간 '.$html_title;
 //include_once('./_top_menu_data.php');
 include_once ('./_head.php');
@@ -78,7 +78,7 @@ include_once ('./_head.php');
 
 /*
 array(
-    'type' => 'text/password/url/radio/checkbox/textarea/select/hidden'
+    'type' => 'text/password/url/radio/checkbox/textarea/select/hidden/none'
     'ttl' => '타이틀명',
     'required' => true or false,
     'readonly' => true or false,
@@ -132,7 +132,7 @@ $f1 = array(
 <?php
 $hskip = array();
 foreach($f1 as $hk=>$hv){
-    if($hv['type'] != 'hidden' || in_array($hk,$hskip)) continue;
+    if($hv['type'] != 'hidden' || $hv['type'] == 'none' || in_array($hk,$hskip)) continue;
     echo input_hidden($hk,$hv);
 }
 ?>
@@ -154,9 +154,9 @@ foreach($f1 as $hk=>$hv){
     <?php
     $fskip = array();//제외되는 필드명
     $fcust = array('mms_idx','shf_start_time','shf_end_time');//커스터마이징해야 하는 필드명
-    
+
     foreach($f1 as $fk=>$fv){
-        if($fv['type'] == 'hidden' || in_array($fk,$fskip)) continue;
+        if($fv['type'] == 'hidden' || $fv['type'] == 'none' || in_array($fk,$fskip)) continue;
         if($fk == 'shf_start_dt' || $fk == 'shf_end_dt'){
             $fv['value'] = substr($fv['value'],0,10);
         }
@@ -218,13 +218,13 @@ var timeformat = /^([01][0-9]|2[0-3]):([0-5][0-9])$/;
 var cftime;
 var cttime;
 $(function() {
-    
+
     $('input[name="shf_start_time"],input[name="shf_end_time"]').datetimepicker({
         datepicker:false,
         theme:'dark',
         format:'H:i'
     });
-    
+
     if(shf_period_type) $('input[name=shf_start_dt]').parent().parent().hide();
     // 기간선택, 전체기간
     $(document).on('click','input[name=shf_period_type]',function(e){

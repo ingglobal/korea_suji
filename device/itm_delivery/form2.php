@@ -28,6 +28,7 @@ if(is_array($_REQUEST)) {
 <style>
     #hd_login_msg {display:none;}
     table tr td {border:solid 1px #ddd;padding:10px;}
+    button {background:#ff8b37;padding:10px 20px;font-size:1.5em;border-radius:4px;}
 </style>
 
 <form id="form02" action="./index.php">
@@ -48,7 +49,7 @@ if(is_array($_REQUEST)) {
 </table>
     
 <hr>
-<button type="submit" id="btn_submit">확인</button>
+<button type="submit" id="btn_submit">등록하기</button>
 </form>
 
 

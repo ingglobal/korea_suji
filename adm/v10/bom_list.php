@@ -127,11 +127,11 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
 
 <label for="sfl" class="sound_only">검색대상</label>
 <select name="sfl" id="sfl">
-    <option value="bom_part_no"<?php echo get_selected($_GET['sfl'], "bom_part_no"); ?>>P/NO</option>
+    <option value="bom_part_no"<?php echo get_selected($_GET['sfl'], "bom_idx"); ?>>P/NO</option>
     <option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
     <option value="com_idx_customer"<?php echo get_selected($_GET['sfl'], "com_idx_customer"); ?>>거래처번호</option>
     <option value="bom_maker"<?php echo get_selected($_GET['sfl'], "bom_maker"); ?>>메이커</option>
-    <option value="bom_memo"<?php echo get_selected($_GET['sfl'], "bom_idx"); ?>>메모</option>
+    <!--option value="bom_memo"<?php //echo get_selected($_GET['sfl'], "bom_idx"); ?>>메모</option-->
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
@@ -241,7 +241,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <label for="name_<?php echo $i; ?>" class="sound_only">품명</label>
             <input type="text" name="bom_name[<?php echo $i; ?>]" value="<?php echo htmlspecialchars2(cut_str($row['bom_name'],250, "")); ?>" required class="tbl_input required" style="width:250px;">
         </td>
-        <td class="td_bom_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
+        <td class="td_bom_part_no"><?=$row['bom_idx']?></td><!-- 파트넘버 -->
         <td class="td_com_name"><?=$row['com_name']?></td><!-- 거래처 -->
         <td class="td_bom_maker"><?=$row['bom_maker']?></td><!-- 메이커 -->
         <td class="td_bct_name"><?=$row['bct_name_tree']?></td><!-- 카테고리 -->
@@ -296,7 +296,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
 </div>
 
 <div class="btn_fixed_top">
-    <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
+    <?php if (false){ //(!auth_check($auth[$sub_menu],'d')) { ?>
        <a href="javascript:" id="btn_excel_upload" class="btn btn_02" style="margin-right:50px;">엑셀등록</a>
     <?php } ?>
     <?php if (!auth_check($auth[$sub_menu],'w')) { ?>

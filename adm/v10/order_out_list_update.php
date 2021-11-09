@@ -21,6 +21,34 @@ if ($_POST['act_button'] == "선택수정") {
     foreach($_POST['chk'] as $oro_idx_v){
         $_POST['oro_count'][$oro_idx_v] = preg_replace("/,/","",$_POST['oro_count'][$oro_idx_v]);
 
+        $gst_chk_sql = " SELECT COUNT(*) AS cnt FROM {$g5['guest_stock_table']} 
+                        WHERE gst_date = '{$_POST['ord_date'][$oro_idx_v]}'
+                            AND bom_idx = '{$_POST['bom_idx'][$oro_idx_v]}'
+                            AND gst_status NOT IN('delete','del','trash','cancel')
+        ";
+        $gst = sql_fetch($gst_chk_sql);
+        if($gst['cnt']){
+            $gst_sql = " UPDATE {$g5['guest_stock_table']} SET
+                                gst_count = '{$_POST['gst_count'][$oro_idx_v]}'
+                                ,gst_update_dt = '".G5_TIME_YMDHIS."'   
+                            WHERE gst_date = '{$_POST['ord_date'][$oro_idx_v]}'
+                                AND bom_idx = '{$_POST['bom_idx'][$oro_idx_v]}'
+            ";
+        }
+        else{
+            $gst_sql = " INSERT {$g5['guest_stock_table']} SET
+                com_idx = '{$_SESSION['ss_com_idx']}'
+                ,com_idx_customer = '{$_POST['com_idx_customer'][$oro_idx_v]}'
+                ,bom_idx = '{$_POST['bom_idx'][$oro_idx_v]}'
+                ,gst_count = '{$_POST['gst_count'][$oro_idx_v]}'
+                ,gst_date = '{$_POST['ord_date'][$oro_idx_v]}'
+                ,gst_status = 'ok'
+                ,gst_reg_dt = '".G5_TIME_YMDHIS."'
+                ,gst_update_dt = '".G5_TIME_YMDHIS."'
+            ";
+        }
+        sql_query($gst_sql,1);
+
         $sql = "UPDATE {$g5['order_out_table']} SET
                     oro_count = '".sql_real_escape_string($_POST['oro_count'][$oro_idx_v])."',
                     oro_date_plan = '".$_POST['oro_date_plan'][$oro_idx_v]."',

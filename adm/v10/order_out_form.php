@@ -60,9 +60,12 @@ include_once ('./_head.php');
 //print_r3(${$pre});
 ?>
 <style>
-    .bop_price {font-size:0.8em;color:#a9a9a9;margin-left:10px;}
-    .btn_bop_delete {color:#0c55a0;cursor:pointer;margin-left:20px;}
-    a.btn_price_add {color:#3a88d8 !important;cursor:pointer;}
+.bop_price {font-size:0.8em;color:#a9a9a9;margin-left:10px;}
+.btn_bop_delete {color:#0c55a0;cursor:pointer;margin-left:20px;}
+a.btn_price_add {color:#3a88d8 !important;cursor:pointer;}
+#oro_ex{}
+#oro_ex:after{display:block;visibility:hidden;clear:both;content:'';}
+#oro_ex li{float:left;margin-right:10px;}
 </style>
 
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -103,26 +106,22 @@ include_once ('./_head.php');
 			<input type="text" name="com_name" value="<?php echo $com['com_name'] ?>" id="com_name" class="frm_input required readonly" required readonly>
             <a href="./customer_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_customer">거래처찾기</a>
 		</td>
-        <?php
-        $ar['id'] = 'ord_idx';
-        $ar['name'] = '수주번호';
-        $ar['type'] = 'input';
-        $ar['width'] = '80px';
-        $ar['value'] = ($w == '' && $ord_idx) ? $ord_idx : ${$pre}[$ar['id']];
-        $ar['required'] = 'required';
-        $ar['readonly'] = 'readonly';
-        echo create_td_input($ar);
-        unset($ar);
-        ?>
+        <th scope="row">수주번호</th>
+        <td>
+            <?php if($w == ''){ ?>
+            <input type="text" name="ord_idx" value="<?=$oro['ord_idx']?>" class="frm_input" style="width:80px;" onclick="javascript:only_Number(this)">
+            <?php } else { ?>
+            <input type="text" name="ord_idx" value="<?=$oro['ord_idx']?>" readonly required class="frm_input readonly required" style="width:80px;">
+            <?php } ?>
+        </td>
     </tr>
     <tr>
         <th scope="row">제품</th>
 		<td>
-            <input type="hidden" name="ord_idx" value="<?=$ori['ord_idx']?>">
             <input type="hidden" name="ori_idx" value="<?=$ori['ori_idx']?>">
             <input type="hidden" name="bom_idx" value="<?=$ori['bom_idx']?>">
             <input type="text" name="bom_name" value="<?php echo $bom['bom_name'] ?>" id="bom_name" class="frm_input required readonly" required readonly>
-            <a href="./bom_select.php?file_name=<?php echo $g5['file_name']?>&ord_idx=<?=$ori['ord_idx']?>" class="btn btn_02" id="btn_bom">제품찾기</a>
+            <a href="javascript:" link="./bom_select.php?file_name=<?php echo $g5['file_name']?>&ord_idx=<?=$ori['ord_idx']?>" class="btn btn_02" id="btn_bom">제품찾기</a>
         </td>
         <?php
         /*
@@ -145,12 +144,39 @@ include_once ('./_head.php');
         ?>
         <th scope="row">출하수량</th>
         <td>
-            <input type="text" name="oro_count" id="oro_count" value="<?php echo $oro['oro_count']; ?>" readonly class="frm_input readonly" style="width:80px" onclick="javascript:chk_Number(this)">개
+            <input type="text" name="oro_count" id="oro_count" value="<?php echo $oro['oro_count']; ?>" readonly class="frm_input readonly" style="width:80px;text-align:right;">개
         </td>
     </tr>
     <tr>
         <th scope="row">출하계획</th>
-        <td></td>
+        <td>
+            <ul id="oro_ex">
+                <li>
+                    <label>주간(09:00)</label><br>
+                    <input type="text" name="oro_1" id="oro_1" value="<?php echo $oro['oro_1']; ?>" class="frm_input oro_ex" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">
+                </li>
+                <li>
+                    <label>주간(12:00)</label><br>
+                    <input type="text" name="oro_2" id="oro_2" value="<?php echo $oro['oro_2']; ?>" class="frm_input oro_ex" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">
+                </li>
+                <li>
+                    <label>주간(15:00)</label><br>
+                    <input type="text" name="oro_3" id="oro_3" value="<?php echo $oro['oro_3']; ?>" class="frm_input oro_ex" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">
+                </li>
+                <li>
+                    <label>야간(17:00)</label><br>
+                    <input type="text" name="oro_4" id="oro_4" value="<?php echo $oro['oro_4']; ?>" class="frm_input oro_ex" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">
+                </li>
+                <li>
+                    <label>야간(19:00)</label><br>
+                    <input type="text" name="oro_5" id="oro_5" value="<?php echo $oro['oro_5']; ?>" class="frm_input oro_ex" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">
+                </li>
+                <li>
+                    <label>D+1(07:00)</label><br>
+                    <input type="text" name="oro_6" id="oro_6" value="<?php echo $oro['oro_6']; ?>" class="frm_input oro_ex" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">
+                </li>
+            </ul>
+        </td>
     </tr>
     <tr>
         <?php
@@ -208,6 +234,7 @@ include_once ('./_head.php');
 </form>
 
 <script>
+var w = '<?=$w?>';
 $(function() {
     $("input[name$=_date], #oro_date_plan").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
 
@@ -222,8 +249,16 @@ $(function() {
     // 제품찾기 버튼 클릭
 	$("#btn_bom").click(function(e) {
 		e.preventDefault();
-        var href = $(this).attr('href');
-		winBomSelect = window.open(href, "winBomSelect", "left=300,top=150,width=550,height=600,scrollbars=1");
+        var href = $(this).attr('link');
+        if(w == ''){
+            var ord_idx = $('input[name="ord_idx"]').val();
+            if(!ord_idx){
+                alert('수주번호를 입력해 주세요.');
+                return false;
+            }
+            href += ord_idx
+        }
+		winBomSelect = window.open(href, "winBomSelect", "left=300,top=150,width=650,height=600,scrollbars=1");
         winBomSelect.focus();
 	});
 
@@ -254,14 +289,38 @@ $(function() {
 
 });
 
-// 숫자만 입력
+// 숫자만 입력, 합산계산입력
 function chk_Number(object){
+    $(object).keyup(function(){
+        $(this).val($(this).val().replace(/[^0-9|-]/g,""));
+        var oro_sum = 0;
+        $('.oro_ex').each(function(){
+            oro_sum += Number($(this).val());
+        }); 
+        $('#oro_count').val(oro_sum);
+    });
+}
+
+// 숫자만 입력
+function only_Number(object){
     $(object).keyup(function(){
         $(this).val($(this).val().replace(/[^0-9|-]/g,""));
     });
 }
 
 function form01_submit(f) {
+
+    if(!f.oro_count.value){
+        alert('출하수량을 입력해 주세요');
+        f.oro_count.focus();
+        return false;
+    }
+
+    if(!f.oro_date_plan.value){
+        alert('출하예정일을 입력해 주세요.');
+        f.oro_date_plan.focus();
+        return false;
+    }
 
     return true;
 }

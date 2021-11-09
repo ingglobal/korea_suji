@@ -32,7 +32,7 @@ if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 add_event('member_login_check','u_member_login_check',10);
 function u_member_login_check(){
     global $g5, $mb;
-
+    
     // $_SESSION['ss_com_idx'] setting
     // for a manager without mb_4, then assign default_com_idx
     $com_idx = ($mb['mb_level']>=6 && !$mb['mb_4']) ? $g5['setting']['set_com_idx'] : $mb['mb_4'];

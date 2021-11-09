@@ -29,7 +29,7 @@ $truncate_sql = " TRUNCATE {$g5['guest_stock_table']} ";
 sql_query($truncate_sql,1);
 
 // 수주상품 목록을 추출
-$sql = " SELECT ori.ori_idx, ori.bom_idx, ord.com_idx, ord.com_idx_customer, ord.ord_date FROM {$g5['order_item_table']} AS ori
+$sql = " SELECT ori.ori_idx, ori.bom_idx, ord.com_idx, ori.com_idx_customer, ord.ord_date FROM {$g5['order_item_table']} AS ori
                     LEFT JOIN {$g5['order_table']} AS ord ON ori.ord_idx = ord.ord_idx
                 WHERE ori.ori_status NOT IN ('cancel','trash','del','delete')
                     AND ori.com_idx = '{$_SESSION['ss_com_idx']}'
@@ -47,7 +47,6 @@ for($i=0;$row=sql_fetch_array($result);$i++){
         com_idx = '{$_SESSION['ss_com_idx']}'
         ,com_idx_customer = '{$row['com_idx_customer']}'
         ,bom_idx = '{$row['bom_idx']}'
-        ,ori_idx = '{$row['ori_idx']}'
         ,gst_count = '{$stock_cnt}'
         ,gst_date = '{$row['ord_date']}'
         ,gst_status = 'ok'

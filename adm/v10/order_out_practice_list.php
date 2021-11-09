@@ -11,6 +11,7 @@ include_once('./_head.php');
 $sql_common = " FROM {$g5['order_out_practice_table']} AS oop
     LEFT JOIN {$g5['order_practice_table']} AS orp ON orp.orp_idx = oop.orp_idx
     LEFT JOIN {$g5['order_out_table']} AS oro ON oop.oro_idx = oro.oro_idx
+    LEFT JOIN {$g5['order_table']} AS ord ON oro.ord_idx = ord.ord_idx
 "; 
 
 $where = array();
@@ -95,6 +96,8 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 .td_orp_part_no, .td_com_name, .td_orp_maker
 ,.td_orp_items, .td_orp_items_title {text-align:left !important;}
 .td_orp_count{text-align:right !important;}
+.td_oro_cnt{position:relative;}
+.td_oro_cnt .sp_ord_idx{display:block;position:absolute;top:0;left:0;font-size:0.7em;color:orange;}
 .span_orp_price {margin-left:20px;}
 .span_orp_price b, .span_bit_count b {color:#737132;font-weight:normal;}
 #modal01 table ol {padding-right: 20px;text-indent: -12px;padding-left: 12px;}
@@ -134,7 +137,7 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
     <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
     <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
     <label for="orp_start_date" class="sch_label">
-        <span>시작(생산)일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
+        <span>생산일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
         <input type="text" name="orp_start_date" value="<?php echo $orp_start_date ?>" id="orp_start_date" readonly class="frm_input readonly" placeholder="시작(생산)일" style="width:100px;" autocomplete="off">
     </label>
     <!--label for="orp_done_date" class="sch_label">
@@ -180,7 +183,7 @@ $('.data_blank').on('click',function(e){
     }
 });
 </script>
-<form name="form01" id="form01" action="./order_practice_list_update.php" onsubmit="return form01_submit(this);" method="post">
+<form name="form01" id="form01" action="./order_out_practice_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
@@ -201,7 +204,7 @@ $('.data_blank').on('click',function(e){
         <th scope="col">품명</th>
         <th scope="col">수주ID</th>
         <th scope="col">생산계획ID</th>
-        <th scope="col">시작일<br>(생산일)</th>
+        <th scope="col">(수주일)<br>생산일</th>
         <th scope="col">설비</th>
         <th scope="col">전일재고</th>
         <th scope="col">출하계획<br>납품수량</th>
@@ -255,7 +258,10 @@ $('.data_blank').on('click',function(e){
         </td>
         <td class="td_ord_idx"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a></td>
         <td class="td_orp_idx"><a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_idx']?></a></td>
-        <td class="td_orp_start_date"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a></td>
+        <td class="td_orp_start_date">
+            
+            <a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a>
+        </td>
         <td class="td_trm_idx_line"><a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$g5['line_name'][$row['trm_idx_line']]?></a></td>
         <td class="td_prev_stock">
             <?php
@@ -270,7 +276,10 @@ $('.data_blank').on('click',function(e){
             ?>
             <span class="prev_stock_<?=$row['oop_idx']?>"><?=$pre_day_stock['cnt']?></span>
         </td>
-        <td class="td_oro_cnt"><span class="oro_count_<?=$row['oop_idx']?>"><?=$row['oro_count']?></span></td>
+        <td class="td_oro_cnt">
+            <a href="./order_out_list.php?sfl=oro.ord_idx&stx=<?=$row['ord_idx']?>" class="sp_ord_idx">출하관리</a>
+            <span class="oro_count_<?=$row['oop_idx']?>"><?=$row['oro_count']?></span>
+        </td>
         <td class="td_lack_cnt">
             <?php
             //과부족.lack_oop_idx = 전일재고.prev_stock_oop_idx + 생산지시수량.oop_count_oop_idx - 출하계획납품수량.oro_count_oop_idx
@@ -311,7 +320,9 @@ $('.data_blank').on('click',function(e){
     <?php if (!auth_check($auth[$sub_menu],'w')) { ?>
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
-    <a href="./order_practice_form.php" id="member_add" class="btn btn_01">추가하기</a>
+    <a href="./order_out_practice_form.php" id="member_add" class="btn btn_01">추가하기</a>
+    <!--
+    -->
     <?php } ?>
 
 </div>
@@ -389,6 +400,15 @@ $('.shf_one').on('keyup',function(e){
     var ask = e.keyCode;
     var oop_idx = $(e.target).attr('oop_idx');
     var oop_n = $(e.target).attr('oop');
+    
+    var RegExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi; //특수문자 패턴
+    var instr = $(this).val();
+    if(RegExp.test(instr)){
+        $(this).val('');
+        return false;
+    }
+
+
     if(ask == 38){ //위쪽 화살표 눌렀을 경우
         var trobj = $(this).parent().parent();
         if(trobj.prev().find('td').find('input[oop="'+oop_n+'"]').length)
@@ -406,6 +426,7 @@ $('.shf_one').on('keyup',function(e){
         calsum(oop_idx);
         return false;
     }
+
     calsum(oop_idx);
 });
 
@@ -478,18 +499,6 @@ function form01_submit(f)
     return true;
 }
 
-function form02_submit(f) {
-    if (!f.file_excel.value) {
-        alert('엑셀 파일(.xls)을 입력하세요.');
-        return false;
-    }
-    else if (!f.file_excel.value.match(/\.xls$|\.xlsx$/i) && f.file_excel.value) {
-        alert('엑셀 파일만 업로드 가능합니다.');
-        return false;
-    }
-
-    return true;
-}
 
 </script>
 

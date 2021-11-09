@@ -106,9 +106,11 @@ $result = sql_query($sql);
     <label for="sfl" class="sound_only">검색대상</label>
     <select name="sfl" id="sfl">
         <option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
-        <option value="com_idx_customer"<?php echo get_selected($_GET['sfl'], "com_idx_customer"); ?>>거래처번호</option>
-        <option value="bom_maker"<?php echo get_selected($_GET['sfl'], "bom_maker"); ?>>메이커</option>
-        <option value="bom_memo"<?php echo get_selected($_GET['sfl'], "bom_idx"); ?>>메모</option>
+        <!--
+        <option value="com_idx_customer"<?php //echo get_selected($_GET['sfl'], "com_idx_customer"); ?>>거래처번호</option>
+        <option value="bom_maker"<?php //echo get_selected($_GET['sfl'], "bom_maker"); ?>>메이커</option>
+        <option value="bom_memo"<?php //echo get_selected($_GET['sfl'], "bom_idx"); ?>>메모</option>
+        -->
     </select>
     <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
     <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
@@ -132,7 +134,7 @@ $('.date_blank').on('click',function(e){
 });
 </script>
 <div class="local_desc01 local_desc" style="display:no ne;">
-    <p>제품개수에 <span style="color:red;">빨간색 깜빡임</span>은 출하데이터가 존재하지 않거나 출하데이터의 갯수와 일치하지 않다는 의미 입니다.(갯수를 맞춰 주셔야 합니다.)</p>
+    <p>제품개수에 <span style="color:red;">빨간색 깜빡임</span>은 출하데이터가 존재하지 않거나 출하데이터의 갯수와 일치하지 않다는 의미 입니다.</p>
     <p>제품명에 <span style="color:orange;">주황색 깜빡임</span>은 해당 BOM데이터에 가격과 카테고리 설정이 안되어 있다는 의미입니다.(해당 BOM페이지로 이동하여 설정완료 해 주세요.)</p>
 </div>
 
@@ -201,12 +203,18 @@ $('.date_blank').on('click',function(e){
             if(!$row1['bom_price']) $out_flag = false;//가격이 책정되어 있지 않으면 출하불가능
             //$bom_mod = ($row1['bom_price'] && $row1['bct_id']) ? $row1['nbsp'].$row1['bom_name'] : '<a href="'.G5_USER_ADMIN_URL.'/bom_form.php?w=u&bom_idx='.$row1['bom_idx'].'" target="_blank" class="txt_orangeblink">'.$row1['nbsp'].$row1['bom_name'].'</a>';
             $bom_mod = ($row1['bom_price']) ? $row1['nbsp'].$row1['bom_name'] : '<a href="'.G5_USER_ADMIN_URL.'/bom_form.php?w=u&bom_idx='.$row1['bom_idx'].'" target="_blank" class="txt_orangeblink">'.$row1['nbsp'].$row1['bom_name'].'</a>';
-
+            /*
             $row['item_list'][] = '<div class="div_item">
                                         <span class="span_bom_name">'.$bom_mod.'('.$row1['ori_idx'].')</span>
                                         <span class="span_bom_part_no">'.$row1['bom_part_no'].'</span>
                                         <span class="span_bom_price"><b>'.number_format($row1['bom_price']).'</b>원</span>
-                                        <span class="span_ori_count"><b><span class="'.$cnt_blick.'">'.$row1['ori_count'].'</span></b>개</span>
+                                        <span class="span_ori_count"><b><span class="'.$cnt_blick.'">'.number_format($row1['ori_count']).'</span></b> kg</span>
+                                    </div>';
+            */
+            $row['item_list'][] = '<div class="div_item">
+                                        <span class="span_bom_name">'.$bom_mod.'('.$row1['ori_idx'].')</span>
+                                        <span class="span_bom_price"><b>'.number_format($row1['bom_price']).'</b>원</span>
+                                        <span class="span_ori_count"><b><span class="'.$cnt_blick.'">'.number_format($row1['ori_count']).'</span></b> kg</span>
                                     </div>';
         }
 		

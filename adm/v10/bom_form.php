@@ -126,7 +126,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
-<input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
+<!--input type="hidden" name="<?php //echo $pre; ?>_idx" value="<?php //echo ${$pre."_idx"} ?>"-->
 <input type="hidden" name="sca" value="<?php echo $sca ?>">
 <input type="hidden" name="ser_bom_type" value="<?php echo $ser_bom_type ?>">
 
@@ -183,15 +183,19 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
     </tr>
     <tr>
         <?php
-        $ar['id'] = 'bom_part_no';
-        $ar['name'] = '고유번호';
-        $ar['type'] = 'input';
-        $ar['value'] = ${$pre}[$ar['id']];
-        $ar['required'] = 'required';
-        $ar['width'] = '150px';
-        echo create_td_input($ar);
-        unset($ar);
+        // $ar['id'] = 'bom_part_no';
+        // $ar['name'] = '고유번호';
+        // $ar['type'] = 'input';
+        // $ar['value'] = ${$pre}[$ar['id']];
+        // $ar['required'] = 'required';
+        // $ar['width'] = '150px';
+        // echo create_td_input($ar);
+        // unset($ar);
         ?>
+        <th scope="row">고유번호</th>
+        <td>
+            <input type="text" name="bom_idx" value="<?php echo ${$pre}['bom_idx'] ?>" id="bom_idx" readonly class="frm_input readonly" style="width:100px;text-align:right;">
+        </td>
         <?php
         $ar['id'] = 'bom_maker';
         $ar['name'] = '메이커';
@@ -263,6 +267,21 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
         unset($ar);
         ?>
     </tr>
+    <?php if(${$pre}['bom_type'] == 'product'){ ?>
+    <tr>
+        <?php
+        $ar['id'] = 'bom_ex_label';
+        $ar['name'] = '고객업체(외부)라벨';
+        $ar['type'] = 'input';
+        $ar['width'] = '400px';
+        $ar['help'] = "고객업체에서 제공한 본제품에 해당하는 외부라벨의 정보를 입력하세요.";
+        $ar['value'] = ${$pre}[$ar['id']];
+        $ar['colspan'] = 3;
+        echo create_td_input($ar);
+        unset($ar);
+        ?>
+    </tr>
+    <?php } ?>
     <tr class="tr_price" style="display:<?=($w=='u')?'none':''?>">
         <?php
         $ar['id'] = 'bom_price';
