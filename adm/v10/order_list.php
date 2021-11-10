@@ -197,7 +197,7 @@ $('.date_blank').on('click',function(e){
 			//echo $otq_sql."<br>";
             $otq = sql_fetch($otq_sql);
 			$out_cnt = ($otq['ous']) ? $otq['ous'] : 0;
-			//echo $out_cnt;
+			//echo $out_cnt;se
 			$cnt_blick = ($out_cnt != $row1['ori_count']) ? 'txt_redblink' : '';
 			
             if(!$row1['bom_price']) $out_flag = false;//가격이 책정되어 있지 않으면 출하불가능

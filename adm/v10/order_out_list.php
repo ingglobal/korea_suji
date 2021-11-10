@@ -209,10 +209,10 @@ $('.data_blank').on('click',function(e){
         <th scope="col">번호</th>
         <th scope="col">제품(수주상품번호)</th>
         <th scope="col">고객사<br>전일재고</th>
-        <th scope="col">D<br>수주수량</th>
-        <th scope="col">D+1<br>수주수량</th>
-        <th scope="col">고객사과부족<br>수량(D기준)</th>
-        <th scope="col">납품계획<br>수량</th>
+        <th scope="col">D<br>수주무게</th>
+        <th scope="col">D+1<br>수주무게</th>
+        <th scope="col">고객사과부족<br>무게(D기준)</th>
+        <th scope="col">납품계획<br>무게(kg)</th>
         <th scope="col">주간<br>09:00</th>
         <th scope="col">주간<br>12:00</th>
         <th scope="col">주간<br>15:00</th>
