@@ -67,8 +67,8 @@ if($w == ''){
         ,'oro_idx' => array('type'=>'text','ttl'=>'출하선택','value'=>$$pre['oro_idx'],'required'=>true,'readonly'=>true,'tr_s'=>true,'th'=>true,'td'=>true,'width'=>100)
         ,'bom_idx' => array('type'=>'none','value'=>$$pre['bom_idx'])
         ,'orp_idx' => array('type'=>'text','ttl'=>'생산계획ID','value'=>$$pre['orp_idx'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
-        ,'oop_count' => array('type'=>'text','ttl'=>'지시수량','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
-        ,'oop_1' => array('type'=>'text','ttl'=>'시간별수량','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
+        ,'oop_count' => array('type'=>'text','ttl'=>'지시무게(kg)','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
+        ,'oop_1' => array('type'=>'text','ttl'=>'시간별무게(kg)','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
         ,'oop_4' => array('type'=>'none','value'=>$$pre['oop_4'])
@@ -90,8 +90,8 @@ else if($w == 'u' || $w == 'c'){
         ,'oro_idx' => array('type'=>'hidden','value'=>$$pre['oro_idx'])
         ,'orp_idx' => array('type'=>'text','value'=>$$pre['orp_idx'],'ttl'=>'생산계획ID','required'=>true,'readonly'=>true,'tr_s'=>true,'th'=>true,'td'=>true)
         ,'bom_idx' => array('type'=>'hidden','value'=>$$pre['bom_idx'])
-        ,'oop_count' => array('type'=>'text','ttl'=>'지시수량','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
-        ,'oop_1' => array('type'=>'text','ttl'=>'시간별수량','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
+        ,'oop_count' => array('type'=>'text','ttl'=>'지시무게(kg)','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
+        ,'oop_1' => array('type'=>'text','ttl'=>'시간별무게(kg)','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
         ,'oop_4' => array('type'=>'none','value'=>$$pre['oop_4'])
@@ -141,7 +141,9 @@ foreach($f1 as $hk=>$hv){
 ?>
 <div class="local_desc01 local_desc" style="display:no ne;">
     <p>각종 고유번호(설비번호, IMP번호..)들은 내부적으로 다른 데이타베이스 연동을 통해서 정보를 가지고 오게 됩니다.</p>
+    <!--
 	<p class="txt_redblink" style="display:no ne;">설비idx=0 인 경우는 전체설비(설비 비선택 추가해라!!!)<br>설비idx 가 있으면 특정설비의 작업구간</p>
+    -->
 </div>
 <div class="tbl_frm01 tbl_wrap">
 	<table>

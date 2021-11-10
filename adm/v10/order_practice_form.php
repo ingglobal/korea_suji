@@ -66,8 +66,8 @@ include_once ('./_head.php');
 <input type="hidden" name="ser_bom_type" value="<?php echo $ser_bom_type ?>">
 
 <div class="local_desc01 local_desc" style="display:no ne;">
-    <p>생산지시수량을 확인하시고 입력해 주세요. 지시수량은 출하수량보다 큰 값이면 안 됩니다.</p>
-    <p>확정된 실행계획은 수정할 수 없습니다. 생산에 사용할 자재가 할당되어 있기 때문에 변경하게 되면 재고 수량에 혼란이 생길 수 있습니다.</p>
+    <p>생산지시무게를 확인하시고 입력해 주세요. 지시무게는 출하무게보다 큰 값이면 안 됩니다.</p>
+    <p>확정된 실행계획은 수정할 수 없습니다. 생산에 사용할 자재가 할당되어 있기 때문에 변경하게 되면 재고 무게에 혼란이 생길 수 있습니다.</p>
 </div>
 
 <div class="tbl_frm01 tbl_wrap">
@@ -161,7 +161,7 @@ include_once ('./_head.php');
         </td>
     </tr>
     <tr>
-        <th scope="row">출하정보/지시수량</th>
+        <th scope="row">출하정보/지시무게</th>
         <td colspan="3" style="padding:15px 10px;">
             <?php
             $sql = "SELECT *
@@ -172,21 +172,25 @@ include_once ('./_head.php');
             ";
             // echo $sql.'<br>';
             $rs = sql_query($sql,1);
+            $total_weight = 0;
             for($i=0;$row=sql_fetch_array($rs);$i++) {
                 // 생산제품 (팝오버 형태로 내용을 보여주기 위한 변수)
-                $products[] = '<div class="div_product_detail">'.$row['bom_name']
-                                .'<input type="text" name="oop_chk[]" value="'.$i.'">'
-                                .'<input type="text" name="oop_idx[]" value="'.$row['oop_idx'].'">'
+                $total_weight = $total_weight + $row['oop_count'];
+                $products[] = '<div class="div_product_detail" style="margin-top:5px;"><span style="display:inline-block;width:150px;">'.$row['bom_name']
+                                .'</span><input type="text" name="oop_chk[]" readonly value="'.$i.'" style="width:45px;margin-left:10px;">'
+                                .'<input type="text" name="oop_idx[]" readonly value="'.$row['oop_idx'].'" style="width:45px;margin-left:10px;">'
                                 .'<span class="span_com_idx_customer">납품처: '.$g5['customer'][$row['com_idx_customer']]['com_name'].'</span>'
                                 .'<span class="span_oro_date_plan">출하예정: '.$row['oro_date_plan'].'</span>'
-                                .'<span class="span_oop_count">수량: '.$row['oop_count'].'</span>'
-                                .'<div class="div_oop_count">생산지시수량: <input type="text" name="oop_count[]" value="'.$row['oop_count'].'"></div>'
+                                .'<span class="span_oop_count">무게(kg): '.number_format($row['oop_count']).'</span>'
+                                .'<div class="div_oop_count">생산지시무게(kg): <input type="text" name="oop_count[]" value="'.$row['oop_count'].'"></div>'
                             .'</div>';
 
             }
             // print_r2($products);
             ?>
             <?=(is_array($products))?implode(" ",$products):''?></span>
+            <br>
+            <p style="font-size:1.4em;"><span>총</span> : <strong><?=number_format($total_weight)?></strong> KG</p>
         </td>
     </tr>
 </tbody>
