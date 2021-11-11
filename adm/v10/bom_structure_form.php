@@ -228,9 +228,8 @@ function list_update(obj) {
         var li = $(this),
             item = $.extend({}, li.data()),
             sub = li.children(listNodeName);
-        if(!item.id)
-            continue;
-        console.log(item.id);   
+        if(!item.id) return true;
+        //console.log(item.id);   
         // depth 속성 추가
         var li_depth = li.parents('.dd-list').length - 1;
         item.depth = li_depth;
