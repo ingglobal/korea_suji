@@ -47,7 +47,7 @@ else if($ord_date_from && $ord_date_to && $ord_date_from != $ord_date_to){
     $where[] = " ord.ord_date >= '".$ord_date_from."' AND ord.ord_date <= '".$ord_date_to."' ";
 }
 else{
-    $where[] = " ord.ord_date >= '".G5_TIME_YMD."' AND ord.ord_date <= '".G5_TIME_YMD."' ";
+    ;//$where[] = " ord.ord_date >= '".G5_TIME_YMD."' AND ord.ord_date <= '".G5_TIME_YMD."' ";
 }
 
 // 최종 WHERE 생성
@@ -283,7 +283,7 @@ $('.date_blank').on('click',function(e){
 </div>
 
 <div class="btn_fixed_top">
-    <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
+    <?php if(false){ // (!auth_check($auth[$sub_menu],'d')) { ?>
        <a href="javascript:" id="btn_excel_upload" class="btn btn_02" style="margin-right:50px;">엑셀등록</a>
     <?php } ?>
     <?php if (!auth_check($auth[$sub_menu],'w')) { ?>

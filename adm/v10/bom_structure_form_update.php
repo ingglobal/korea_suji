@@ -5,7 +5,7 @@ include_once("./_common.php");
 auth_check($auth[$sub_menu], 'w');
 
 // print_r2($_POST);
-
+// exit;
 // 초기값 정의 (외부 함수들에서 사용)
 $g5['bit']['num'] = array();
 $g5['bit']['reply'] = array();
@@ -13,8 +13,8 @@ $g5['bit_num'] = 0;
 
 
 $data = json_decode(stripslashes($_POST['serialized']),true);
-// print_r2($data);
-// exit;
+print_r2($data);
+exit;
 function create_categories(&$arr, $parent_id=0) {
     global $g5;
     
