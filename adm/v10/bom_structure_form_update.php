@@ -13,12 +13,14 @@ $g5['bit_num'] = 0;
 
 
 $data = json_decode(stripslashes($_POST['serialized']),true);
-print_r2($data);
-exit;
+// print_r2($data);
+// exit;
 function create_categories(&$arr, $parent_id=0) {
     global $g5;
-    
     foreach($arr as $key => $item) {
+        //id값이 셋팅되어 있지 않으면 빈값이므로 건너띈다.
+        if(!array_key_exists('id',$item)) continue;
+        //print_r2($item);continue;
         $item['parent_id'] = $parent_id;
         $list = array();
         $list = $item;
@@ -41,7 +43,7 @@ function create_categories(&$arr, $parent_id=0) {
     }
 }
 create_categories($data, 0);
-
+//exit;
 
 // 리스트에서 사라진 항목 디비에서 삭제처리
 if(is_array($g5['bit_idxs']))

@@ -210,7 +210,6 @@ $(document).ready(function() {
 var printOutput = function() {
     // output initial serialised data
     var result_array = list_update( $("#nestable3").find(listNodeName).first() );
-    //console.log(result_array);
     resultOutput(result_array,'nestable3-output')
 };
 // 변경 내용 출력 함수
@@ -223,13 +222,12 @@ var resultOutput = function(arr, obj) {
 function list_update(obj) {
     var array = [],
         items = obj.children(itemNodeName);
-    //console.log(items);   
+        
     items.each(function() {
         var li = $(this),
             item = $.extend({}, li.data()),
             sub = li.children(listNodeName);
-        if(!item.id) return true;
-        //console.log(item.id);   
+            
         // depth 속성 추가
         var li_depth = li.parents('.dd-list').length - 1;
         item.depth = li_depth;
@@ -323,6 +321,7 @@ $(document).on('click','#del-item',function(e){
 
 // 항목추가 함수
 function add_item(bom_idx, bom_name, bom_part_no, com_name, bom_price) {
+
     var li_dom ='<div class="dd3-content" bom_idx_child="'+bom_idx+'">'
                 +'  <span class="bom_name">'+bom_name+'</span>'
                 +'  <div class="add_items">'
@@ -359,8 +358,7 @@ function form01_submit(f) {
         printOutput();
         return false;
     }
-    //alert(5);
-    return false;
+    
     // // 적용할 항목이 한개 이상이어야 한다.
     // if( $('.dd-item').length <= 0 ) {
     //     alert('구성품을 추가해 주세요.');
