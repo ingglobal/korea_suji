@@ -6,6 +6,11 @@ include_once('./_common.php');
 if($member['mb_level']<4)
 	alert_close('접근할 수 없는 메뉴입니다.');
 
+if($file_name == 'order_form2'){
+    if(!$data_id)
+        alert_close('데이터가 제대로 넘어오지 않았습니다.');
+}
+
 $where = array();
 $where[] = " com_level = 2 AND com_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
 
@@ -72,7 +77,7 @@ $total_count_display = ($member['mb_manager_account_yn']) ? ' ('.number_format($
 $g5['title'] = '업체 검색'.$total_count_display;
 include_once('./_head.sub.php');
 
-$qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($sch_word).'&file_name='.$file_name;
+$qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($sch_word).'&file_name='.$file_name.'&data_id='.$data_id;
 ?>
 <style>
 .td_com_tel, .td_com_president {white-space:nowrap;}
@@ -84,6 +89,7 @@ $qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($s
     <form name="ftarget" method="get">
     <input type="hidden" name="frm" value="<?php echo $_GET['frm']; ?>">
     <input type="hidden" name="file_name" value="<?php echo $_GET['file_name']; ?>">
+    <input type="hidden" name="data_id" value="<?php echo $_GET['data_id']; ?>">
     <input type="hidden" name="d" value="<?php echo $_REQUEST['d']; ?>">
 
     <div id="scp_list_find">
@@ -162,10 +168,35 @@ $('.btn_select').click(function(e){
     e.preventDefault();
     <?php
     // 이전 파일의 폼에 따라 전달 내용 변경
-    if($file_name == 'bom_form' || $file_name == 'order_form' || $file_name == 'order_list' || $file_name == 'order_out_form') {
+    if($file_name == 'bom_form' || $file_name == 'order_form' || $file_name == 'order_list' || $file_name == 'order_list2' || $file_name == 'order_out_form') {
     ?>
         $("input[name=com_idx_customer]", opener.document).val( $(this).closest('td').attr('com_idx') );
         $("input[name=com_name]", opener.document).val( $(this).closest('td').attr('com_name') );
+    <?php
+    }
+    else if($file_name == 'order_form2'){
+    ?>
+        var same_flag = false;
+        var data_id = '<?=$data_id?>';
+        var this_com_idx = $(this).closest('td').attr('com_idx');
+        var this_com_name = $(this).closest('td').attr('com_name');
+        var parent_bom_idx = $(opener.document).find('.dd-item[data-id="'+data_id+'"]').find('.dd3-content').find('.bom_name').attr('bom_idx');
+        $(opener.document).find('.dd-item').each(function(){
+            var lobj = $(this).find('.dd3-content').find('.bom_name');
+            var lobj_bom_idx = lobj.attr('bom_idx');
+            var lobj_com_idx = lobj.find('.com_name').attr('com_idx_customer');
+            if(lobj_bom_idx == parent_bom_idx && lobj_com_idx == this_com_idx){
+                same_flag = true;
+            }
+        });
+
+        if(same_flag){
+            alert('동일한 제품에 동일한 거래처를 선택할 수는 없습니다.');
+            return false;
+        }
+        var parent_com_obj = $(opener.document).find('.dd-item[data-id="'+data_id+'"]').find('.dd3-content').find('.bom_name').find('.com_name');
+        parent_com_obj.attr('com_idx_customer',$(this).closest('td').attr('com_idx'));
+        parent_com_obj.text($(this).closest('td').attr('com_name'));
     <?php
     }
     // 대시보드 설비 추가 or 대시보드 설비그룹, 설비검색
