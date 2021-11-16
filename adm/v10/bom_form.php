@@ -116,6 +116,8 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .MultiFile-wrap .MultiFile-list > .MultiFile-label .MultiFile-remove::after{content:'×';display:block;position:absolute;left:0;top:0;width:20px;height:20px;border:1px solid #ccc;border-radius:50%;font-size:14px;line-height:20px;text-align:center;}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span{}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span span.MultiFile-label{display:inline-block;font-size:14px;border:1px solid #444;background:#333;padding:2px 5px;border-radius:3px;line-height:1.2em;margin-top:5px;}
+#sp_notice{color:yellow;margin-left:10px;}
+#sp_notice.sp_error{color:red;}
 </style>
 
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -126,7 +128,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
-<!--input type="hidden" name="<?php //echo $pre; ?>_idx" value="<?php //echo ${$pre."_idx"} ?>"-->
+<input type="hidden" name="<?php echo $pre; ?>_idx" value="<?php echo ${$pre."_idx"} ?>"-->
 <input type="hidden" name="sca" value="<?php echo $sca ?>">
 <input type="hidden" name="ser_bom_type" value="<?php echo $ser_bom_type ?>">
 
@@ -192,9 +194,46 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
         // echo create_td_input($ar);
         // unset($ar);
         ?>
-        <th scope="row">고유번호</th>
+        <th scope="row">제품코드</th>
         <td>
-            <input type="text" name="bom_idx" value="<?php echo ${$pre}['bom_idx'] ?>" id="bom_idx" readonly class="frm_input readonly" style="width:100px;text-align:right;">
+            <input type="text" name="bom_part_no" value="<?php echo ${$pre}['bom_part_no'] ?>" id="bom_part_no" required class="frm_input required" style="width:150px;" onkeyup="javascript:chk_Code(this)">
+            <span id="sp_notice"></span>
+            <script>
+            //코드형식에 맞는지 확인
+chk_Code(document.getElementById('bom_part_no'));
+function chk_Code(object){
+    var ex = /[\{\}\[\]\/?.,;:|\)*~`!^\+┼<>@\#$%&\'\"\\\(\=ㄱ-ㅎㅏ-ㅣ가-힣]*/g;
+    var pt = /^[^-_][a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[^-_]$/;
+    object.value = object.value.replace(ex,"");//-_제외한 특수문자,한글입력 불가
+    var str = object.value; 
+    
+    if(pt.test(str)){
+        var com_chk_url = './ajax/bom_part_no_overlap_chk.php';
+        var st = $.trim(str.toUpperCase());
+        var msg = '등록 가능한 코드입니다.';
+        object.value = st;
+        document.getElementById('sp_notice').textContent = msg;
+        $('#sp_notice').removeClass('sp_error');
+        //디비에 bom_part_no가 존재하는지 확인하고 존재하면 에러를 발생
+        $.ajax({
+            type : 'POST',
+            url : com_chk_url,
+            dataType : 'text',
+            data : {'bom_part_no' : st},
+            success : function(res){
+
+            },
+            error : function(xmlReq){
+                alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+            }
+        });
+    }
+    else {
+        document.getElementById('sp_notice').textContent = '코드규칙에 맞지않습니다.';
+        $('#sp_notice').addClass('sp_error');
+    }
+}
+            </script>
         </td>
         <?php
         $ar['id'] = 'bom_maker';
