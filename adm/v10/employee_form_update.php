@@ -58,11 +58,11 @@ if ($w == '') {
        alert('이미 존재하는 회원아이디입니다.\\nＩＤ : '.$mb['mb_id'].'\\n이름 : '.$mb['mb_name'].'\\n닉네임 : '.$mb['mb_nick'].'\\n메일 : '.$mb['mb_email']);
 
     $sql = "INSERT INTO {$g5['member_table']} SET
-            mb_id = '{$mb_id}', 
-            mb_password = '".get_encrypt_string($mb_password)."', 
-            mb_datetime = '".G5_TIME_YMDHIS."', 
-            mb_ip = '{$_SERVER['REMOTE_ADDR']}', 
-            mb_level = 4, 
+            mb_id = '{$mb_id}',
+            mb_password = '".get_encrypt_string($mb_password)."',
+            mb_datetime = '".G5_TIME_YMDHIS."',
+            mb_ip = '{$_SERVER['REMOTE_ADDR']}',
+            mb_level = 4,
             mb_email_certify = '".G5_TIME_YMDHIS."',
             {$sql_common}
     ";
@@ -146,17 +146,17 @@ else{
 $adsql = " DELETE FROM {$g5['auth_table']} WHERE mb_id = '".$mb_id."' ";
 sql_query($adsql);
 
-if(count($set_values)){   
+if(count($set_values)){
     foreach ($set_values as $set_value) {
         list($key, $value) = explode('=', trim($set_value));
-        if($key&&$value) {           
+        if($key&&$value) {
             $sql = "INSERT INTO {$g5['auth_table']} SET
                         mb_id = '".$mb_id."'
                         , au_menu = '".$key."'
                         , au_auth = '".$value."'
             ";
             //echo $sql.'<br>';
-            sql_query($sql,1);   
+            sql_query($sql,1);
         }
     }
 }

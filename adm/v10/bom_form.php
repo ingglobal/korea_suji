@@ -221,7 +221,15 @@ function chk_Code(object){
             dataType : 'text',
             data : {'bom_part_no' : st},
             success : function(res){
-
+                if(res == 'ok'){
+                    document.getElementById('sp_notice').textContent = '등록 가능한 코드입니다.';
+                    $('#sp_notice').removeClass('sp_error');
+                }
+                else if(res == 'overlap'){
+                    document.getElementById('sp_notice').textContent = '이미 등록된 코드입니다.';
+                    $('#sp_notice').removeClass('sp_error');
+                    $('#sp_notice').addClass('sp_error');
+                }
             },
             error : function(xmlReq){
                 alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
@@ -230,6 +238,7 @@ function chk_Code(object){
     }
     else {
         document.getElementById('sp_notice').textContent = '코드규칙에 맞지않습니다.';
+        $('#sp_notice').removeClass('sp_error');
         $('#sp_notice').addClass('sp_error');
     }
 }
