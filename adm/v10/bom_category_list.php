@@ -79,6 +79,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 <select name="sfl" id="sfl">
     <option value="bct_name"<?php echo get_selected($sfl, "bct_name", true); ?>>항목명</option>
     <option value="bct_id"<?php echo get_selected($sfl, "bct_id", true); ?>>분류코드</option>
+    <option value="bct_desc"<?php echo get_selected($sfl, "bct_desc", true); ?>>간략설명</option>
     <option value="bct_mb_id"<?php echo get_selected($sfl, "bct_mb_id", true); ?>>회원아이디</option>
 </select>
 
@@ -102,6 +103,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
     <tr>
         <th scope="col"><?php echo subject_sort_link("bct_id"); ?>분류코드</a></th>
         <th scope="col" id="sct_cate"><?php echo subject_sort_link("bct_name"); ?>항목명</a></th>
+        <th scope="col" id="sct_desc"><?php echo subject_sort_link("bct_desc"); ?>간략설명</a></th>
         <th scope="col" id="sct_amount">제품수</th>
         <th scope="col" id="sct_imgcol">정렬순서</th>
         <th scope="col">관리</th>
@@ -148,6 +150,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
             <a href="<?php echo shop_category_url($row['bct_id']); ?>"><?php echo $row['bct_id']; ?></a>
         </td>
         <td headers="sct_cate" class="sct_name<?php echo $level; ?>"><?php echo $s_level; ?> <input type="text" name="bct_name[<?php echo $i; ?>]" value="<?php echo get_text($row['bct_name']); ?>" id="bct_name_<?php echo $i; ?>" required class="tbl_input full_input required"></td>
+        <td headers="sct_cate" class="sct_desc<?php echo $level; ?>"><?php echo $s_level; ?> <input type="text" name="bct_desc[<?php echo $i; ?>]" value="<?php echo get_text($row['bct_desc']); ?>" id="bct_desc_<?php echo $i; ?>" class="tbl_input full_input"></td>
         <td headers="sct_amount" class="td_amount"><a href="./bom_list.php?sca=<?php echo $row['bct_id']; ?>"><?php echo $row1['cnt']; ?></a></td>
         <td headers="sct_imgw">
             <label for="bct_out_width<?php echo $i; ?>" class="sound_only">정렬번호</label>
@@ -161,7 +164,7 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
         </td>
     </tr>
     <?php }
-    if ($i == 0) echo "<tr><td colspan='9' class=\"empty_table\">자료가 없습니다.</td></tr>\n";
+    if ($i == 0) echo "<tr><td colspan='6' class=\"empty_table\">자료가 없습니다.</td></tr>\n";
     ?>
     </tbody>
     </table>

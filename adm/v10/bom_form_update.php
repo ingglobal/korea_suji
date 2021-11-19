@@ -38,6 +38,9 @@ for($i=0;$i<sizeof($fields);$i++) {
 // 공통쿼리 생성
 $sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 
+if($ser_bom_type){
+    $qstr .= '&ser_bom_type='.$ser_bom_type;
+}
 
 if ($w == '') {
     
@@ -136,7 +139,10 @@ foreach($_REQUEST as $key => $value ) {
 	}
 }
 
+
+$list_url = './'.$fname.'_list.php?'.$qstr;
+
 // exit;
-goto_url('./'.$fname.'_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
+goto_url($list_url, false);
 // goto_url('./'.$fname.'_form.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 ?>

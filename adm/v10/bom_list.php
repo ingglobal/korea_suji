@@ -162,9 +162,9 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
         <th scope="col"><?php echo subject_sort_link('bom_name') ?>품명</a></th>
-        <th scope="col">파트넘버</th>
-        <th scope="col">거래처</th>
-        <th scope="col">메이커</th>
+        <th scope="col">제품코드</th>
+        <th scope="col">고객처</th>
+        <th scope="col">공급처</th>
         <th scope="col">카테고리</th>
         <th scope="col">단가</th>
         <th scope="col">재료비</th>
@@ -188,17 +188,23 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
                 $row['bct_name_tree'] .= ($k == 0) ? $cat_str['bct_name'] : ' > '.$cat_str['bct_name'];
             }
         }
+        //print_r3($row['com_idx_provider']);
+        $prv_arr = sql_fetch(" SELECT com_name FROM {$g5['company_table']} WHERE com_idx = '{$row['com_idx_provider']}' ");
+        $row['com_name2'] = ($prv_arr['com_name']) ? $prv_arr['com_name'] : '';
+
+
         // bom_item 에서 뽑아야 하는 제품만 (완재품, 반제품)
         if(in_array($row['bom_type'], $g5['set_bom_type_displays'])) {
+            //print_r3($g5['set_bom_type_displays']);
             $sql1 = "SELECT bom.bom_idx, com_idx_customer, bom.bom_name, bom_part_no, bom_price, bom_status, com_name
-                        , bit.bit_idx, bit.bom_idx_child, bit.bit_reply, bit.bit_count
+                        , bit.bit_idx, bit.bom_idx_child, bit.bit_reply, bit.bit_count,bom.com_idx_provider
                     FROM {$g5['bom_item_table']} AS bit
                         LEFT JOIN {$g5['bom_table']} AS bom ON bom.bom_idx = bit.bom_idx_child
                         LEFT JOIN {$g5['company_table']} AS com ON com.com_idx = bom.com_idx_customer
                     WHERE bit.bom_idx = '".$row['bom_idx']."'
                     ORDER BY bit.bit_num DESC, bit.bit_reply
             ";
-            // print_r3($sql1);
+            //print_r3($sql1);
             $rs1 = sql_query($sql1,1);
             for ($j=0; $row1=sql_fetch_array($rs1); $j++) {
                 // print_r2($row1);
@@ -241,9 +247,9 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <label for="name_<?php echo $i; ?>" class="sound_only">품명</label>
             <input type="text" name="bom_name[<?php echo $i; ?>]" value="<?php echo htmlspecialchars2(cut_str($row['bom_name'],250, "")); ?>" required class="tbl_input required" style="width:250px;">
         </td>
-        <td class="td_bom_part_no"><?=$row['bom_idx']?></td><!-- 파트넘버 -->
-        <td class="td_com_name"><?=$row['com_name']?></td><!-- 거래처 -->
-        <td class="td_bom_maker"><?=$row['bom_maker']?></td><!-- 메이커 -->
+        <td class="td_bom_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
+        <td class="td_com_name"><?=$row['com_name']?></td><!-- 고객처 -->
+        <td class="td_bom_maker"><?=$row['com_name2']?></td><!-- 공급처 -->
         <td class="td_bct_name"><?=$row['bct_name_tree']?></td><!-- 카테고리 -->
         <td class="td_bom_price">
             <label for="price_<?php echo $i; ?>" class="sound_only">단가</label>

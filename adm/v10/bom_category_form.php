@@ -6,6 +6,7 @@ auth_check_menu($auth, $sub_menu, "w");
 $bct_id = isset($_GET['bct_id']) ? preg_replace('/[^0-9a-z]/i', '', $_GET['bct_id']) : '';
 $bct = array(
 'bct_name'=>'',
+'bct_desc'=>'',
 'bct_order'=>'',
 );
 
@@ -45,6 +46,7 @@ if ($w == "")
         $bct = sql_fetch($sql);
         $html_title = $bct['bct_name'] . " 하위분류추가";
         $bct['bct_name'] = "";
+        $bct['bct_desc'] = "";
     }
     else // 1단계 분류
     {
@@ -60,6 +62,7 @@ else if ($w == "u")
 
     $html_title = $bct['bct_name'] . " 수정";
     $bct['bct_name'] = get_text($bct['bct_name']);
+    $bct['bct_desc'] = get_text($bct['bct_desc']);
 
     //관련파일 추출
     $flesql = " SELECT * FROM {$g5['file_table']}
@@ -147,6 +150,10 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
         <tr>
             <th scope="row"><label for="bct_name">항목명</label></th>
             <td><input type="text" name="bct_name" value="<?php echo $bct['bct_name']; ?>" id="bct_name" size="38" required class="required frm_input"></td>
+        </tr>
+        <tr>
+            <th scope="row"><label for="bct_desc">간략설명</label></th>
+            <td><input type="text" name="bct_desc" value="<?php echo $bct['bct_desc']; ?>" id="bct_desc" size="38" required class="required frm_input"></td>
         </tr>
         <tr>
             <th scope="row"><label for="bct_order">출력순서</label></th>
