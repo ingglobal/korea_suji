@@ -37,7 +37,7 @@ body{}
     padding:10px;
     min-height:600px;
 }
-
+#sql_container h2{text-transform:uppercase;padding-bottom:10px;}
 #sql_tail{
     border-top:1px solid #777;
     padding:10px;
