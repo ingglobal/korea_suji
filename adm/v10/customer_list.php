@@ -63,7 +63,7 @@ if ($where)
 
 
 if (!$sst) {
-    $sst = "com_reg_dt";
+    $sst = "com_idx DESC, com_reg_dt";
     $sod = "DESC";
 }
 $sql_order = " ORDER BY {$sst} {$sod} ";
@@ -72,7 +72,7 @@ $rows = $config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
-$sql = " SELECT SQL_CALC_FOUND_ROWS DISTINCT com.com_idx, com_name, com_names, com_type, com_reg_dt, com_status
+$sql = " SELECT SQL_CALC_FOUND_ROWS DISTINCT com.com_idx,com_code, com_name, com_names, com_type, com_reg_dt, com_status
             ,com_tel, com_president, com_email, com_fax
             ,GROUP_CONCAT( CONCAT(
                 'mb_id=', cmm.mb_id, '^'
@@ -100,13 +100,14 @@ $pending_count = $row['cnt'];
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 
-$colspan = 11;
+$colspan = 10;
 
 // 검색어 확장
 $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea;
 ?>
 <style>
     .b_default_company {color:#b01acc;}
+    .td_delivery{color:orange !important;}
 </style>
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
@@ -134,11 +135,11 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
 <input type="submit" class="btn_submit" value="검색">
 </form>
-
+<!--
 <div class="local_desc01 local_desc">
     <p>업체측 담당자를 관리하시려면 업체담당자 항목의 <i class="fa fa-edit"></i> 편집아이콘을 클릭하세요. 담당자는 여러명일 수 있고 이직을 하는 경우 다른 업체에 소속될 수도 있습니다. </p>
 </div>
-
+-->
 <form name="form01" id="form01" action="./customer_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
@@ -155,26 +156,19 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
 	<caption><?php echo $g5['title']; ?> 목록</caption>
 	<thead>
 	<tr class="success">
-		<th scope="col" rowspan="2">
+		<th scope="col">
 			<label for="chkall" class="sound_only">업체 전체</label>
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
-		<th scope="col" class="td_left" colspan="2">업체명</th>
-		<th scope="col">대표자명</th>
-		<th scope="col">이메일</th>
-		<th scope="col" rowspan="2">업체담당자</th>
-		<th scope="col">iMMS</th>
-		<th scope="col" rowspan="2">iMP</th>
+        <th scope="col">ID</th>
+		<th scope="col" class="td_left">업체명</th><!--업체명[업체코드]-->
+		<th scope="col">업체유형</th><!--업체유형-->
+		<th scope="col">대표자명</th><!--대표자/대표-->
+		<th scope="col">대표전화/팩스번호</th><!--대표전화/팩스번호-->
+		<th scope="col">이메일</th><!--이메일/팩스-->
+        <th scope="col"><?php echo subject_sort_link('com_status','ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea) ?>상태</a></th>
 		<th scope="col"><?php echo subject_sort_link('com_reg_dt','ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea) ?>등록일</a></th>
 		<th scope="col" rowspan="2" id="mb_list_mng">수정</th>
-	</tr>
-	<tr class="success">
-		<th scope="col" class="td_left">업종</th>
-		<th scope="col" class="td_left">번호</th>
-		<th scope="col" style="width:120px;">대표전화</th>
-		<th scope="col" style="width:120px;">팩스</th>
-		<th scope="col">그룹관리</th>
-		<th scope="col"><?php echo subject_sort_link('com_status','ser_com_type='.$ser_com_type.'&ser_trm_idx_salesarea='.$ser_trm_idx_salesarea) ?>상태</a></th>
 	</tr>
 	</thead>
 	<tbody>
@@ -238,7 +232,7 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
 		
 		// 수정 및 발송 버튼
 //		if($is_delete) {
-			$s_mod = '<a href="./customer_form.php?'.$qstr.'&amp;w=u&amp;com_idx='.$row['com_idx'].'&amp;ser_com_type='.$ser_com_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'">수정</a>';
+			$s_mod = '<a href="./customer_form.php?'.$qstr.'&amp;w=u&amp;com_idx='.$row['com_idx'].'&amp;ser_com_type='.$ser_com_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'" class="btn btn_03">수정</a>';
 			$s_pop = '<a href="javascript:company_popup(\'./company_order_list.popup.php?com_idx='.$row['com_idx'].'\',\''.$row['com_idx'].'\')">보기</a>';
 //		}
 		//$s_del = '<a href="./customer_form_update.php?'.$qstr.'&amp;w=d&amp;com_idx='.$row['com_idx'].'&amp;ser_com_type='.$ser_com_type.'&amp;ser_trm_idx_salesarea='.$ser_trm_idx_salesarea.'" onclick="return delete_confirm();" style="color:darkorange;">삭제</a>';
@@ -255,57 +249,42 @@ $qstr .= $qstr.'&ser_trm_idxs='.$ser_trm_idxs.'&ser_com_type='.$ser_com_type.'&s
     ?>
 
 	<tr class="<?php echo $bg; ?> <?=$row['com_status_trash_class']?>" tr_id="<?php echo $row['com_idx'] ?>">
-		<td class="td_chk" rowspan="2">
+		<td class="td_chk">
 			<input type="hidden" name="com_idx[<?php echo $i ?>]" value="<?php echo $row['com_idx'] ?>" id="com_idx_<?php echo $i ?>">
 			<label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['com_name']); ?></label>
 			<input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
+		</td><!--체크-->
+        <td class="td_com_idx font_size_8"><!-- 번호 -->
+			<?php echo $row['com_idx'] ?>
 		</td>
-		<td class="td_com_name td_left" colspan="2"><!-- 업체명 -->
+		<td class="td_com_name td_left"><!-- 업체명[업체코드] -->
 			<b class="<?=$row['default_com_class']?>"><?php echo get_text($row['com_name']); ?></b>
+            <?php if($row['com_code']){ ?>[<span class="font_size_8"><?php echo $row['com_code']; ?></span>]<?php } ?>
 			<a style="display:none;" href="javascript:company_popup('./company_order_list.popup.php?com_idx=<?php echo $row['com_idx'];?>','<?php echo $row['com_idx'];?>')" style="float:right;"><i class="fa fa-window-restore"></i></a>
+        </td>
+        <td class="td_com_type<?=(($row['com_type'] == 'delivery')?' td_delivery':'')?>"><!--업체유형-->
+            <?php echo $g5['set_com_type_value'][$row['com_type']] ?>
 		</td>
-		<td class="td_com_president"><!-- 대표자명 -->
+		<td class="td_com_president"><!-- 대표자 -->
 			<?php echo get_text($row['com_president']); ?>
+		</td>
+        <td class="td_com_tel"><!-- 대표전화/팩스번호 -->
+            <span class="font_size_8"><?php echo $row['com_tel']; ?></span>
+            <?php if($row['com_fax']){ ?>
+                / ( <?=$row['com_fax']?> )
+            <?php } ?>
 		</td>
 		<td class="td_com_email font_size_8"><!-- 이메일 -->
 			<?php echo cut_str($row['com_email'],21,'..'); ?>
 		</td>
-		<td class="td_com_manager td_left" rowspan="2"><!-- 담당자 -->
-			<?php echo $row['com_managers_text']; ?>
-            <div style="display:<?=($is_admin=='super')?:'no ne'?>"><a href="javascript:" com_idx="<?=$row['com_idx']?>" class="btn_manager"><i class="fa fa-edit"></i></a></div>
-		</td>
-		<td class="td_com_mms"><!-- MMS -->
-            <a href="./mms_list.php?sfl=mms.com_idx&stx=<?=$row['com_idx']?>"><?=number_format($row['mms_count'])?></a>
-		</td>
-		<td class="td_com_imp" rowspan="2"><!-- IMP -->
-            <a href="./imp_list.php?sfl=imp.com_idx&stx=<?=$row['com_idx']?>"><?=number_format($row['imp_count'])?></a>
+		<td headers="list_com_status" class="td_com_status"><!-- 상태 -->
+			<?php echo $g5['set_com_status_value'][$row['com_status']] ?>
 		</td>
 		<td class="td_com_reg_dt td_center font_size_8"><!-- 등록일 -->
 			<?php echo substr($row['com_reg_dt'],0,10) ?>
 		</td>
-		<td class="td_mngsmall" rowspan="2">
+		<td class="td_mngsmall">
 			<?php echo $s_mod ?><br><?//php echo $s_pop ?>
-		</td>
-	</tr>
-	<tr class="<?php echo $bg; ?> <?=$row['com_status_trash_class']?>" tr_id="<?php echo $row['com_idx'] ?>">
-		<td class="td_com_type td_left font_size_8"><!-- 업종 -->
-			<?php echo $g5['set_com_type_value'][$row['com_type']] ?>
-		</td>
-		<td class="td_com_idx td_left font_size_8"><!-- 번호 -->
-			<?php echo $row['com_idx'] ?>
-		</td>
-		<td class="td_com_tel"><!-- 대표전화 -->
-			<span class="font_size_8"><?php echo $row['com_tel']; ?></span>
-		</td>
-		<td class="td_com_fax"><!-- 팩스 -->
-			<span class="font_size_8"><?php echo $row['com_fax']; ?></span>
-		</td>
-		<td class="td_mmg font_size_8"><!-- 그룹관리 -->
-            <a href="./mms_group_list.php?com_idx=<?=$row['com_idx']?>">그룹</a>
-			<?php echo $row['mmg_count']; ?>
-		</td>
-		<td headers="list_com_status" class="td_com_status"><!-- 상태 -->
-			<?php echo $g5['set_com_status_value'][$row['com_status']] ?>
 		</td>
 	</tr>
 	<?php

@@ -48,6 +48,7 @@ else {
 
 $sql_common = "	com_name = '".addslashes($_POST['com_name'])."'
                 , com_idx_par = '".$_SESSION['ss_com_idx']."'
+                , com_code = '".strtoupper(trim($_POST['com_code']))."'
                 , com_names = '".addslashes($com_names)."'
                 , com_homepage = '{$_POST['com_homepage']}'
                 , com_level = '2'

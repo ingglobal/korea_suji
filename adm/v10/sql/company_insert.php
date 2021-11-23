@@ -76,6 +76,10 @@ if(count($contArr)){
         $cnt++;
         $sql .= ($i == 0) ? '(' : ',(';
         for($j=0;$j<count($contArr[$i]);$j++){
+            //com_code (3번째 열에 있는 값이니 index값은 2이다)의 경우는 대문자로 등록해라
+            $contArr[$i][$j] = ($j == 2) ? strtoupper($contArr[$i][$j]) : $contArr[$i][$j];
+            
+            //첫번째 항목앞에는 (,)쉼표를 붙이면 안된다.
             $sql .= ($j == 0) ? "'".$contArr[$i][$j]."'" : ",'".$contArr[$i][$j]."'";
         }
         $sql .= ')';

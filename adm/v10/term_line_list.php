@@ -464,22 +464,13 @@ function trm_delete(this_trm_idx, fn_delte) {
 		timeout:3000, 
 		beforeSend:function(){},
 		success:function(data){
-			//alert(data.sql);
-	//-- 디버깅 Ajax --//
-
-	//$.getJSON('../ajax/term_delete.php',{"taxonomy":"<?=$taxonomy?>", "trm_idx":this_trm_idx,"delete":fn_delte},function(data){
-			//alert(data.sql);
-
 			//-- 페이지 새로고침 --//
-//			setTimeout(function(e){
-				self.location.reload();
-//			},3000);
-
-	//-- 디버깅 Ajax --//
+			self.location.reload();
 		},
 		error:function(xmlRequest) {
-			alert('Status: ' + xmlRequest.status + ' \n\rstatusText: ' + xmlRequest.statusText 
+			console.log('Status: ' + xmlRequest.status + ' \n\rstatusText: ' + xmlRequest.statusText 
 			+ ' \n\rresponseText: ' + xmlRequest.responseText);
+			self.location.reload();
 		} 
 	//-- 디버깅 Ajax --//
 

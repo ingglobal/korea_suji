@@ -120,7 +120,7 @@ include_once('./_head.sub.php');
         <thead>
         <tr>
             <th scope="col"><?php echo subject_sort_link('bom_name') ?>품명</a></th>
-            <th scope="col">파트넘버</th>
+            <th scope="col">제품코드</th>
             <th scope="col">업체명</th>
             <th scope="col">단가</th>
             <th scope="col">타입</th>
@@ -135,7 +135,7 @@ include_once('./_head.sub.php');
         ?>
         <tr class="<?php echo $bg; ?>" tr_id="<?php echo $row['bom_idx'] ?>">
             <td class="td_bom_name"><?=$row['bom_name']?></td><!-- 품명 -->
-            <td class="td_bom_part_no"><?=$row['bom_idx']?></td><!-- 파트넘버 -->
+            <td class="td_bom_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
             <td class="td_com_name"><?=$row['com_name']?></td><!-- 거래처 -->
             <td class="td_bom_price"><?=number_format($row['bom_price'])?></td><!-- 단가 -->
             <td class="td_bom_type"><?=$g5['set_bom_type_value'][$row['bom_type']]?></td>
@@ -143,7 +143,7 @@ include_once('./_head.sub.php');
                 <button type="button" class="btn btn_03 btn_select"
                     bom_idx="<?=$row['bom_idx']?>"
                     bom_name="<?=$row['bom_name']?>"
-                    bom_part_no="<?=$row['bom_idx']?>"
+                    bom_part_no="<?=$row['bom_part_no']?>"
                     com_name="<?=$row['com_name']?>"
                     bom_price="<?=number_format($row['bom_price'])?>"
                     bom_price2 = "<?=$row['bom_price']?>"

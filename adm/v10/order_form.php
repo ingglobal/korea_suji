@@ -126,6 +126,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
         for ($i=0; $row=sql_fetch_array($result); $i++) {
             $row['idx'] = $i+1;
             $row['com_customer'] = get_table('company','com_idx',$row['com_idx_customer']);
+            //print_r2($row);
             $row['bit_count'] = $row['bit_count'] ?: 1;
             $bno = sql_fetch(" SELECT bom_part_no,bom_name FROM {$g5['bom_table']} WHERE bom_idx = '{$row['bom_idx']}' ");
             $row['bom_part_no'] = $bno['bom_part_no'];
@@ -141,7 +142,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
             <li class="dd-item dd3-item" data-id="'.$row['idx'].'">
                 <div class="dd-handle dd3-handle">Drag</div>
                 <div class="dd3-content" bom_idx_child="'.$row['bom_idx'].'">
-                    <span class="bom_name">'.cut_str($row['bom_name'],20).'('.$row['ori_idx'].')</span>
+                    <span class="bom_name">'.cut_str($row['bom_name'],20).'['.$row['com_customer']['com_name'].']</span>
                     <div class="add_items">
                         <span class="bom_part_no">'.$row['bom_part_no'].'</span>
                         <span class="bom_price" price="'.$row['ori_price'].'">'.number_format($row['ori_price']).'원</span>
@@ -406,7 +407,10 @@ function add_item(bom_idx, bom_name, bom_part_no, com_name, bom_price, bom_price
     }
 
     var li_dom ='<div class="dd3-content" bom_idx_child="'+bom_idx+'">'
-                +'  <span class="bom_name">'+bom_name+'</span>'
+                +'  <div class="bom_name">'
+                +'      <span class="bom_name">'+bom_name+'</span>'
+                +'      <span class="com_name">['+com_name+']</span>'
+                +'  </div>'
                 +'  <div class="add_items">'
                 +'      <span class="bom_part_no">'+bom_part_no+'</span>'
                 +'      <span class="bom_price" price="'+bom_price2+'">'+bom_price+'원</span>'

@@ -74,15 +74,20 @@ $data = json_decode(stripslashes($_POST['serialized']),true);
 $data_k = array();
 foreach($data as $dta){
     $data_k[$dta['bom_idx_child']] = $dta;
+    //print_r2($data_k[$dta['bom_idx_child']]);
+    //echo $data_k[$dta['bom_idx_child']]['bom_idx_child']."<br>";
+    $bsql = " SELECT com_idx_customer FROM {$g5['bom_table']} WHERE bom_idx = '{$data_k[$dta['bom_idx_child']]['bom_idx_child']}' ";
+    $cust = sql_fetch($bsql);
+    //print_r2($cust);
+    $data_k[$dta['bom_idx_child']]['com_idx_customer'] = "{$cust['com_idx_customer']}";
 }
-//print_r2($data_k);
-
+// print_r2($data_k);
+// exit;
 if(count($data) == 0) alert('적어도 상품 한 개 이상은 등록해 주세요.');
 
 $ord_price = str_replace(',','',trim($ord_price));
 
 $sql_common = " com_idx = '{$com_idx}',
-                com_idx_customer = '{$com_idx_customer}',
                 ord_price = '{$ord_price}',
                 ord_ship_date = '{$ord_ship_date}',
                 ord_status = '{$ord_status}',
@@ -137,7 +142,7 @@ if($w != 'd'){
     
     $mod_boms = array_diff($old_boms,$del_boms);//수정할 데이터
     //print_r2($mod_boms); 
-
+    //exit;
     if(count($del_boms)){ //삭제해야 할 데이터가 있다면
         foreach($del_boms as $delb){
             $sql = " UPDATE {$g5['order_item_table']} SET
@@ -150,9 +155,10 @@ if($w != 'd'){
 
     if(count($add_boms)){ //추가해야할 데이터가 있다면
         foreach($add_boms as $addb){
+            print_r2($data_k[$addb]);
             $sql = " INSERT into {$g5['order_item_table']} SET
                         com_idx = '{$com_idx}',
-                        com_idx_customer = '{$com_idx_customer}',
+                        com_idx_customer = '{$data_k[$addb]['com_idx_customer']}',
                         ord_idx = '{$ord_idx}',
                         bom_idx = '{$data_k[$addb]['bom_idx_child']}',
                         ori_count = '{$data_k[$addb]['bit_count']}',
@@ -161,35 +167,19 @@ if($w != 'd'){
                         ori_reg_dt = '".G5_TIME_YMDHIS."',
                         ori_update_dt = '".G5_TIME_YMDHIS."'
             ";
+            //echo $sql."<br>";
             sql_query($sql,1);
 			$ori_idx = sql_insert_id();
-			
-            /*
-			//바로 order_item 레코드에 해당 하는 출하order_out 테이블의 레코드를 1:1로 미리 생성한다.
-			$sql_ot = " INSERT into {$g5['order_out_table']} SET
-					com_idx = '{$com_idx}',
-					com_idx_customer = '{$com_idx_customer}',
-					ord_idx = '{$ord_idx}',
-					ori_idx = '{$ori_idx}',
-					oro_count = '{$data_k[$addb]['bit_count']}',
-					oro_date_plan = '',
-					oro_date = '',
-					oro_memo = '',
-                    com_idx_shipto = '{$com_idx_customer}',
-					oro_status = 'pending',
-					oro_reg_dt = '".G5_TIME_YMDHIS."',
-					oro_update_dt = '".G5_TIME_YMDHIS."' 
-			";
-			sql_query($sql_ot,1);
-            */
         }
+        //exit;
     }
 
     if(count($mod_boms)){ //수정해야할 데이터가 있다면
         foreach($mod_boms as $modb){
+            print_r2($data_k[$modb]);
             $sql = " UPDATE {$g5['order_item_table']} SET
                         com_idx = '{$com_idx}',
-                        com_idx_customer = '{$com_idx_customer}',
+                        com_idx_customer = '{$data_k[$modb]['com_idx_customer']}',
                         ord_idx = '{$ord_idx}',
                         bom_idx = '{$data_k[$modb]['bom_idx_child']}',
                         ori_count = '{$data_k[$modb]['bit_count']}',
@@ -198,8 +188,10 @@ if($w != 'd'){
                         ori_update_dt = '".G5_TIME_YMDHIS."'
                     WHERE ord_idx = '{$ord_idx}' AND bom_idx = '{$modb}'
             ";
+            //echo $sql."<br>";
             sql_query($sql,1);
         }
+        //exit;
     }
 }
 

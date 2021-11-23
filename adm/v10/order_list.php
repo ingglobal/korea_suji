@@ -56,7 +56,7 @@ if ($where)
 
 if (!$sst) {
     $sst = "ord_date";
-    $sod = ""; //"DESC";
+    $sod = "DESC";
 }
 
 $sql_order = " order by {$sst} {$sod} ";
