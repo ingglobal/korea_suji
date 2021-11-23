@@ -115,7 +115,7 @@ $items1 = array(
     ,"cod_name"=>array("예지내용",0,0,0,'25%')
     ,"trm_idx_category"=>array("분류",0,0,0)
     ,"arm_send"=>array("알림발송내역",0,0,0)
-    ,"com_idx"=>array("업체번호",0,0,0)
+    //,"com_idx"=>array("업체번호",0,0,0)
     ,"arm_reg_dt"=>array("발생일시",0,0,0)
 );
 

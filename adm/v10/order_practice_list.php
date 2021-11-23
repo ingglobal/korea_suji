@@ -139,7 +139,7 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
                 <?=$line_form_options?>
             </select>
         </label>
-        <label for="" class="slt_label">
+        <label for="" class="slt_label" style="display:none;">
             <span>출하처<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
             <input type="hidden" id="com_idx_shipto" value="">
             <input type="text" id="com_name2" value="" add="./customer_shipto_select.php?file_name=<?php echo $g5['file_name']?>" class="frm_input readonly" readonly autocomplete="off">
@@ -221,7 +221,7 @@ $('.data_blank').on('click',function(e){
         </td>
         <td class="td_orp_id"><?=$row['orp_idx']?></td>
         <td class="td_orp_order_no">
-            <input type="text" name="orp_order_no[<?=$row['orp_idx']?>]" value="<?=$row['orp_order_no']?>" class="tbl_input orp_order_no_<?=$row['orp_idx']?>" style="width:100px;">
+            <input type="text" name="orp_order_no[<?=$row['orp_idx']?>]" value="<?=$row['orp_order_no']?>" readonly class="tbl_input readonly orp_order_no_<?=$row['orp_idx']?>" style="width:140px;background:#000 !important;">
         </td><!-- 지시번호 -->
         <td class="td_orp_operation_line"><!-- 공정/라인 -->
             <input type="hidden" name="trm_idx_line[<?=$row['orp_idx']?>]" value="<?=$row['trm_idx_line']?>" class="trm_idx_line_<?=$row['orp_idx']?>">

@@ -63,7 +63,7 @@ if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
 if (!$sst) {
-    $sst = "orp.orp_idx, oop.oop_idx";
+    $sst = "orp.orp_idx desc, oop.oop_idx";
     $sod = "desc";
 }
 
@@ -205,7 +205,7 @@ $('.data_blank').on('click',function(e){
         <th scope="col">수주ID</th>
         <th scope="col">생산계획ID</th>
         <th scope="col">(수주일)<br>생산일</th>
-        <th scope="col">설비</th>
+        <th scope="col">설비<br>(지시번호)</th>
         <th scope="col">재고</th>
         <th scope="col">출하계획<br>무게(kg)</th>
         <!--th scope="col">과부족</th-->
@@ -258,11 +258,15 @@ $('.data_blank').on('click',function(e){
         </td>
         <td class="td_ord_idx"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a></td>
         <td class="td_orp_idx"><a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_idx']?></a></td>
-        <td class="td_orp_start_date">
-            
+        <td class="td_orp_start_date"> 
             <a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a>
         </td>
-        <td class="td_trm_idx_line"><a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$g5['line_name'][$row['trm_idx_line']]?></a></td>
+        <td class="td_trm_idx_line">
+            <a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$g5['line_name'][$row['trm_idx_line']]?></a>
+            <?php if($row['orp_order_no']){ ?>
+            <br>(<?=$row['orp_order_no']?>)
+            <?php } ?>
+        </td>
         <td class="td_prev_stock">
             <?php
             //오늘 새벽 1시10분이전까지 상태값이 finish로 업데이트된 재고량을 합산

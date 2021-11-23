@@ -113,7 +113,7 @@ $items1 = array(
     ,"mms_idx"=>array("설비명",0,0,0,'16%')
     ,"cod_name"=>array("알람내용",0,0,0,'25%')
     ,"trm_idx_category"=>array("분류",0,0,0)
-    ,"com_idx"=>array("업체번호",0,0,0)
+    //,"com_idx"=>array("업체번호",0,0,0)
     ,"arm_reg_dt"=>array("발생일시",0,0,0)
 );
 
