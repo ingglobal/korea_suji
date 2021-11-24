@@ -151,6 +151,39 @@ include_once ('./_head.php');
             <script>$('select[name="<?=$pre?>_status"]').val('<?=${$pre}[$pre.'_status']?>');</script>
         </td>
     </tr>
+    <tr>
+        <th scope="row">출하정보/지시무게</th>
+        <td colspan="3" style="padding:15px 10px;">
+            <?php
+            $sql = "SELECT *
+                    FROM {$g5['order_out_practice_table']} AS oop
+                        LEFT JOIN {$g5['bom_table']} AS bom ON bom.bom_idx = oop.bom_idx
+                        LEFT JOIN {$g5['order_out_table']} AS oro ON oro.oro_idx = oop.oro_idx
+                    WHERE orp_idx = '".$orp['orp_idx']."'
+            ";
+            // echo $sql.'<br>';
+            $rs = sql_query($sql,1);
+            $total_weight = 0;
+            for($i=0;$row=sql_fetch_array($rs);$i++) {
+                // 생산제품 (팝오버 형태로 내용을 보여주기 위한 변수)
+                $total_weight = $total_weight + $row['oop_count'];
+                $products[] = '<div class="div_product_detail" style="margin-top:5px;"><span style="display:inline-block;width:150px;">'.$row['bom_name']
+                                .'</span><input type="text" name="oop_chk[]" readonly value="'.$i.'" style="width:45px;margin-left:10px;">'
+                                .'<input type="text" name="oop_idx[]" readonly value="'.$row['oop_idx'].'" style="width:45px;margin-left:10px;">'
+                                .'<span class="span_com_idx_customer">납품처: '.$g5['customer'][$row['com_idx_customer']]['com_name'].'</span>'
+                                .'<span class="span_oro_date_plan">출하예정: '.$row['oro_date_plan'].'</span>'
+                                .'<span class="span_oop_count">무게(kg): '.number_format($row['oop_count']).'</span>'
+                                .'<div class="div_oop_count">생산지시무게(kg): <input type="text" name="oop_count[]" value="'.$row['oop_count'].'"></div>'
+                            .'</div>';
+
+            }
+            // print_r2($products);
+            ?>
+            <?=(is_array($products))?implode(" ",$products):''?></span>
+            <br>
+            <p style="font-size:1.4em;"><span>총</span> : <strong><?=number_format($total_weight)?></strong> KG</p>
+        </td>
+    </tr>
 </tbody>
 </table>
 </div>
@@ -173,6 +206,7 @@ include_once ('./_head.php');
             winNewno = window.open(href, "winNewno", "left=300,top=150,width=550,height=600,scrollbars=1");
             winNewno.focus();
         });
+        */
 
         // 작업구간
         $("#btn_shift").click(function(e) {
@@ -181,7 +215,6 @@ include_once ('./_head.php');
             winShift = window.open(href, "winShift", "left=300,top=150,width=550,height=600,scrollbars=1");
             winShift.focus();
         });
-        */
         
     // 생산자
 	$("#btn_member").click(function(e) {

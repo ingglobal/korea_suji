@@ -135,6 +135,7 @@ add_javascript('<script src="'.G5_USER_ADMIN_JS_URL.'/bwg_datepicker.js"></scrip
             <td class="td_orp_start_date"><?php echo $row['orp_start_date']; ?></td>
             <td class="td_mng td_mng_s"
                 orp_idx="<?php echo $row['orp_idx']; ?>"
+                trm_idx_line="$row['trm_idx_line']"
                 line_name = "<?php echo $row['orp_idx'].'-('.$g5['line_name'][$row['trm_idx_line']].')'; ?>"
                 orp_order_no="<?php echo $row['orp_order_no']; ?>"
                 orp_start_date="<?php echo $row['orp_start_date']; ?>">
@@ -200,6 +201,10 @@ $('.btn_select').click(function(e){
         }
     <?php
     }
+    else if($file_name=='order_practice_form'){
+    ?>
+
+    <?php } ?>
 
     // ajax 호출이 있을 때는 너무 빨리 창을 닫으면 안 됨
     if($file_name!='company_list') {
