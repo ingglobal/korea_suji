@@ -220,12 +220,14 @@ $('.date_blank').on('click',function(e){
 		
 		$oro_url = '';
         $oro_btn = '';
+        
         if($row['oro']['cnt']){
             $oro_url = './order_out_list.php?sfl=oro.ord_idx&stx='.$row['ord_idx'];
             $oro_btn = $row['oro']['cnt'].'건';
         }
         else {
-            if(substr($row['ord_date'],0,10) == G5_TIME_YMD){
+            //echo $row['ord_date'];
+            if($row['ord_date']){ //(substr($row['ord_date'],0,10) == G5_TIME_YMD){
                 $oro_url = './order_out_create.php?w=&ord_idx='.$row['ord_idx'];
                 $oro_btn = '<spn style="color:orange;">출하생성</span>';
             }else{

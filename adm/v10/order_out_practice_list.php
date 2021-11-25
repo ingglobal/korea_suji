@@ -61,13 +61,19 @@ if ($stx != "") {
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
-
+/*
 if (!$sst) {
     $sst = "orp.orp_idx desc, oop.oop_idx";
-    $sod = "desc";
+    $sod = " desc";
 }
+*/
+$sst = "";
+$sod = "";
 
-$sql_order = " ORDER BY {$sst} {$sod} ";
+$sstsod = "orp.orp_idx desc, oop.oop_idx desc";
+
+//$sql_order = " ORDER BY {$sst} {$sod} ";
+$sql_order = " ORDER BY {$sstsod} ";
 $sql_group = "";//" GROUP BY oop.orp_idx ";
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
 $row = sql_fetch($sql);
@@ -232,8 +238,8 @@ $('.data_blank').on('click',function(e){
             <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['orp_name']); ?> <?php echo get_text($row['orp_nick']); ?>님</label>
             <input type="checkbox" name="chk[]" value="<?php echo $row['oop_idx'] ?>" id="chk_<?php echo $i ?>">
             <div class="chkdiv_btn" chk_no="<?=$i?>"></div>
-        </td>
-        <td class="td_oop_idx"><?=$row['oop_idx']?></td>
+        </td><!--chk-->
+        <td class="td_oop_idx"><?=$row['oop_idx']?></td><!--ID-->
         <td class="td_bom_name">
             <?php
             $bom_sql = sql_fetch(" SELECT bom_name, bct_id FROM {$g5['bom_table']} WHERE bom_idx = '{$row['bom_idx']}' ");
@@ -248,21 +254,21 @@ $('.data_blank').on('click',function(e){
             echo $row['bct_name_tree'].'<br>';
             echo $bom_name;
             ?>
-        </td>
-        <td class="td_ord_idx"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a></td>
+        </td><!--품명-->
+        <td class="td_ord_idx"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a></td><!--수주ID-->
         <td class="td_ord_date"> 
             <a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['ord_date'],2,8)?></a>
-        </td>
-        <td class="td_orp_idx"><a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_idx']?></a></td>
+        </td><!--수주일-->
+        <td class="td_orp_idx"><a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_idx']?></a></td><!--생산계획ID-->
         <td class="td_orp_start_date"> 
-            <a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a>
-        </td>
+            <a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a>
+        </td><!--생산일-->
         <td class="td_orp_order_no">
             <a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_order_no']?></a>
-        </td>
+        </td><!--지시번호-->
         <td class="td_trm_idx_line">
             <a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$g5['line_name'][$row['trm_idx_line']]?></a>
-        </td>
+        </td><!--설비라인-->
         <td class="td_prev_stock">
             <?php
             //오늘 새벽 1시10분이전까지 상태값이 finish로 업데이트된 재고량을 합산
@@ -275,15 +281,15 @@ $('.data_blank').on('click',function(e){
             $pre_day_stock = sql_fetch($pre_day_stock_sql);
             ?>
             <span class="prev_stock_<?=$row['oop_idx']?>"><?=$pre_day_stock['cnt']?></span>
-        </td>
+        </td><!--전일재고-->
         <td class="td_oro_cnt">
             <a href="./order_out_list.php?sfl=oro.ord_idx&stx=<?=$row['ord_idx']?>" class="sp_ord_idx">출하관리</a>
             <span class="oro_count_<?=$row['oop_idx']?>"><?=number_format($row['oro_count'])?></span>
-        </td>
+        </td><!--출하계획량-->
         <td class="td_oop_cnt">
             <input type="hidden" name="oop_1[<?=$row['oop_idx']?>]" value="<?=$row['oop_1']?>" class="oop_1_<?=$row['oop_idx']?>">
             <input type="text" name="oop_count[<?=$row['oop_idx']?>]" oop_idx="<?=$row['oop_idx']?>" value="<?=number_format($row['oop_count'])?>" class="tbl_input oop_count_<?=$row['oop_idx']?>" style="width:60px;background:#000 !important;text-align:right;" onClick="javascript:chk_Number(this);">
-        </td>
+        </td><!--생산계획량-->
         <td class="td_orp_status td_oop_status_<?=$row['oop_idx']?>"">
             <input type="hidden" name="oop_status[<?php echo $row['oop_idx'] ?>]" class="oop_status_<?php echo $row['oop_idx'] ?>" value="<?php echo $row['oop_status']?>">
             <input type="text" value="<?php echo $g5['set_oop_status_value'][$row['oop_status']]?>" readonly class="tbl_input readonly oop_status_name_<?php echo $row['oop_idx'] ?>" style="width:60px;text-align:center;">
@@ -291,7 +297,7 @@ $('.data_blank').on('click',function(e){
         <td class="td_mng">
 			<?php ;//$s_copy?>
 			<?=$s_mod?>
-		</td>
+		</td><!--관리-->
     </tr>
     <?php
     }

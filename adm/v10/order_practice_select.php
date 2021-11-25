@@ -44,12 +44,16 @@ else
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
-
+/*
 if (!$sst) {
     $sst = "orp_start_date, orp_reg_dt";
     $sod = "DESC";
 }
-$sql_order = " ORDER BY {$sst} {$sod} ";
+*/
+$sstsod = "orp_start_date desc, orp_reg_dt desc";
+
+// $sql_order = " ORDER BY {$sst} {$sod} ";
+$sql_order = " ORDER BY {$sstsod} ";
 
 $rows = $config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
@@ -204,7 +208,7 @@ $('.btn_select').click(function(e){
     else if($file_name=='order_practice_form'){
     ?>
 
-    <?php } ?>
+    <?php }
 
     // ajax 호출이 있을 때는 너무 빨리 창을 닫으면 안 됨
     if($file_name!='company_list') {

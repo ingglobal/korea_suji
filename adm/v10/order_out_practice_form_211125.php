@@ -67,7 +67,7 @@ if($w == ''){
         ,'oro_idx' => array('type'=>'text','ttl'=>'출하선택','value'=>$$pre['oro_idx'],'required'=>true,'readonly'=>true,'tr_s'=>true,'th'=>true,'td'=>true,'width'=>100)
         ,'bom_idx' => array('type'=>'none','value'=>$$pre['bom_idx'])
         ,'orp_idx' => array('type'=>'text','ttl'=>'생산계획ID','value'=>$$pre['orp_idx'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
-        ,'oop_count' => array('type'=>'text','ttl'=>'지시무게(kg)','value'=>$$pre['oop_count'],'required'=>true,'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
+        ,'oop_count' => array('type'=>'text','ttl'=>'지시무게(kg)','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
         ,'oop_1' => array('type'=>'text','ttl'=>'시간별무게(kg)','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
@@ -90,7 +90,7 @@ else if($w == 'u' || $w == 'c'){
         ,'oro_idx' => array('type'=>'hidden','value'=>$$pre['oro_idx'])
         ,'orp_idx' => array('type'=>'text','value'=>$$pre['orp_idx'],'ttl'=>'생산계획ID','required'=>true,'readonly'=>true,'tr_s'=>true,'th'=>true,'td'=>true)
         ,'bom_idx' => array('type'=>'hidden','value'=>$$pre['bom_idx'])
-        ,'oop_count' => array('type'=>'text','ttl'=>'지시무게(kg)','value'=>$$pre['oop_count'],'required'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
+        ,'oop_count' => array('type'=>'text','ttl'=>'지시무게(kg)','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
         ,'oop_1' => array('type'=>'text','ttl'=>'시간별무게(kg)','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
@@ -156,8 +156,8 @@ foreach($f1 as $hk=>$hv){
 	</colgroup>
 	<tbody>
     <?php
-    $fskip = array('oop_history','oop_1');//제외되는 필드명
-    $fcust = array('ord_idx','ori_idx','oro_idx','orp_idx','oop_count');//array('mms_idx','shf_start_time','shf_end_time');//커스터마이징해야 하는 필드명
+    $fskip = array('oop_history');//제외되는 필드명
+    $fcust = array('ord_idx','ori_idx','oro_idx','orp_idx','oop_1');//array('mms_idx','shf_start_time','shf_end_time');//커스터마이징해야 하는 필드명
     
     foreach($f1 as $fk=>$fv){
         if($fv['type'] == 'hidden' || $fv['type'] == 'none' || in_array($fk,$fskip)) continue;
@@ -208,10 +208,6 @@ foreach($f1 as $hk=>$hv){
                 $fctag .= '<input type="hidden" name="'.$fk.'" value="'.$fv['value'].'"'.$required.$readonly.' class="frm_input'.$required.$readonly.'">'.PHP_EOL;
                 $fctag .= '<input type="text" name="line_name" id="line_name" value="'.$line_name.'"'.$required.$readonly.' class="frm_input'.$required.$readonly.'">'.PHP_EOL;
                 $fctag .= '<a href="./order_practice_select.php?frm=form01&file_name='.$g5['file_name'].'&w='.$w.'&orp_idx='.$fv['value'].'" class="btn btn_02" id="btn_orp">생산계획ID(라인설비별)찾기</a>'.PHP_EOL;
-            }
-            if($fk == 'oop_count'){
-                $fctag .= '<input type="hidden" name="oop_1" value="'.$fv['value'].'"'.$required.$readonly.' class="frm_input'.$required.$readonly.'">'.PHP_EOL;
-                $fctag .= '<input type="text" name="'.$fk.'" id="'.$fk.'" value="'.number_format($fv['value']).'"'.$required.$readonly.' class="frm_input'.$required.$readonly.'" style="width:80px;text-align:right;" onclick="javascript:chk_Number(this)">'.PHP_EOL;
             }
             if($fk == 'oop_1'){
                 $time_arr = array('시간1<br>08:00~10:00','시간2<br>10:10~12:00','시간3<br>13:00~15:00','시간4<br>15:10~17:00','시간5<br>17:10~19:00','시간6<br>19:10~21:00','시간7<br>21:10~23:00','시간8<br>23:10~01:00');
@@ -330,10 +326,13 @@ $(function(){
 // 숫자만 입력, 합산계산입력
 function chk_Number(object){
     $(object).keyup(function(){
-        $(this).val($(this).val().replace(/[^0-9|,]/g,""));
-        if(!isNaN($(this).val().replace(/,/g,'')))
-            $(this).val( thousand_comma( $(this).val().replace(/,/g,'') ) );
-        $(this).siblings('input').val($(this).val().replace(/,/g,''));
+        $(this).val($(this).val().replace(/[^0-9|-]/g,""));
+        var oop_sum = 0;
+        $('.oop_ex').each(function(){
+            oop_sum += Number($(this).val());
+        });
+        var oop_sum_str = (oop_sum) ? oop_sum : '';
+        $('#oop_count').val(oop_sum_str);
     });
 }
 
