@@ -2,7 +2,7 @@
 // MMS 관련 정보
 // token, mms_idx
 // localhost/icmms/device/json/mms.php?token=1099de5drf09&mms_idx=1
-// http://icmms.co.kr/device/json/mms.php?token=1099de5drf09&mms_idx=1
+// http://bogwang.epcs.co.kr/device/json/mms.php?token=1099de5drf09&mms_idx=1
 header("Content-Type: text/plain; charset=utf-8");
 include_once('./_common.php');
 if(isset($_SERVER['HTTP_ORIGIN'])){
@@ -87,12 +87,12 @@ else if($_REQUEST['mms_idx']){
     $list['item_no'] = $item['dta_mmi_no'];
 
     // 일 생산 갯수
-    $sql = "   SELECT SUM(dta_value) AS dta_sum
-                                , SUM( IF(dta_defect=0,dta_value,0) ) AS dta_sum_success
-                                , SUM( IF(dta_defect=1,dta_value,0) ) AS dta_sum_defect
-                            FROM {$g5['data_output_sum_table']}
-                            WHERE mms_idx = '".$mms_idx."'
-                                AND dta_date = '".$mms_date1."'
+    $sql = "SELECT SUM(itm_count) AS dta_sum
+                , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS dta_sum_success
+                , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS dta_sum_defect
+            FROM {$g5['item_sum_table']}
+            WHERE mms_idx = '".$mms_idx."'
+                AND itm_date = '".$mms_date1."'
     ";
     // echo $sql.'<br>';
     $output = sql_fetch($sql,1);

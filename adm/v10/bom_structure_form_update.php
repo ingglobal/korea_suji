@@ -5,7 +5,7 @@ include_once("./_common.php");
 auth_check($auth[$sub_menu], 'w');
 
 // print_r2($_POST);
-// exit;
+
 // 초기값 정의 (외부 함수들에서 사용)
 $g5['bit']['num'] = array();
 $g5['bit']['reply'] = array();
@@ -17,10 +17,11 @@ $data = json_decode(stripslashes($_POST['serialized']),true);
 // exit;
 function create_categories(&$arr, $parent_id=0) {
     global $g5;
+
     foreach($arr as $key => $item) {
-        //id값이 셋팅되어 있지 않으면 빈값이므로 건너띈다.
+		//id값이 셋팅되어 있지 않으면 빈값이므로 건너띈다.
         if(!array_key_exists('id',$item)) continue;
-        //print_r2($item);continue;
+		
         $item['parent_id'] = $parent_id;
         $list = array();
         $list = $item;
@@ -38,18 +39,18 @@ function create_categories(&$arr, $parent_id=0) {
 
         // 하위가 있으면 재귀함수
         if(isset($item['children'])){
-            create_categories($item['children'], $list['id']); 
+            create_categories($item['children'], $list['id']);
         }
     }
 }
 create_categories($data, 0);
-//exit;
+
 
 // 리스트에서 사라진 항목 디비에서 삭제처리
 if(is_array($g5['bit_idxs']))
     $sql_bit_idx = " AND bit_idx NOT IN (".implode(',',$g5['bit_idxs']).") ";
 
-$sql = "DELETE FROM {$g5['bom_item_table']} 
+$sql = "DELETE FROM {$g5['bom_item_table']}
         WHERE bom_idx = '".$_POST['bom_idx']."'
             {$sql_bit_idx}
 ";

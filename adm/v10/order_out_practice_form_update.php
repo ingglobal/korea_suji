@@ -4,103 +4,169 @@ include_once("./_common.php");
 
 auth_check($auth[$sub_menu], 'w');
 
-// 변수 설정, 필드 구조 및 prefix 추출
-$table_name = 'order_out_practice';
-$g5_table_name = $g5[$table_name.'_table'];
-$fields = sql_field_names($g5_table_name);
-$pre = substr($fields[0],0,strpos($fields[0],'_'));
-$fname = preg_replace("/_form_update/","",$g5['file_name']); // _form_update를 제외한 파일명
-//$qstr .= '&ser_mms_idx='.$ser_mms_idx; // 추가로 확장해서 넘겨야 할 변수들
-
-// 변수 재설정fff
-for($i=0;$i<sizeof($fields);$i++) {
-    // 공백 제거
-    $_POST[$fields[$i]] = trim($_POST[$fields[$i]]);
-    // 천단위 제거
-    if(preg_match("/_price$/",$fields[$i]) || preg_match("/_count$/",$fields[$i]) || preg_match("/_cnt$/",$fields[$i]))
-        $_POST[$fields[$i]] = preg_replace("/,/","",$_POST[$fields[$i]]);
-}
 
 
+$orp_end_date = $orp_start_date;
+$first_flag = ($orp_order_no && $trm_idx_line && $mb_id && $orp_start_date && $orp_end_date) ? true : false;
+//$first_flag = ($orp_order_no && $trm_idx_line && $mb_id && $orp_start_date && $orp_end_date) ? true : false;
 
-// 공통쿼리
-$skips = array($pre.'_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt');
-for($i=0;$i<sizeof($fields);$i++) {
-    if(in_array($fields[$i],$skips)) {continue;}
-    $sql_commons[] = " ".$fields[$i]." = '".$_POST[$fields[$i]]."' ";
-}
-$sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 
 //history 저장내용
-$hskip = array($pre.'_idx',$pre.'_memo',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt',$pre.'_1',$pre.'_2',$pre.'_3',$pre.'_4',$pre.'_5',$pre.'_6',$pre.'_7',$pre.'_8',$pre.'_9',$pre.'_10');
-for($i=0;$i<sizeof($fields);$i++){
-    if(in_array($fields[$i],$hskip)) {continue;}
-    $historys[] = $fields[$i].'='.$_POST[$fields[$i]];
-}
+$history = 'mb_id='.$member['mb_id'].',orp_idx='.$orp_idx.',oop_count='.$oop_count.',oop_status='.$oop_status.',oop_update_dt='.G5_TIME_YMDHIS.'\n';
 
-$history = (is_array($historys)) ? implode(',',$historys).','.$pre.'_update_dt='.G5_TIME_YMDHIS.'\n' : '';
 
-if ($w == '' || $w == 'c') {
-    
-    $sql = " INSERT into {$g5_table_name} SET 
-                {$sql_common} 
-                , ".$pre."_history = '".$history."'
-                , ".$pre."_reg_dt = '".G5_TIME_YMDHIS."'
-                , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
+
+//완전 신규등록시
+if($first_flag){
+    //동일한 생산시작일에 같은 설비라인으로 등록하려는지 체크한다.
+    $ord_chk_sql = sql_fetch(" SELECT COUNT(*) AS cnt FROM {$g5['order_practice_table']} WHERE orp_start_date = '{$orp_start_date}' AND trm_idx_line = '{$trm_idx_line}' AND orp_status NOT IN('delete','del','trash') ");
+    if($ord_chk_sql['cnt'])
+        alert('동일한 생산시작일에 지정하신 설비 '.$g5['line_name'][$trm_idx_line].'의 생산계획이 이미 존재합니다.\n[생산계획ID(라인설비별)찾기]에서 해당 생산계획을 찾아서 추가 등록해 주세요.');
+
+
+    $sql1 = " INSERT {$g5['order_practice_table']} SET
+                com_idx = '".$_SESSION['ss_com_idx']."',
+                orp_order_no = '".$orp_order_no."',
+                trm_idx_operation = '',
+                trm_idx_line = '".$trm_idx_line."',
+                shf_idx = '',
+                mb_id = '".$mb_id."',
+                orp_start_date = '".$orp_start_date."',
+                orp_done_date = '".$orp_end_date."',
+                orp_memo = '',
+                orp_status = 'confirm',
+                orp_reg_dt = '".G5_TIME_YMDHIS."',
+                orp_update_dt = '".G5_TIME_YMDHIS."'
     ";
-    sql_query($sql,1);
-    ${$pre."_idx"} = sql_insert_id();
-    
-}
-else if ($w == 'u') {
+    sql_query($sql1,1);
+    $orp_idx = sql_insert_id();
 
-    ${$pre} = get_table_meta($table_name, $pre.'_idx', ${$pre."_idx"});
-    if (!${$pre}[$pre.'_idx'])
-        alert('존재하지 않는 자료입니다.');
-    //$mod_history = 'ord_idx=>'.${'ord_idx'}
-    $sql = "	UPDATE {$g5_table_name} SET 
-                    {$sql_common}
-                    , ".$pre."_history = CONCAT('".$history."',".$pre."_history)
-                    , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
-                WHERE ".$pre."_idx = '".${$pre."_idx"}."' 
+    //새로운 orp_idx의 등록이므로 bom_idx를 새롭게 등록해라.
+    //oop테이블에 등록
+    $sql2 = " INSERT {$g5['order_out_practice_table']} SET
+        orp_idx = '".$orp_idx."',
+        bom_idx = '".$bom_idx."',
+        oop_count = '".$oop_count."',
+        oop_memo = '".$oop_memo."',
+        oop_history = '".$history."',
+        oop_status = '".$oop_status."',
+        oop_reg_dt = '".G5_TIME_YMDHIS."',
+        oop_update_dt = '".G5_TIME_YMDHIS."',
+        oop_1 = '".$oop_1."',
+        oop_2 = '".$oop_2."',
+        oop_3 = '".$oop_3."',
+        oop_4 = '".$oop_4."',
+        oop_5 = '".$oop_5."',
+        oop_6 = '".$oop_6."',
+        oop_7 = '".$oop_7."',
+        oop_8 = '".$oop_8."',
+        oop_9 = '".$oop_9."',
+        oop_10 = '".$oop_10."'
     ";
-    // echo $sql.'<br>';exit;
-    sql_query($sql,1);
-        
+    sql_query($sql2,1);
 }
-else if ($w == 'd') {
-    $sql = "UPDATE {$g5_table_name} SET
-                ".$pre."_status = 'trash'
-                , ".$pre."_history = CONCAT('".$history."',".$pre."_history)
-            WHERE ".$pre."_idx = '".${$pre."_idx"}."'
+//완전히 새로운 등록이 아니면서, oop_idx없고, orp_idx와 bom_idx가 있을 경우, 
+else if(!$first_flag && !$oop_idx && $orp_idx && $bom_idx){
+    //기존 orp_idx 에 등록된 해당 bom_idx로 등록된 oop_idx가 존재하는지 확인하고 있으면 해당 oop_idx에서 수정하라고 튕긴다.
+    $oop = sql_fetch(" SELECT COUNT(*) AS cnt, oop_idx FROM {$g5['order_out_practice_table']}
+                    WHERE orp_idx = '{$orp_idx}' AND bom_idx = '{$bom_idx}' AND oop_status NOT IN('delelte','del','trash')
+    ");
+    // 동일제품이 있으면 튕겨내라
+    if($oop['cnt']){
+        alert("선택하신 설비라인에 이미 동일한 상품(생산계회상품ID:".$oop['oop_idx'].")이 존재합니다.\n해당 상품에서 내용을 변경해 주세요.");
+    }
+    // 동일제품이 없으면 등록해라
+    else {
+        $sql3 = " INSERT {$g5['order_out_practice_table']} SET
+            orp_idx = '".$orp_idx."',
+            bom_idx = '".$bom_idx."',
+            oop_count = '".$oop_count."',
+            oop_memo = '".$oop_memo."',
+            oop_history = '".$history."',
+            oop_status = '".$oop_status."',
+            oop_reg_dt = '".G5_TIME_YMDHIS."',
+            oop_update_dt = '".G5_TIME_YMDHIS."',
+            oop_1 = '".$oop_1."',
+            oop_2 = '".$oop_2."',
+            oop_3 = '".$oop_3."',
+            oop_4 = '".$oop_4."',
+            oop_5 = '".$oop_5."',
+            oop_6 = '".$oop_6."',
+            oop_7 = '".$oop_7."',
+            oop_8 = '".$oop_8."',
+            oop_9 = '".$oop_9."',
+            oop_10 = '".$oop_10."'
+        ";
+        //echo $sql3;exit;
+        sql_query($sql3,1);
+    }
+}
+//생산계획변경작업시 (!$first_flag && $oop_idx && $orp_idx)
+else{
+    //우선 기존 현재 oop_idx 가 속해 있는 orp_idx 가 $orp_idx와 같은지 다른지 확인한다.
+    //라인설비 정보가 동일하니 기존 oop_idx의 수량/메모/상태 정보만 수정한다.
+    if($orp_idx_org == $orp_idx){
+        $oop_sql = " UPDATE {$g5['order_out_practice_table']} SET
+                        oop_count = '".$oop_count."',
+                        oop_memo = '".$oop_memo."',
+                        oop_history = CONCAT('".$history."'),
+                        oop_status = '".$oop_status."',
+                        oop_update_dt = '".G5_TIME_YMDHIS."',
+                        oop_1 = '".$oop_1."',
+                        oop_2 = '".$oop_2."',
+                        oop_3 = '".$oop_3."',
+                        oop_4 = '".$oop_4."',
+                        oop_5 = '".$oop_5."',
+                        oop_6 = '".$oop_6."',
+                        oop_7 = '".$oop_7."',
+                        oop_8 = '".$oop_8."',
+                        oop_9 = '".$oop_9."',
+                        oop_10 = '".$oop_10."'
+                    WHERE oop_idx = '{$oop_idx}'
+        ";
+        sql_query($oop_sql,1);
+    }
+    //라인변경이 발생
+    else {
+        //새로운 orp_idx에 해당 bom_idx가 존재하는지 확인
+        $oop_chk_sql = " SELECT oop_idx,orp.orp_order_no FROM {$g5['order_out_practice_table']} AS oop
+                            LEFT JOIN {$g5['bom_table']} AS bom ON oop.bom_idx = bom.bom_idx
+                            LEFT JOIN {$g5['order_practice_table']} AS orp ON oop.orp_idx = orp.orp_idx
+                            WHERE oop.orp_idx = '{$orp_idx}' AND oop.bom_idx = '{$bom_idx}' AND oop_status NOT IN('delete','del','trash') ";
+        $oop_chk = sql_fetch($oop_chk_sql);
+        //있으면 해당 orp_idx의 ori_idx의 정보를 수정하게 하고 팅겨내라
+        if($oop_chk['oop_idx']){
+            alert("선택하신 설비라인에 이미 동일한 상품(생산계회상품ID:".$oop_chk['oop_idx'].")이 존재합니다.");
+        }
+        //없으면 나의 oop_idx의 orp_idx를 새로운 orp_idx로 바꿔치기하고 (수량/메모/상태) 수정해라
+        else {
+            $oop_md_sql = " UPDATE {$g5['order_out_practice_table']} SET
+                            orp_idx = '".$orp_idx."',
+                            oop_count = '".$oop_count."',
+                            oop_memo = '".$oop_memo."',
+                            oop_history = CONCAT('".$history."'),
+                            oop_status = '".$oop_status."',
+                            oop_update_dt = '".G5_TIME_YMDHIS."',
+                            oop_1 = '".$oop_1."',
+                            oop_2 = '".$oop_2."',
+                            oop_3 = '".$oop_3."',
+                            oop_4 = '".$oop_4."',
+                            oop_5 = '".$oop_5."',
+                            oop_6 = '".$oop_6."',
+                            oop_7 = '".$oop_7."',
+                            oop_8 = '".$oop_8."',
+                            oop_9 = '".$oop_9."',
+                            oop_10 = '".$oop_10."'
+                        WHERE oop_idx = '{$oop_idx}'
             ";
-    sql_query($sql,1);
-    goto_url('./'.$fname.'_list.php?'.$qstr, false);
-    
-}
-else
-    alert('제대로 된 값이 넘어오지 않았습니다.');
+            sql_query($oop_md_sql,1);
+        }
 
+    }
 
-//-- 체크박스 값이 안 넘어오는 현상 때문에 추가, 폼의 체크박스는 모두 배열로 선언해 주세요.
-$checkbox_array=array();
-for ($i=0;$i<sizeof($checkbox_array);$i++) {
-	if(!$_REQUEST[$checkbox_array[$i]])
-		$_REQUEST[$checkbox_array[$i]] = 0;
-}
-
-//-- 메타 입력 (디비에 있는 설정된 값은 입력하지 않는다.) --//
-$fields[] = "mms_zip";	// 건너뛸 변수명은 배열로 추가해 준다.
-$fields[] = "mms_sido_cd";	// 건너뛸 변수명은 배열로 추가해 준다.
-foreach($_REQUEST as $key => $value ) {
-	//-- 해당 테이블에 있는 필드 제외하고 테이블 prefix 로 시작하는 변수들만 업데이트 --//
-	if(!in_array($key,$fields) && substr($key,0,3)==$pre) {
-		//echo $key."=".$_REQUEST[$key]."<br>";
-		meta_update(array("mta_db_table"=>$table_name,"mta_db_id"=>${$pre."_idx"},"mta_key"=>$key,"mta_value"=>$value));
-	}
 }
 
 // exit;
-goto_url('./'.$fname.'_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
-// goto_url('./'.$fname.'_form.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
+goto_url('./order_out_practice_list.php?'.$qstr, false);
+//goto_url('./order_out_practice_form.php?'.$qstr.'&w=u&oop_idx='.$oop_idx, false);
 ?>

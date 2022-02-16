@@ -33,6 +33,10 @@ if ($stx != "") {
 		case ( $sfl == 'bom_part_no' ) :
 			$where[] = " {$sfl} = '".trim($stx)."' ";
             break;
+        
+		case ( $sfl == 'bom_idx' ) :
+			$where[] = " {$sfl} = '".trim($stx)."' ";
+            break;
         default :
 			$where[] = " $sfl LIKE '%".trim($stx)."%' ";
             break;
@@ -108,30 +112,14 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
 </select>
 <script>$('select[name="ser_bom_type"]').val('<?=$ser_bom_type?>');</script>
 
-<label for="sca" class="sound_only">분류선택</label>
-<select name="sca" id="sca">
-    <option value="">전체분류</option>
-    <?php
-    $sql1 = "   SELECT * FROM {$g5['bom_category_table']}
-                WHERE com_idx = '".$_SESSION['ss_com_idx']."'
-                ORDER BY bct_id, bct_order
-    ";
-    $result1 = sql_query($sql1);
-    for ($i=0; $row1=sql_fetch_array($result1); $i++) {
-        $len = strlen($row1['bct_id']) / 2 - 1;
-        for ($j=0; $j<$len; $j++) { $row1['nbsp'] .= '&nbsp;&nbsp;&nbsp;'; } // 들여쓰기공백
-        echo '<option value="'.$row1['bct_id'].'" '.get_selected($sca, $row1['bct_id']).'>'.$row1['nbsp'].$row1['bct_name'].'</option>'.PHP_EOL;
-    }
-    ?>
-</select>
-
 <label for="sfl" class="sound_only">검색대상</label>
 <select name="sfl" id="sfl">
-    <option value="bom_part_no"<?php echo get_selected($_GET['sfl'], "bom_idx"); ?>>P/NO</option>
+    <option value="bom_part_no"<?php echo get_selected($_GET['sfl'], "bom_part_no"); ?>>P/NO</option>
     <option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
     <option value="com_idx_customer"<?php echo get_selected($_GET['sfl'], "com_idx_customer"); ?>>거래처번호</option>
     <option value="bom_maker"<?php echo get_selected($_GET['sfl'], "bom_maker"); ?>>메이커</option>
-    <!--option value="bom_memo"<?php //echo get_selected($_GET['sfl'], "bom_idx"); ?>>메모</option-->
+    <option value="bom_idx"<?php echo get_selected($_GET['sfl'], "bom_idx"); ?>>고유번호</option>
+    <option value="bom_memo"<?php echo get_selected($_GET['sfl'], "bom_memo"); ?>>메모</option>
 </select>
 <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
 <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
@@ -162,15 +150,17 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
         <th scope="col"><?php echo subject_sort_link('bom_name') ?>품명</a></th>
-        <th scope="col">제품코드</th>
+        <th scope="col">파트넘버</th>
         <th scope="col">고객처</th>
         <th scope="col">공급처</th>
         <th scope="col">카테고리</th>
         <th scope="col">단가</th>
         <th scope="col">재료비</th>
         <th scope="col">재료비율</th>
+        <!--
         <th scope="col">평균리드타임</th>
         <th scope="col">알림개수</th>
+        -->
         <th scope="col">타입</th>
         <th scope="col">관리</th>
     </tr>
@@ -180,6 +170,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
     <tbody>
     <?php
     for ($i=0; $row=sql_fetch_array($result); $i++) {
+        //print_r2($row);
         if($row['bct_name']){
             $cat_tree = category_tree_array($row['bct_id']);
             $row['bct_name_tree'] = '';
@@ -188,23 +179,19 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
                 $row['bct_name_tree'] .= ($k == 0) ? $cat_str['bct_name'] : ' > '.$cat_str['bct_name'];
             }
         }
-        //print_r3($row['com_idx_provider']);
-        $prv_arr = sql_fetch(" SELECT com_name FROM {$g5['company_table']} WHERE com_idx = '{$row['com_idx_provider']}' ");
-        $row['com_name2'] = ($prv_arr['com_name']) ? $prv_arr['com_name'] : '';
-
-
+        $com_p = get_table_meta('company','com_idx',$row['com_idx_provider']);
+        $com_c = get_table_meta('company','com_idx',$row['com_idx_customer']);
         // bom_item 에서 뽑아야 하는 제품만 (완재품, 반제품)
         if(in_array($row['bom_type'], $g5['set_bom_type_displays'])) {
-            //print_r3($g5['set_bom_type_displays']);
             $sql1 = "SELECT bom.bom_idx, com_idx_customer, bom.bom_name, bom_part_no, bom_price, bom_status, com_name
-                        , bit.bit_idx, bit.bom_idx_child, bit.bit_reply, bit.bit_count,bom.com_idx_provider
+                        , bit.bit_idx, bit.bom_idx_child, bit.bit_reply, bit.bit_count
                     FROM {$g5['bom_item_table']} AS bit
                         LEFT JOIN {$g5['bom_table']} AS bom ON bom.bom_idx = bit.bom_idx_child
                         LEFT JOIN {$g5['company_table']} AS com ON com.com_idx = bom.com_idx_customer
                     WHERE bit.bom_idx = '".$row['bom_idx']."'
                     ORDER BY bit.bit_num DESC, bit.bit_reply
             ";
-            //print_r3($sql1);
+            // print_r3($sql1);
             $rs1 = sql_query($sql1,1);
             for ($j=0; $row1=sql_fetch_array($rs1); $j++) {
                 // print_r2($row1);
@@ -248,8 +235,8 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <input type="text" name="bom_name[<?php echo $i; ?>]" value="<?php echo htmlspecialchars2(cut_str($row['bom_name'],250, "")); ?>" required class="tbl_input required" style="width:250px;">
         </td>
         <td class="td_bom_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
-        <td class="td_com_name"><?=$row['com_name']?></td><!-- 고객처 -->
-        <td class="td_bom_maker"><?=$row['com_name2']?></td><!-- 공급처 -->
+        <td class="td_com_name"><?=$com_c['com_name']?></td><!-- 고객처/공급처 -->
+        <td class="td_bom_maker"><?=$com_p['com_name']?></td><!-- 메이커 -->
         <td class="td_bct_name"><?=$row['bct_name_tree']?></td><!-- 카테고리 -->
         <td class="td_bom_price">
             <label for="price_<?php echo $i; ?>" class="sound_only">단가</label>
@@ -261,6 +248,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
         <td class="td_bom_profit"><!-- 마진율 -->
             <?=$row['bom_profit_ratio']?>
         </td>
+        <!--
         <td class="td_bom_lead_time">
             <label for="price_<?php echo $i; ?>" class="sound_only">평균리드타임</label>
             <input type="text" name="bom_lead_time[<?php echo $i; ?>]" value="<?=number_format($row['bom_lead_time'])?>" class="tbl_input sit_amt" style="width:50px;">
@@ -269,6 +257,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <label for="bom_min_cnt_<?php echo $i; ?>" class="sound_only">알림개수</label>
             <input type="text" name="bom_min_cnt[<?php echo $i; ?>]" value="<?=number_format($row['bom_min_cnt'])?>" class="tbl_input sit_amt" style="width:50px;">
         </td>
+        -->
         <td class="td_bom_type"><?=$g5['set_bom_type_value'][$row['bom_type']]?></td><!-- 타입 -->
         <td class="td_mng">
             <?=($row['bom_type']!='material')?$s_bom:''?><!-- 자재가 아닌 경우만 BOM 버튼 -->
@@ -281,7 +270,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
         <td class="td_bom_items_title">
             자재 (구성품)
         </td>
-        <td class="td_bom_items" colspan="10">
+        <td class="td_bom_items" colspan="11">
             <?php
             if(is_array($row['parts_list'])) {
                 echo implode(" ",$row['parts_list']);
@@ -295,14 +284,14 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='21' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='11' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>
 </div>
 
 <div class="btn_fixed_top">
-    <?php if (false){ //(!auth_check($auth[$sub_menu],'d')) { ?>
+    <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
        <a href="javascript:" id="btn_excel_upload" class="btn btn_02" style="margin-right:50px;">엑셀등록</a>
     <?php } ?>
     <?php if (!auth_check($auth[$sub_menu],'w')) { ?>

@@ -9,77 +9,77 @@ $g5['title'] = '생산실행(제품별)계획';
 include_once('./_head.php');
 // echo $g5['container_sub_title'];
 $sql_common = " FROM {$g5['order_out_practice_table']} AS oop
+    LEFT JOIN {$g5['bom_table']} AS bom ON oop.bom_idx = bom.bom_idx
     LEFT JOIN {$g5['order_practice_table']} AS orp ON orp.orp_idx = oop.orp_idx
     LEFT JOIN {$g5['order_out_table']} AS oro ON oop.oro_idx = oro.oro_idx
     LEFT JOIN {$g5['order_table']} AS ord ON oro.ord_idx = ord.ord_idx
-"; 
+";
 
 $where = array();
 // 디폴트 검색조건 (used 제외)
-$where[] = " orp.orp_status NOT IN ('del','delete','trash') AND orp.com_idx = '".$_SESSION['ss_com_idx']."' ";
-
-if($orp_start_date){
-    $sfl = 'orp.orp_start_date';
-    $stx = $orp_start_date;
-}
+$where[] = " oop.oop_status NOT IN ('del','delete','trash') AND orp.com_idx = '".$_SESSION['ss_com_idx']."' ";
 
 
+
+//print_r2($g5['line_reverse'][$stx]);
 // 검색어 설정
 if ($stx != "") {
     switch ($sfl) {
-		case ( $sfl == 'orp.orp_start_date' || $sfl == 'oop.ori_idx' || $sfl == 'oop.ord_idx' || $sfl == 'oop.oro_idx' || $sfl == 'oro.com_idx_customer' ) :
+		case ( $sfl == 'oop.orp_idx' ) :
 			$where[] = " {$sfl} = '".trim($stx)."' ";
             break;
-		case ( $sfl == 'bct_id' ) :
-			$where[] = " {$sfl} LIKE '".trim($stx)."%' ";
+    }
+}
+
+// 검색어 설정
+if ($stx2 != "") {
+    switch ($sfl2) {
+		case ( $sfl2 == 'bom.bom_part_no' ) :
+			$where[] = " {$sfl2} = '".trim($stx2)."' ";
             break;
-        case ( $sfl == 'customer_name') :
-            //업체명에 관련된 모든 com_idx값들을 가져온다.
-            $csql = " SELECT GROUP_CONCAT(com_idx) AS com_idxs FROM {$g5['company_table']} 
-                            WHERE com_name LIKE '%{$stx}%' 
-                                AND com_level = 2
-                                AND com_status NOT IN('trash','delete','del')
-            ";
-            $cnstr = sql_fetch($csql);
-            $where[] = " oro.com_idx_shipto IN({$cnstr['com_idxs']}) ";
+        case ( $sfl2 == 'bom.bom_name' ) :
+            $where[] = " {$sfl2} LIKE '%".trim($stx2)."%' ";
             break;
-        case ( $sfl == 'bom_name' ) :
-            $bsql = " SELECT GROUP_CONCAT(bom_idx) AS bom_idxs FROM {$g5['bom_table']}
-                        WHERE com_idx = '{$_SESSION['ss_com_idx']}'
-                            AND bom_status NOT IN('trash','delete','del')
-                            AND bom_name LIKE '%{$stx}%'
-            ";
-            $bmstr = sql_fetch($bsql);
-            $where[] = " oop.bom_idx IN({$bmstr['bom_idxs']}) ";
+        case ( $sfl2 == 'trm_name' ) :
+            $trm_idx = $g5['line_reverse'][$stx2];
+            $where[] = " orp.trm_idx_line = '{$trm_idx}' ";
             break;
         default :
-			$where[] = " $sfl LIKE '%".trim($stx)."%' ";
+			$where[] = " $sfl2 LIKE '%".trim($stx2)."%' ";
             break;
     }
+}
+
+
+if($orp_start_date){
+    $where[] = " orp.orp_start_date = '".$orp_start_date."' ";
+    $qstr .= '&orp_start_date='.$orp_start_date;
 }
 
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
-/*
+
 if (!$sst) {
-    $sst = "orp.orp_idx desc, oop.oop_idx";
-    $sod = " desc";
+    $sst = "orp.orp_idx";
+    $sod = "desc";
 }
-*/
-$sst = "";
-$sod = "";
+if (!$sst2) {
+    $sst2 = ", orp.trm_idx_line";
+    $sod2 = "";
+}
+if (!$sst3) {
+    $sst3 = ", bom.bom_sort";
+    $sod3 = "";
+}
 
-$sstsod = "orp.orp_idx desc, oop.oop_idx desc";
-
-//$sql_order = " ORDER BY {$sst} {$sod} ";
-$sql_order = " ORDER BY {$sstsod} ";
+$sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} {$sst3} {$sod3} ";
 $sql_group = "";//" GROUP BY oop.orp_idx ";
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
 $row = sql_fetch($sql);
 $total_count = $row['cnt'];
 
-$rows = 1000;//$config['cf_page_rows'];
+$rows = 20;//$config['cf_page_rows'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
@@ -88,7 +88,7 @@ $sql = " SELECT *
         {$sql_common} {$sql_search} {$sql_group} {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
-//print_r3($sql);//exit;
+// print_r3($sql);
 $result = sql_query($sql,1);
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
@@ -99,6 +99,7 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 .td_chk{position:relative;}
 .td_chk .chkdiv_btn{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,255,0,0);}
 .td_bom_name {text-align:left !important;}
+.sp_cat{font-size:0.85em;color:orange;}
 .td_orp_part_no, .td_com_name, .td_orp_maker
 ,.td_orp_items, .td_orp_items_title {text-align:left !important;}
 .td_orp_count{text-align:right !important;}
@@ -133,30 +134,29 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
     <label for="sfl" class="sound_only">검색대상</label>
     <select name="sfl" id="sfl">
-        <option value="customer_name"<?php echo get_selected($_GET['sfl'], "customer_name"); ?>>출하처</option>
-        <option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
-        <option value="oro.com_idx_customer"<?php echo get_selected($_GET['sfl'], "oro.com_idx_customer"); ?>>거래처ID</option>
         <option value="oop.orp_idx"<?php echo get_selected($_GET['sfl'], "oop.orp_idx"); ?>>생산계획ID</option>
-        <option value="oop.oro_idx"<?php echo get_selected($_GET['sfl'], "oop.oro_idx"); ?>>출하ID</option>
-        <option value="oop.ord_idx"<?php echo get_selected($_GET['sfl'], "oop.ord_idx"); ?>>수주ID</option>
     </select>
     <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
-    <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
+    <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input" style="width:80px;margin-right:10px;">
+    <label for="sfl2" class="sound_only">검색대상</label>
+    <select name="sfl2" id="sfl2">
+        <option value="bom.bom_part_no"<?php echo get_selected($_GET['sfl2'], "bom_part_no"); ?>>품번</option>
+        <option value="bom.bom_name"<?php echo get_selected($_GET['sfl2'], "bom_name"); ?>>품명</option>
+        <option value="trm_name"<?php echo get_selected($_GET['sfl2'], "trm_name"); ?>>라인설비명</option>
+    </select>
+    <label for="stx2" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+    <input type="text" name="stx2" value="<?php echo $stx2 ?>" id="stx2" class="frm_input">
     <label for="orp_start_date" class="sch_label">
         <span>생산일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
         <input type="text" name="orp_start_date" value="<?php echo $orp_start_date ?>" id="orp_start_date" readonly class="frm_input readonly" placeholder="시작(생산)일" style="width:100px;" autocomplete="off">
     </label>
-    <!--label for="orp_done_date" class="sch_label">
-        <span>완료일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-        <input type="text" name="orp_done_date" value="<?php //echo $orp_done_date ?>" id="orp_done_date" readonly class="frm_input readonly" placeholder="완료일" style="width:100px;" autocomplete="off">
-    </!--label-->
     <input type="submit" class="btn_submit" value="검색">
 </form>
 
 <div class="local_desc01 local_desc" style="display:no ne;">
     <!--p>지시수량에 필요한 자재가 부족한 경우 <span class="color_red">빨간색</span>으로 표시됩니다. 자재 창고위치에 따라 현장 오차가 있을 수 있으므로 반드시 확인하시고 진행하세요.</p-->
-    <p>상태값이 '확정'인 경우는 관련 정보를 수정하지 마세요. (지시수량, 공정, 라인 정보 등..)</p>
-    <p>'생산수량' 항목의 값은 생산이 진행중일 때 표시됩니다.</p>
+    <p>생산작업이 진행되는 동안에는 생산계획 상품의 [확정]상태값을 수정하지 마세요.</p>
+    <p style="display:none;">'생산수량' 항목의 값은 생산이 진행중일 때 표시됩니다.</p>
 </div>
 
 <div class="select_input">
@@ -192,8 +192,14 @@ $('.data_blank').on('click',function(e){
 <form name="form01" id="form01" action="./order_out_practice_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
+<input type="hidden" name="sst2" value="<?php echo $sst2 ?>">
+<input type="hidden" name="sod2" value="<?php echo $sod2 ?>">
+<input type="hidden" name="sst3" value="<?php echo $sst2 ?>">
+<input type="hidden" name="sod3" value="<?php echo $sod2 ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
+<input type="hidden" name="sfl2" value="<?php echo $sfl2 ?>">
+<input type="hidden" name="stx2" value="<?php echo $stx2 ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
 <!--차종/품명/구분/전일재고/단가/납품/과부족/생산지시/시간1/시간2/시간3/시간4/시간5/시간6/시간7/시간8-->
@@ -208,15 +214,25 @@ $('.data_blank').on('click',function(e){
         </th>
         <th scope="col">ID</th>
         <th scope="col">품명</th>
+        <th scope="col">P/NO</th>
         <th scope="col">수주ID</th>
-        <th scope="col">수주일</th>
         <th scope="col">생산계획ID</th>
-        <th scope="col">생산일</th>
-        <th scope="col">지시번호</th>
-        <th scope="col">설비라인</th>
-        <th scope="col">재고</th>
-        <th scope="col">출하계획<br>무게(kg)</th>
-        <th scope="col">생산지시<br>무게(kg)</th>
+        <th scope="col">(수주일)<br>생산일</th>
+        <th scope="col">설비</th>
+        <th scope="col">전일재고</th>
+        <th scope="col">출하계획<br>납품수량</th>
+        <th scope="col">과부족</th>
+        <th scope="col">지시수량</th>
+        <th scope="col">시간1<br>08:00<br>~10:00</th>
+        <th scope="col">시간2<br>10:10<br>~12:00</th>
+        <th scope="col">시간3<br>13:00<br>~15:00</th>
+        <th scope="col">시간4<br>15:10<br>~17:00</th>
+        <th scope="col">시간5<br>17:10<br>~19:00</th>
+        <th scope="col">시간6<br>19:10<br>~21:00</th>
+        <th scope="col">시간7<br>21:10<br>~23:00</th>
+        <th scope="col">시간8<br>23:10<br>~01:00</th>
+        <th scope="col">시간9<br>01:10<br>~03:00</th>
+        <th scope="col">시간10<br>03:10<br>~05:00</th>
         <th scope="col">상태</th>
         <th scope="col">관리</th>
     </tr>
@@ -224,12 +240,14 @@ $('.data_blank').on('click',function(e){
     <tbody>
     <?php
     for ($i=0; $row=sql_fetch_array($result); $i++) {
-        
+
 
         $s_mod = '<a href="./order_out_practice_form.php?'.$qstr.'&amp;w=u&amp;oop_idx='.$row['oop_idx'].'" class="btn btn_03">수정</a>';
         //$s_copy = '<a href="./order_out_practice_form.php?'.$qstr.'&w=c&oop_idx='.$row['oop_idx'].'" class="btn btn_03" style="margin-right:5px;">복제</a>';
 
         $bg = 'bg'.($i%2);
+
+        $bom = get_table_meta('bom','bom_idx',$row['bom_idx']);
     ?>
 
     <tr class="<?php echo $bg; ?>" tr_id="<?php echo $row['orp_idx'] ?>">
@@ -238,8 +256,8 @@ $('.data_blank').on('click',function(e){
             <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['orp_name']); ?> <?php echo get_text($row['orp_nick']); ?>님</label>
             <input type="checkbox" name="chk[]" value="<?php echo $row['oop_idx'] ?>" id="chk_<?php echo $i ?>">
             <div class="chkdiv_btn" chk_no="<?=$i?>"></div>
-        </td><!--chk-->
-        <td class="td_oop_idx"><?=$row['oop_idx']?></td><!--ID-->
+        </td>
+        <td class="td_oop_idx"><?=$row['oop_idx']?></td>
         <td class="td_bom_name">
             <?php
             $bom_sql = sql_fetch(" SELECT bom_name, bct_id FROM {$g5['bom_table']} WHERE bom_idx = '{$row['bom_idx']}' ");
@@ -251,24 +269,20 @@ $('.data_blank').on('click',function(e){
                 $row['bct_name_tree'] .= ($k == 0) ? $cat_str['bct_name'] : ' > '.$cat_str['bct_name'];
             }
             $bom_name = $bom_sql['bom_name'];
-            echo $row['bct_name_tree'].'<br>';
+            echo ($row['bct_name_tree'])?'<span class="sp_cat">'.$row['bct_name_tree'].'</span><br>':'';
             echo $bom_name;
             ?>
-        </td><!--품명-->
-        <td class="td_ord_idx"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a></td><!--수주ID-->
-        <td class="td_ord_date"> 
-            <a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['ord_date'],2,8)?></a>
-        </td><!--수주일-->
-        <td class="td_orp_idx"><a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_idx']?></a></td><!--생산계획ID-->
-        <td class="td_orp_start_date"> 
-            <a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a>
-        </td><!--생산일-->
-        <td class="td_orp_order_no">
-            <a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_order_no']?></a>
-        </td><!--지시번호-->
-        <td class="td_trm_idx_line">
-            <a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$g5['line_name'][$row['trm_idx_line']]?></a>
-        </td><!--설비라인-->
+        </td>
+        <td class="td_bom_part_no"><?=$bom['bom_part_no']?></td>
+        <td class="td_ord_idx"><a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a></td>
+        <td class="td_orp_idx"><a href="./order_out_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$row['orp_idx']?></a></td>
+        <td class="td_orp_start_date">
+            <?php if($row['ord_date']){ ?>
+            (<?=substr($row['ord_date'],2,8)?>)<br>
+            <?php } ?>
+            <a href="./order_out_practice_list.php?sfl=oop.ord_idx&stx=<?=$row['ord_idx']?>"><?=substr($row['orp_start_date'],2,8)?></a>
+        </td>
+        <td class="td_trm_idx_line"><a href="./order_practice_list.php?sfl=oop.orp_idx&stx=<?=$row['orp_idx']?>"><?=$g5['line_name'][$row['trm_idx_line']]?></a></td>
         <td class="td_prev_stock">
             <?php
             //오늘 새벽 1시10분이전까지 상태값이 finish로 업데이트된 재고량을 합산
@@ -281,15 +295,31 @@ $('.data_blank').on('click',function(e){
             $pre_day_stock = sql_fetch($pre_day_stock_sql);
             ?>
             <span class="prev_stock_<?=$row['oop_idx']?>"><?=$pre_day_stock['cnt']?></span>
-        </td><!--전일재고-->
+        </td>
         <td class="td_oro_cnt">
             <a href="./order_out_list.php?sfl=oro.ord_idx&stx=<?=$row['ord_idx']?>" class="sp_ord_idx">출하관리</a>
-            <span class="oro_count_<?=$row['oop_idx']?>"><?=number_format($row['oro_count'])?></span>
-        </td><!--출하계획량-->
+            <span class="oro_count_<?=$row['oop_idx']?>"><?=$row['oro_count']?></span>
+        </td>
+        <td class="td_lack_cnt">
+            <?php
+            //과부족.lack_oop_idx = 전일재고.prev_stock_oop_idx + 생산지시수량.oop_count_oop_idx - 출하계획납품수량.oro_count_oop_idx
+            $lack_cnt = $pre_day_stock['cnt'] + $row['oop_count'] - $row['oro_count'];
+            ?>
+            <span class="lack_sp lack_<?=$row['oop_idx']?>"><?=$lack_cnt?></span>
+        </td>
         <td class="td_oop_cnt">
-            <input type="hidden" name="oop_1[<?=$row['oop_idx']?>]" value="<?=$row['oop_1']?>" class="oop_1_<?=$row['oop_idx']?>">
-            <input type="text" name="oop_count[<?=$row['oop_idx']?>]" oop_idx="<?=$row['oop_idx']?>" value="<?=number_format($row['oop_count'])?>" class="tbl_input oop_count_<?=$row['oop_idx']?>" style="width:60px;background:#000 !important;text-align:right;" onClick="javascript:chk_Number(this);">
-        </td><!--생산계획량-->
+            <input type="text" name="oop_count[<?=$row['oop_idx']?>]" oop_idx="<?=$row['oop_idx']?>" value="<?=number_format($row['oop_count'])?>" readonly class="readonly tbl_input sit_mat oop_count_<?=$row['oop_idx']?>" style="width:45px;background:#000 !important;text-align:right;">
+        </td>
+        <td class="td_oop_1"><input type="text" oop="1" oop_idx="<?=$row['oop_idx']?>" name="oop_1[<?=$row['oop_idx']?>]" value="<?=$row['oop_1']?>" class="tbl_input shf_one oop_1_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_2"><input type="text" oop="2" oop_idx="<?=$row['oop_idx']?>" name="oop_2[<?=$row['oop_idx']?>]" value="<?=$row['oop_2']?>" class="tbl_input shf_one oop_2_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_3"><input type="text" oop="3" oop_idx="<?=$row['oop_idx']?>" name="oop_3[<?=$row['oop_idx']?>]" value="<?=$row['oop_3']?>" class="tbl_input shf_one oop_3_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_4"><input type="text" oop="4" oop_idx="<?=$row['oop_idx']?>" name="oop_4[<?=$row['oop_idx']?>]" value="<?=$row['oop_4']?>" class="tbl_input shf_one oop_4_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_5"><input type="text" oop="5" oop_idx="<?=$row['oop_idx']?>" name="oop_5[<?=$row['oop_idx']?>]" value="<?=$row['oop_5']?>" class="tbl_input shf_one oop_5_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_6"><input type="text" oop="6" oop_idx="<?=$row['oop_idx']?>" name="oop_6[<?=$row['oop_idx']?>]" value="<?=$row['oop_6']?>" class="tbl_input shf_one oop_6_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_7"><input type="text" oop="7" oop_idx="<?=$row['oop_idx']?>" name="oop_7[<?=$row['oop_idx']?>]" value="<?=$row['oop_7']?>" class="tbl_input shf_one oop_7_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_8"><input type="text" oop="8" oop_idx="<?=$row['oop_idx']?>" name="oop_8[<?=$row['oop_idx']?>]" value="<?=$row['oop_8']?>" class="tbl_input shf_one oop_8_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_9"><input type="text" oop="9" oop_idx="<?=$row['oop_idx']?>" name="oop_9[<?=$row['oop_idx']?>]" value="<?=$row['oop_9']?>" class="tbl_input shf_one oop_9_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_10"><input type="text" oop="10" oop_idx="<?=$row['oop_idx']?>" name="oop_10[<?=$row['oop_idx']?>]" value="<?=$row['oop_10']?>" class="tbl_input shf_one oop_10_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
         <td class="td_orp_status td_oop_status_<?=$row['oop_idx']?>"">
             <input type="hidden" name="oop_status[<?php echo $row['oop_idx'] ?>]" class="oop_status_<?php echo $row['oop_idx'] ?>" value="<?php echo $row['oop_status']?>">
             <input type="text" value="<?php echo $g5['set_oop_status_value'][$row['oop_status']]?>" readonly class="tbl_input readonly oop_status_name_<?php echo $row['oop_idx'] ?>" style="width:60px;text-align:center;">
@@ -297,12 +327,12 @@ $('.data_blank').on('click',function(e){
         <td class="td_mng">
 			<?php ;//$s_copy?>
 			<?=$s_mod?>
-		</td><!--관리-->
+		</td>
     </tr>
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='14' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='24' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>
@@ -332,11 +362,11 @@ $("input[name*=_date],input[id*=_date]").datepicker({ changeMonth: true, changeY
 $(".tbl_head01 tbody tr").on({
     mouseenter: function () {
         $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','#0b1938');
-        
+
     },
     mouseleave: function () {
         $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','unset');
-    }    
+    }
 });
 
 var first_no = '';
@@ -348,7 +378,7 @@ $('.chkdiv_btn').on('click',function(e){
         if(first_no == ''){
             first_no = 0;
         }
-        //first_no정보가 있으면 first_no부터 second_no까지 체크를 선택한다. 
+        //first_no정보가 있으면 first_no부터 second_no까지 체크를 선택한다.
         else{
             ;
         }
@@ -387,12 +417,12 @@ $('.chkdiv_btn').on('click',function(e){
         }
     }
 });
-/*
+
 $('.shf_one').on('keyup',function(e){
     var ask = e.keyCode;
     var oop_idx = $(e.target).attr('oop_idx');
     var oop_n = $(e.target).attr('oop');
-    
+
     var RegExp = /[\{\}\[\]\/?.,;:|\)*~`!^\-_+┼<>@\#$%&\'\"\\\(\=]/gi; //특수문자 패턴
     var instr = $(this).val();
     if(RegExp.test(instr)){
@@ -431,7 +461,9 @@ function calsum(oop_idx){
     var oop6 = ($('input[name="oop_6['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_6['+oop_idx+']"]').val()) : 0;
     var oop7 = ($('input[name="oop_7['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_7['+oop_idx+']"]').val()) : 0;
     var oop8 = ($('input[name="oop_8['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_8['+oop_idx+']"]').val()) : 0;
-    var oopt = oop1 + oop2 + oop3 + oop4 + oop5 + oop6 + oop7 + oop8;
+    var oop9 = ($('input[name="oop_9['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_9['+oop_idx+']"]').val()) : 0;
+    var oop10 = ($('input[name="oop_10['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_10['+oop_idx+']"]').val()) : 0;
+    var oopt = oop1 + oop2 + oop3 + oop4 + oop5 + oop6 + oop7 + oop8 + oop9 + oop10;
     var oop_input = $('input[name="oop_count['+oop_idx+']"]');
     //과부족.lack_oop_idx = 전일재고.prev_stock_oop_idx + 생산지시수량.oop_count_oop_idx - 출하계획납품수량.oro_count_oop_idx
     var lack_cnt = Number($('.prev_stock_'+oop_idx).text()) + oopt - Number($('.oro_count_'+oop_idx).text());
@@ -439,18 +471,11 @@ function calsum(oop_idx){
     if(!isNaN(oop_input.val().replace(/,/g,'')))
         oop_input.val(thousand_comma(oopt));
 }
-*/
+
 // 숫자만 입력
-/*
-if(!isNaN($(this).val().replace(/,/g,'')))
-            $(this).val( thousand_comma( $(this).val().replace(/,/g,'') ) );
-*/
 function chk_Number(object){
     $(object).keyup(function(){
-        $(this).val($(this).val().replace(/[^0-9|,]/g,""));
-        if(!isNaN($(this).val().replace(/,/g,'')))
-            $(this).val( thousand_comma( $(this).val().replace(/,/g,'') ) );
-        $(this).siblings('input').val($(this).val().replace(/,/g,''));
+        $(this).val($(this).val().replace(/[^0-9|-]/g,""));
     });
 }
 
@@ -480,7 +505,7 @@ function slet_input(f){
             $('.td_oop_status_'+chk_idx[idx]).find('input[type="text"]').val(o_status_name);
         }
     }
-}    
+}
 
 function form01_submit(f)
 {

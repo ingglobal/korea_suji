@@ -92,15 +92,15 @@ include_once('./_head.sub.php');
     .div_title .spsn_mms_group {position:absolute;top:1px;right:10px;}
     .btn_mesaure, .btn_product {
         cursor:pointer;margin:2px 2px 2px 0;
-        border: solid 1px #ddd;
+        border: solid 1px #095D9D;
         border-radius: 15px;
         padding: 0 10px;
-        background: #fff;
+        background: #095D9D;
     }
     .div_measure, .div_product {padding:2px 0;}
     .div_product {margin-top:7px;}
     .div_measure {margin-bottom:30px;}
-    .btn_mesaure:hover, .btn_product:hover {color:yellow;background: #000;}
+    .btn_mesaure:hover, .btn_product:hover {color:yellow;background: #084C8C;}
     #spinner {display:none;}
     .tbl_head01 tbody td {
         text-align:left;
@@ -228,7 +228,7 @@ include_once('./_head.sub.php');
                     <span class="spsn_mms_group"><b>위치</b><?php echo $row['group']['mmg_name']; ?></span>
                 </div>
                 <div class="div_product">
-                    <span class="btn_product" mms_idx="<?=$row['mms_idx']?>" mms_name="<?=$row['mms_name']?>" mms_data_url="<?=$row['mms_data_url']?>">
+                    <span class="btn_product" mms_idx="<?=$row['mms_idx']?>" mms_name="<?=$row['mms_name']?>" mms_data_url="<?=$row['mms_data_url']?>" style="display:none;">
                         <b>생산</b> <?=$row['products']?>
                     </span>
                 </div>
@@ -298,11 +298,11 @@ $(function() {
     $(".btn_test").click(function() {
         var tests =[];
         tests[0] = {
-            dta_data_url: "icmms.co.kr/device/json",
+            dta_data_url: "bogwang.epcs.co.kr/device/json",
             dta_no: 0,
         };
         tests[1] = {
-            dta_data_url: "icmms.co.kr/device/json",
+            dta_data_url: "bogwang.epcs.co.kr/device/json",
             dta_no: 1,
         };
         $("#chart1", opener.document).attr("tests",JSON.stringify(tests) );
@@ -394,9 +394,9 @@ $(function() {
                 ||$file_name=='iframe.graph'||$file_name=='iframe.graph5') {
         ?>
 
-            // 전제 생산량 (합격+불량) --------------------------------
+            // 전체 생산량 (합격+불량) --------------------------------
             dta_group = "product";  // mea, product, run, error
-            dta_json_file = "output";
+            dta_json_file = "item";
             dta_data_url = $(this).attr('mms_data_url') || "<?=$g5['set_data_url']?>";
             mms_idx = $(this).attr('mms_idx');
             mms_name = encodeURIComponent($(this).attr('mms_name'));
@@ -404,7 +404,7 @@ $(function() {
             dta_no = 0;    // 
             shf_no = "";
             dta_mmi_no = "";
-            dta_defect = "0,1"; // 생산전체(합격, 불량 둘다)
+            dta_defect = "0"; // 생산전체(합격, 불량 둘다)
             dta_defect_type = 0;
             dta_code = "";
             graph_type = "column";  // column graph for output
@@ -450,7 +450,7 @@ $(function() {
 
             // 목표 ---------------------------------------------
             // 중복값은 선언할 필요 없음
-            dta_json_file = "output.target";
+            dta_json_file = "item.target";
             dta_data_url = "<?=strip_http(G5_ADMIN_URL)?>/v10/ajax";
             graph_type = "spline";
             graph_line = "shortdot";    // 점선

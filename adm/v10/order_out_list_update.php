@@ -14,7 +14,7 @@ auth_check($auth[$sub_menu], 'w');
 
 check_admin_token();
 
-
+//print_r2($_POST['chk']);exit;
 
 if ($_POST['act_button'] == "선택수정") {
 
@@ -71,7 +71,6 @@ if ($_POST['act_button'] == "선택수정") {
 } else if ($_POST['act_button'] == "선택삭제") {
 
     foreach($_POST['chk'] as $oro_idx_v){
-
         //1. 생산실행에 ord_idx가 있으면 삭제할 수 없다.
         $ori_sql = " SELECT COUNT(*) AS cnt FROM {$g5['order_out_practice_table']} WHERE oro_idx = '".$oro_idx_v."' AND oop_status NOT IN('del','delete','cancel','trash') ";
         $ori = sql_fetch($ori_sql);
@@ -102,5 +101,7 @@ if ($msg)
 
 //exit;
 $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 넘겨야 할 변수들
+if($schrows)
+    $qstr .= '&schrows='.$schrows;
 goto_url('./order_out_list.php?'.$qstr);
 ?>

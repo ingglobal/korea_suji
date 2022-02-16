@@ -59,7 +59,7 @@ add_javascript('<script src="'.G5_USER_URL.'/js/slick-1.8.1/slick/slick.min.js">
         $row['com'] = get_table_meta('company','com_idx',$row['com_idx']);
         $row['mmg'] = get_table_meta('mms_group','mmg_idx',$row['mmg_idx']);
         $row['img'] = get_mms_image(array("mms_idx"=>$row['mms_idx'],"img_width"=>227,"img_height"=>180));
-        // print_r2($row['img']);
+        //print_r2($row['img']);
         // echo $row['img']['img'];
         // print_r2($row['mmg']);
         // 기종 추출 (해당 설비 맨 마지막 1개)
@@ -80,7 +80,7 @@ add_javascript('<script src="'.G5_USER_URL.'/js/slick-1.8.1/slick/slick.min.js">
         <tr class="tr_title">
             <td colspan="2" class="td_center" title="<?=$row['mms_name']?>"><?=cut_str($row['mms_name'],7,'..')?></td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td>생산기종</td>
             <td class="mms_mmi_no"><?=$row['item']['mmi_no']?></td>
         </tr>
@@ -88,7 +88,7 @@ add_javascript('<script src="'.G5_USER_URL.'/js/slick-1.8.1/slick/slick.min.js">
             <td>일생산</td>
             <td><span class="daily_output"></span></td>
         </tr>
-        <tr>
+        <tr style="display:none;">
             <td>달성율</td>
             <td><span class="daily_output_rate"></span></td>
         </tr>
@@ -267,9 +267,9 @@ if($i>0) {
             <ul class="span_mms_setting">
                 <li><a href="javascript:" class="set_mms_view">설비이력카드</a></li>
                 <!-- <li><a href="javascript:" class="set_mms_parts">부속품관리</a></li> -->
-                <li><a href="javascript:" class="set_mms_maintain">정비관리</a></li>
+                <li style="display:no ne;"><a href="javascript:" class="set_mms_maintain">정비관리</a></li>
                 <!-- <li><a href="javascript:" class="set_mms_checks">점검기준관리</a></li> -->
-                <li><a href="javascript:" class="set_mms_item">기종설정</a></li>
+                <li style="display:no ne;"><a href="javascript:" class="set_mms_item">기종설정</a></li>
                 <!-- <li><a href="javascript:" class="set_mms_shift">교대및목표설정</a></li> -->
                 <li><a href="javascript:" class="set_mms_graph_setting">그래프설정</a></li>
                 <li><a href="javascript:" class="set_mms_setting">설비설정</a></li>
@@ -280,12 +280,72 @@ if($i>0) {
         <div class="mms_tabs" style="margin-top:10px;">
             <div id="tabs1">
                 <ul>
-                    <li><a href="#tabs-1">주요현황</a></li>
-                    <li><a href="#tabs-2">설비정보</a></li>
+                    <li><a href="#tabs-1">설비정보</a></li>
+                    <li><a href="#tabs-2">주요현황</a></li>
                 </ul>
                 <div id="tabs-1">
                     <table class="data_mms_table">
                     <tr>
+                        <td>계획정비</td>
+                        <td>
+                            <?php
+                            $sql = "SELECT COUNT(wr_id) AS cnt FROM g5_write_plan WHERE wr_is_comment = 0 AND wr_1 = '".$_SESSION['ss_com_idx']."' ";
+                            // echo $sql.'<br>';
+                            $board_plan = sql_fetch($sql,1);
+                            echo '<a href="'.G5_BBS_URL.'/board.php?bo_table=plan">'.$board_plan['cnt'].'</a>';
+                            ?> 건
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>정비이력</td>
+                        <td>
+                            <?php
+                            $sql = "SELECT COUNT(wr_id) AS cnt FROM g5_write_maintain WHERE wr_is_comment = 0 AND wr_1 = '".$_SESSION['ss_com_idx']."' ";
+                            // echo $sql.'<br>';
+                            $maintain_plan = sql_fetch($sql,1);
+                            echo '<a href="'.G5_BBS_URL.'/board.php?bo_table=maintain">'.$maintain_plan['cnt'].'</a>';
+                            ?> 건
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>매뉴얼</td>
+                        <td>
+                            <?php
+                            $sql = "SELECT COUNT(wr_id) AS cnt FROM g5_write_manual WHERE wr_is_comment = 0 AND wr_1 = '".$_SESSION['ss_com_idx']."' ";
+                            // echo $sql.'<br>';
+                            $manual_plan = sql_fetch($sql,1);
+                            echo '<a href="'.G5_BBS_URL.'/board.php?bo_table=manual">'.$manual_plan['cnt'].'</a>';
+                            ?> 건
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>설비사양서</td>
+                        <td>
+                            <?php
+                            $sql = "SELECT COUNT(wr_id) AS cnt FROM g5_write_drawing WHERE wr_is_comment = 0 AND wr_1 = '".$_SESSION['ss_com_idx']."' ";
+                            // echo $sql.'<br>';
+                            $drawing_plan = sql_fetch($sql,1);
+                            echo '<a href="'.G5_BBS_URL.'/board.php?bo_table=drawing">'.$drawing_plan['cnt'].'</a>';
+                            ?> 건
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A/S연락처</td>
+                        <td>
+                            <?php
+                            $sql = "SELECT COUNT(wr_id) AS cnt FROM g5_write_contact WHERE wr_is_comment = 0 AND wr_1 = '".$_SESSION['ss_com_idx']."' ";
+                            // echo $sql.'<br>';
+                            $contact_plan = sql_fetch($sql,1);
+                            echo '<a href="'.G5_BBS_URL.'/board.php?bo_table=contact">'.$contact_plan['cnt'].'</a>';
+                            ?> 건
+                        </td>
+                    </tr>
+                    </table>
+                </div>
+                <!-- 설비정보 -->
+                <div id="tabs-2">
+                    <table class="data_mms_table">
+                    <tr style="display:none;">
                         <td>생산기종</td>
                         <td class="mms_mmi_no"><?=$row['item']['mmi_no']?></td>
                     </tr>
@@ -293,7 +353,7 @@ if($i>0) {
                         <td>일생산</td>
                         <td class="daily_output">0</td>
                     </tr>
-                    <tr>
+                    <tr style="display:none;">
                         <td>달성율</td>
                         <td class="daily_output_rate">0%</td>
                     </tr>
@@ -316,35 +376,6 @@ if($i>0) {
                     <tr>
                         <td>불량</td>
                         <td class="daily_output_defect">0</td>
-                    </tr>
-                    </table>
-                </div>
-                <!-- 설비정보 -->
-                <div id="tabs-2">
-                    <table class="data_mms_table">
-                    <tr>
-                        <td>예방정비</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>정비이력</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>부품재고</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>매뉴얼</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>설비도면</td>
-                        <td>0</td>
-                    </tr>
-                    <tr>
-                        <td>A/S연락처</td>
-                        <td>0</td>
                     </tr>
                     </table>
                 </div>
@@ -418,7 +449,7 @@ if($i>0) {
 </div>
 
 <div class="btn_fixed_top">
-    <a href="./dashboard_graph_multi.php" com_idx="<?=$_SESSION['ss_com_idx']?>" class="btn btn_02"><i class="fa fa-bar-chart"></i> 겹쳐보기</a>
+    <a href="./dashboard_graph_multi.php" com_idx="<?=$_SESSION['ss_com_idx']?>" class="btn btn_02" style="display:none;"><i class="fa fa-bar-chart"></i> 겹쳐보기</a>
     <a href="./dashboard_mms_group.php" com_idx="<?=$_SESSION['ss_com_idx']?>" class="btn btn_02 btn_mms_group"><i class="fa fa-th"></i> 배치도</a>
     <a href="./dashboard_setting.php?file_name=<?=$g5['file_name']?>" id="btn_add" class="btn btn_02" style="display:none;"><i class="fa fa-gear"></i> 설정</a>
 </div>
@@ -446,32 +477,33 @@ $(document).on('click','.list_mms_table',function(e){
     $('.data_left').attr('mms_idx',my_mms_idx);
 
     // 이미지 변경
+    
     this_img = $('<img src="'+this_li.attr('mms_img_src')+'">');
     $('.data_left').find('.mms_image').empty().append( this_img );
     
-    // 생산기종
+    // 생산기종
     $('.data_left').find('.mms_mmi_no').text( this_li.find('.mms_mmi_no').text() );
 
-    // 일생산
+    // 일생산
     $('.data_left').find('.daily_output').text( this_li.find('.daily_output').text() );
 
-    // 달성율
+    // 달성율
     $('.data_left').find('.daily_output_rate').text( this_li.find('.daily_output_rate').text() );
 
-    // 장비이상
+    // 장비이상
     $('.data_left').find('.daily_error_count').text( this_li.find('.daily_error_count').text() );
 
-    // 예지알람
+    // 예지알람
     $('.data_left').find('.daily_alarm_count').text( this_li.find('.daily_alarm_count').text() );
 
-    // 가동시간
+    // 가동시간
     $('.data_left').find('.daily_run_time_hour').text( this_li.find('table').data('daily_run_time_hour') );
 
-    // 합격
+    // 합격
     this_daily_output_success = this_li.find('table').data('daily_output_success') || 0;
     $('.data_left').find('.daily_output_success').text( thousand_comma(this_daily_output_success) );
 
-    // 불량
+    // 불량
     this_daily_output_defect = this_li.find('table').data('daily_output_defect') || 0;
     $('.data_left').find('.daily_output_defect').text( thousand_comma(this_daily_output_defect) );
 
@@ -485,6 +517,7 @@ $(document).on('click','.list_mms_table',function(e){
 
     // 프레임 이동
     $('#data_right').attr('src', './iframe.<?=$g5['file_name']?>.php?mms_idx='+my_mms_idx);
+    
     // $('#data_right').attr('src', './iframe.<?=preg_replace("/index/","graph",$g5['file_name'])?>.php?mms_idx='+my_mms_idx);
 
 });

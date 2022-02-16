@@ -13,6 +13,23 @@ CREATE TABLE `g5_1_order` (
   PRIMARY KEY (`ord_idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+
+CREATE TABLE `g5_1_data_output_40` (
+  `dta_idx` bigint(20) NOT NULL COMMENT '데이터idx',
+  `dta_shf_no` int(11) NOT NULL COMMENT '교대번호',
+  `dta_mmi_no` int(11) NOT NULL COMMENT '기종번호',
+  `dta_group` varchar(10) NOT NULL DEFAULT 'product' COMMENT '데이터그룹',
+  `dta_defect` tinyint(2) NOT NULL COMMENT '불량',
+  `dta_defect_type` tinyint(2) NOT NULL COMMENT '불량타입',
+  `dta_dt` int(11) DEFAULT NULL COMMENT '일시',
+  `dta_date` date NOT NULL DEFAULT '0000-00-00' COMMENT '통계일',
+  `dta_value` double DEFAULT 0 COMMENT '정수,음수,실수',
+  `dta_reg_dt` int(11) DEFAULT NULL COMMENT '등록일시',
+  `dta_update_dt` int(11) DEFAULT NULL COMMENT '수정일시',
+  PRIMARY KEY (`dta_idx`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `g5_1_order_out` (
   `oro_idx` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '수주idx',
   `com_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT '업체번호',
@@ -123,6 +140,25 @@ CREATE TABLE `g5_1_item` (
   PRIMARY KEY (`itm_idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+// 생산통계
+CREATE TABLE `g5_1_item_sum` (
+  `itm_idx` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '생산제품idx',
+  `com_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT '업체번호',
+  `imp_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT 'IMPidx',
+  `mms_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT 'MMSidx',
+  `mmg_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT '설비그룹idx',
+  `shf_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT '작업구간idx',
+  `itm_shift` int(11) NOT NULL DEFAULT '0' COMMENT '구간번호',
+  `bom_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT 'BOMidx',
+  `bom_part_no` varchar(100) DEFAULT '' COMMENT '파트넘버',
+  `itm_price` int(11) NOT NULL DEFAULT '0' COMMENT '단가',
+  `itm_count` int(11) NOT NULL DEFAULT '0' COMMENT '수량',
+  `itm_defect` int(11) NOT NULL DEFAULT '0' COMMENT '불량여부',
+  `itm_defect_type` int(11) NOT NULL DEFAULT '0' COMMENT '불량타입',
+  `itm_date` date DEFAULT '0000-00-00' COMMENT '날짜',
+  PRIMARY KEY (`itm_idx`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 // 자재
 CREATE TABLE `g5_1_material` (
   `mtr_idx` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '생산제품idx',
@@ -212,6 +248,22 @@ CREATE TABLE `g5_1_bom_item` (
   `bit_update_dt` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '수정일시',
   PRIMARY KEY (`bit_idx`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+// 빠레트
+CREATE TABLE `g5_1_pallet` (
+  `plt_idx` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '파레트idx',
+  `plt_idx_parent` bigint(20) NOT NULL DEFAULT '0' COMMENT '파레트idx부모',
+  `com_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT '업체번호',
+  `bom_idx` bigint(20) NOT NULL DEFAULT '0' COMMENT 'BOMidx',
+  `bom_part_no` varchar(100) DEFAULT '' COMMENT '파트넘버',
+  `plt_barcode` varchar(100) DEFAULT '' COMMENT '바코드',
+  `plt_count` int(11) NOT NULL DEFAULT '0' COMMENT '갯수',
+  `plt_status` varchar(20) DEFAULT 'pending' COMMENT '상태',
+  `plt_reg_dt` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '등록일시',
+  `plt_update_dt` datetime DEFAULT '0000-00-00 00:00:00' COMMENT '수정일시',
+  PRIMARY KEY (`plt_idx`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 
 
 SELECT bop_price, bop_start_date 
@@ -508,3 +560,178 @@ ORDER BY bit.bit_num DESC, bit.bit_reply
 
 
 
+$sql = "SELECT bom.bom_idx, com_idx_customer, bom.bom_name, bom_part_no, bom_price, bom_status
+            , bit1.bit_idx, bit1.bom_idx_child, bit1.bit_reply, bit1.bit_count
+            , COUNT(bit2.bit_idx) AS group_count
+        FROM {$g5['bom_item_table']} AS bit1
+            JOIN {$g5['bom_item_table']} AS bit2
+            LEFT JOIN {$g5['bom_table']} AS bom ON bom.bom_idx = bit2.bom_idx_child
+        WHERE bit1.bom_idx = '".$bom_idx."' AND bit2.bom_idx = '".$bom_idx."'
+            AND bit1.bit_num = bit2.bit_num
+            AND bit2.bit_reply LIKE CONCAT(bit1.bit_reply,'%')
+        GROUP BY bit1.bit_num, bit1.bit_reply
+        ORDER BY bit1.bit_num DESC, bit1.bit_reply
+";
+SELECT bom.bom_idx, com_idx_customer, bom.bom_name, bom_part_no, bom_price, bom_status, bom_min_cnt
+      , bit1.bit_idx, bit1.bom_idx_child, bit1.bit_reply, bit1.bit_count 
+      , COUNT(bit2.bit_idx) AS group_count
+FROM g5_1_bom_item AS bit1 
+  JOIN g5_1_bom_item AS bit2
+  LEFT JOIN g5_1_bom AS bom ON bom.bom_idx = bit2.bom_idx_child
+WHERE bit1.bom_idx = '1083' AND bit2.bom_idx = '1083'
+  AND bit1.bit_num = bit2.bit_num AND bit2.bit_reply LIKE CONCAT(bit1.bit_reply,'%')
+GROUP BY bit1.bit_num, bit1.bit_reply
+ORDER BY bit1.bit_num DESC, bit1.bit_reply
+
+
+SELECT * FROM g5_1_item WHERE itm_barcode != '' AND itm_status = 'ing' ORDER BY RAND() LIMIT 1
+
+SELECT * FROM g5_1_item
+WHERE bom_part_no = '88700-J9110PUR' AND itm_status = 'finish' ORDER BY itm_idx LIMIT 100
+
+
+SELECT bom_idx,com_idx,bct_id,bom_name,bom_part_no FROM g5_1_bom
+WHERE com_idx = '11'
+    AND bom_type = 'product'
+    AND bom_status = 'ok'
+ORDER BY RAND() LIMIT 1
+
+// itme_sum
+SELECT itm_date, itm_shift, itm_status
+  , COUNT(itm_idx) AS itm_count_sum
+FROM g5_1_item
+WHERE itm_status NOT IN ('trash','delete')
+      AND itm_date != '0000-00-00'
+GROUP BY itm_date, itm_shift, itm_status
+ORDER BY itm_date ASC, itm_shift, itm_status
+
+
+SELECT itm.com_idx, itm_date, itm_shift, trm_idx_line, bom_idx, bom_part_no, itm_price
+, COUNT(itm_idx) AS itm_count
+FROM g5_1_item AS itm
+    LEFT JOIN g5_1_order_practice AS orp USING(orp_idx)
+WHERE itm_status NOT IN ('trash','delete')
+    AND itm_date != '0000-00-00'
+GROUP BY itm_date, trm_idx_line, itm_shift, itm_status
+ORDER BY itm_date ASC, trm_idx_line, itm_shift, itm_status
+
+// now, let's get the product count for defect and defect_type respectively
+SELECT itm.com_idx, itm_date, itm_shift, trm_idx_line, bom_idx, bom_part_no, itm_price, itm_status
+, COUNT(itm_idx) AS itm_count
+FROM g5_1_item AS itm
+    LEFT JOIN g5_1_order_practice AS orp USING(orp_idx)
+WHERE itm_status NOT IN ('trash','delete')
+    AND itm_date != '0000-00-00'
+GROUP BY itm_date, trm_idx_line, itm_shift, bom_idx, itm_status
+ORDER BY itm_date ASC, trm_idx_line, itm_shift, bom_idx, itm_status
+
+
+// itm_price update
+UPDATE g5_1_item AS itm SET
+itm_price = (SELECT bom_price FROM g5_1_bom WHERE bom_idx = itm.bom_idx)
+
+delete FROM `g5_1_item` WHERE itm_reg_dt > '2021-12-14 00:00:00';
+delete FROM `g5_1_item_sum` WHERE itm_date > '2021-12-13';
+
+
+// Output production target query
+SELECT bom_idx, trm_idx_line, orp_done_date, oop_count, oop_1, oop_2, oop_3, oop_4, oop_5, oop_6, oop_7, oop_8, oop_9, oop_10
+FROM g5_1_order_out_practice AS oop
+    LEFT JOIN g5_1_order_practice AS orp ON orp.orp_idx = oop.orp_idx
+WHERE orp_done_date != '0000-00-00'
+GROUP BY bom_idx, trm_idx_line, orp_done_date, oop_count, oop_1, oop_2, oop_3, oop_4, oop_5, oop_6, oop_7, oop_8, oop_9, oop_10
+ORDER BY bom_idx, trm_idx_line, orp_done_date
+
+
+// item statics by some amount of time unit.
+SELECT dta_dt, FROM_UNIXTIME(dta_dt,'%Y-%m-%d %H:%i:%s') AS dta_ymdhis
+        , dta_shf_no, dta_mmi_no
+        , SUM(dta_value) AS dta_value
+        , (dta_dt DIV 3600) AS dta_divided
+        , (dta_dt DIV 3600)*3600 AS dta_made_timestamp
+        , FROM_UNIXTIME((dta_dt DIV 3600)*3600,'%Y-%m-%d %H:%i:%s') AS dta_made_dt
+FROM g5_1_data_output_4
+WHERE FROM_UNIXTIME(dta_dt,'%Y-%m-%d') = '2021-02-17'
+GROUP BY dta_dt DIV 3600
+ORDER BY dta_dt ASC
+
+SELECT UNIX_TIMESTAMP(itm_reg_dt) AS dta_dt, itm_reg_dt
+--        , COUNT( itm_idx ) AS itm_sum
+--        , SUM( CASE WHEN itm_status IN ('ing','finish') THEN 1 ELSE 0 END ) AS itm_ok
+--        , SUM( CASE WHEN itm_status IN ('error_stitch') THEN 1 ELSE 0 END ) AS itm_ng
+        , (UNIX_TIMESTAMP(itm_reg_dt) DIV 3600) AS dta_divided
+        , (UNIX_TIMESTAMP(itm_reg_dt) DIV 3600)*3600 AS dta_made_timestamp
+        , FROM_UNIXTIME((UNIX_TIMESTAMP(itm_reg_dt) DIV 3600)*3600,'%Y-%m-%d %H:%i:%s') AS dta_made_dt
+FROM g5_1_item
+WHERE itm_reg_dt >= '2021-12-01 00:00:00' AND itm_reg_dt <= '2021-12-03 23:59:59'
+-- GROUP BY UNIX_TIMESTAMP(itm_reg_dt) DIV 3600
+ORDER BY UNIX_TIMESTAMP(itm_reg_dt) ASC
+
+
+SELECT UNIX_TIMESTAMP(itm_reg_dt) AS dta_dt, itm_reg_dt
+  , COUNT( itm_idx ) AS itm_sum
+  , SUM( CASE WHEN itm_status IN ('ing','finish') THEN 1 ELSE 0 END ) AS itm_ok
+  , SUM( CASE WHEN itm_status IN ('error_stitch') THEN 1 ELSE 0 END ) AS itm_ng
+  , (UNIX_TIMESTAMP(itm_reg_dt) DIV 3600) AS dta_divided
+  , (UNIX_TIMESTAMP(itm_reg_dt) DIV 3600)*3600 AS dta_made_timestamp
+  , FROM_UNIXTIME((UNIX_TIMESTAMP(itm_reg_dt) DIV 3600)*3600,'%Y-%m-%d %H:%i:%s') AS dta_made_dt
+FROM g5_1_item
+WHERE itm_reg_dt >= '2021-12-01 00:00:00' AND itm_reg_dt <= '2021-12-03 23:59:59'
+GROUP BY UNIX_TIMESTAMP(itm_reg_dt) DIV 3600
+ORDER BY UNIX_TIMESTAMP(itm_reg_dt) ASC
+
+// mms_idx value update from 46~49
+SELECT ROUND((45.5 + RAND() * 4)) 
+UPDATE `g5_1_item` SET mms_idx = ROUND((45.5 + RAND() * 4)) 
+
+
+
+// statistics 통계 맞추는 쿼리 (최종)
+// g5_1_item_sum 테이블 비우고 실행해 주시면 됩니다.
+INSERT INTO g5_1_item_sum (com_idx, mms_idx, mmg_idx, itm_date, itm_shift, trm_idx_line, bom_idx, bom_part_no, itm_price, itm_status, itm_count)
+SELECT itm.com_idx, itm.mms_idx, 14, itm_date, itm_shift, trm_idx_line, oop.bom_idx, bom_part_no, itm_price, itm_status
+, COUNT(itm_idx) AS itm_count
+FROM g5_1_item AS itm
+    LEFT JOIN g5_1_order_out_practice AS oop ON oop.oop_idx = itm.oop_idx
+    LEFT JOIN g5_1_order_practice AS orp ON orp.orp_idx = oop.orp_idx
+WHERE itm_status NOT IN ('trash','delete')
+    AND itm_date != '0000-00-00'
+GROUP BY itm_date, itm.mms_idx, trm_idx_line, itm_shift, bom_idx, itm_status
+ORDER BY itm_date ASC, trm_idx_line, itm_shift, bom_idx, itm_status
+
+
+
+
+// UPH basic query
+SELECT SQL_CALC_FOUND_ROWS mms_idx, dta_mmi_no, dta_date
+  , SUM(dta_value) AS output_sum
+FROM g5_1_data_output_sum
+WHERE mms_idx = '34' AND dta_date >= '2022-01-01' AND dta_date <= '2022-01-11'
+GROUP BY dta_mmi_no, dta_date 
+ORDER BY dta_mmi_no, dta_date
+
+
+
+SELECT (CASE WHEN n='1' THEN ymd_date ELSE 'total' END) AS item_name , SUM(output_total) AS output_total , MAX(output_total) AS output_max , SUM(output_good) AS output_good , SUM(output_defect) AS output_defect FROM ( SELECT ymd_date , SUM(output_total) AS output_total , SUM(output_good) AS output_good , SUM(output_defect) AS output_defect FROM ( ( SELECT CAST(ymd_date AS CHAR) AS ymd_date , 0 AS output_total , 0 AS output_good , 0 AS output_defect FROM g5_5_ymd AS ymd WHERE ymd_date BETWEEN '2022-01-01' AND '2022-01-12' ORDER BY ymd_date ) UNION ALL ( 
+  
+SELECT itm_date AS ymd_date 
+  , SUM(itm_count) AS output_total 
+  , SUM( CASE WHEN itm_status IN ('ing','finish') THEN itm_count ELSE 0 END ) AS output_good 
+  , SUM( CASE WHEN itm_status IN ('error_stitch','error_wrinkle','error_fabric','error_push','error_pollution','error_bottom','error_etc') THEN itm_count ELSE 0 END ) AS output_defect
+FROM g5_1_item_sum
+WHERE itm_date >= '2022-01-01' AND itm_date <= '2022-01-12' AND com_idx='11'
+GROUP BY ymd_date
+ORDER BY ymd_date
+
+
+SELECT 
+    itm_date AS ymd_date
+    , SUM(itm_count) AS output_total
+    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
+    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+    FROM {$g5['item_sum_table']}
+WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
+    AND com_idx='".$com_idx."'
+    {$sql_mmses}
+GROUP BY ymd_date
+ORDER BY ymd_date

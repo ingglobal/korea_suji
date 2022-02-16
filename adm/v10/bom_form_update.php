@@ -38,9 +38,6 @@ for($i=0;$i<sizeof($fields);$i++) {
 // 공통쿼리 생성
 $sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 
-if($ser_bom_type){
-    $qstr .= '&ser_bom_type='.$ser_bom_type;
-}
 
 if ($w == '') {
     
@@ -88,7 +85,7 @@ else if ($w == 'u') {
         //print_r2($del_arr);exit;
         if(@count($del_arr)) delete_idx_file($del_arr);
 
-        //print_r2($_FILES);exit;
+        // print_r2($_FILES);exit;
         for($i=1;$i<=6;$i++){
             //print_r2($_FILES['cat_f'.$i]);
             upload_multi_file($_FILES['bom_f'.$i],'bom',${$pre."_idx"},'bomf'.$i);
@@ -139,10 +136,7 @@ foreach($_REQUEST as $key => $value ) {
 	}
 }
 
-
-$list_url = './'.$fname.'_list.php?'.$qstr;
-
 // exit;
-goto_url($list_url, false);
+goto_url('./'.$fname.'_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 // goto_url('./'.$fname.'_form.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 ?>

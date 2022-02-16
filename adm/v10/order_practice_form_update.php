@@ -32,6 +32,8 @@ for($i=0;$i<sizeof($fields);$i++) {
     $sql_commons[] = " ".$fields[$i]." = '".$_POST[$fields[$i]]."' ";
 }
 
+// print_r2($sql_commons);
+// exit;
 // after sql_common value setting
 // $sql_commons[] = " com_idx = '".$_SESSION['ss_com_idx']."' ";
 

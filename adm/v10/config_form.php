@@ -33,7 +33,7 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 <section id="anc_cf_default">
 	<h2 class="h2_frm">기본설정</h2>
 	<?php echo $pg_anchor ?>
-	
+
 	<div class="tbl_frm01 tbl_wrap">
 		<table>
 		<caption>기본설정</caption>
@@ -70,6 +70,27 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			<td colspan="3">
 				<?php echo help('0=특정기간,1=공통(전체기간)') ?>
 				<input type="text" name="set_period_type" value="<?php echo $g5['setting']['set_period_type'] ?>" id="set_period_type" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">모니터별업로드이미지개수</th>
+			<td colspan="3">
+				<?php echo help('예) 3 : 최대 3장 업로드 가능') ?>
+				<input type="text" name="set_monitor_cnt" value="<?php echo $g5['setting']['set_monitor_cnt'] ?>" id="set_monitor_cnt" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">모니터이미지로테이션시간</th>
+			<td colspan="3">
+				<?php echo help('예) 3000 : 3초') ?>
+				<input type="text" name="set_monitor_time" value="<?php echo $g5['setting']['set_monitor_time'] ?>" id="set_monitor_time" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">모니터페이지리로딩간격시간</th>
+			<td colspan="3">
+				<?php echo help('예) 10000 : 10초') ?>
+				<input type="text" name="set_monitor_reload" value="<?php echo $g5['setting']['set_monitor_reload'] ?>" id="set_monitor_reload" required class="required frm_input" style="width:60%;">
 			</td>
 		</tr>
 		<tr>
@@ -296,6 +317,7 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 		<tr>
 			<th scope="row">가동상태</th>
 			<td colspan="3">
+				<?php echo help('0=POWER OFF, 1=수동, 2=자동, 3=이상') ?>
 				<input type="text" name="set_run_status" value="<?php echo $g5['setting']['set_run_status']; ?>" class="frm_input" style="width:60%;">
 			</td>
 		</tr>
@@ -331,6 +353,13 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
             <td>
                 <?php echo help('3차분류를 ex)cat3_name=카테고리3설명 이와같이 작성하고 구분은 줄바꿈으로 세로로 나열하세요.<br>(가능한 기존의 작성 순서를 지켜주시고 만약 순서를 변경 하였을시 각 제품(BOM)의 설정된 카테고리도 변경해야 할 수 있습니다.)') ?>
                 <textarea name="set_cat_3" id="set_cat_3" style="width:50%;height:200px;"><?php echo get_text($g5['setting']['set_cat_3']); ?></textarea>
+            </td>
+        </tr>
+		<tr>
+            <th scope="row">4차분류(카테고리4)</th>
+            <td>
+                <?php echo help('4차분류를 ex)cat4_name=카테고리4설명 이와같이 작성하고 구분은 줄바꿈으로 세로로 나열하세요.<br>(가능한 기존의 작성 순서를 지켜주시고 만약 순서를 변경 하였을시 각 제품(BOM)의 설정된 카테고리도 변경해야 할 수 있습니다.)') ?>
+                <textarea name="set_cat_4" id="set_cat_4" style="width:50%;height:200px;"><?php echo get_text($g5['setting']['set_cat_4']); ?></textarea>
             </td>
         </tr>
 		<tr>
@@ -438,6 +467,20 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">고객처재고상태</th>
+			<td colspan="3">
+				<?php echo help('pending=대기,ok=완료,cancel=취소,trash=삭제'); ?>
+				<input type="text" name="set_gst_status" value="<?php echo $g5['setting']['set_gst_status']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">자재입고차수</th>
+			<td colspan="3">
+				<?php echo help('1=1차,2=2차,3=3차,4=4차,5=5차,6=6차,7=7차,8=8차,9=9차,10=10차'); ?>
+				<input type="text" name="set_mtr_times" value="<?php echo $g5['setting']['set_mtr_times']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">자재상태</th>
 			<td colspan="3">
 				<?php echo help('stock=재고,repairing=수리중,repairstock=수리완료재고,scrap=폐기,pendign=불출대기,used=사용완료,trash=삭제'); ?>
@@ -452,10 +495,38 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">완제품생산시간대</th>
+			<td colspan="3">
+				<?php echo help('1=시간1,2=시간2,3=시간3,4=시간4,5=시간5,6=시간6,7=시간7,8=시간8,9=시간9,10=시간10'); ?>
+				<input type="text" name="set_itm_shift2" value="<?php echo $g5['setting']['set_itm_shift2']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">완제품상태</th>
 			<td colspan="3">
-				<?php echo help('pending=대기,ing=생산중,finish=생산완료,delivery=출고완료,return=반품,refund=환불,scrap=폐기,trash=삭제'); ?>
+				<?php echo help('pending=대기,ing=생산중,finish=생산완료,return=반품,refund=환불,scrap=폐기,trash=삭제'); ?>
 				<input type="text" name="set_itm_status" value="<?php echo $g5['setting']['set_itm_status']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">완제품상태중 양품상태</th>
+			<td colspan="3">
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) ing,finish'); ?>
+				<input type="text" name="set_itm_status_ok" value="<?php echo $g5['setting']['set_itm_status_ok']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">완제품상태중 불량품상태</th>
+			<td colspan="3">
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) error_stitch,error_wrinkle,error_fabric,error_push,error_pollution,error_bottom,error_etc'); ?>
+				<input type="text" name="set_itm_status_ng" value="<?php echo $g5['setting']['set_itm_status_ng']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">파렛트상태</th>
+			<td colspan="3">
+				<?php echo help('pending=대기,finish=생산완료,delivery=출하,trash=삭제'); ?>
+				<input type="text" name="set_plt_status" value="<?php echo $g5['setting']['set_plt_status']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
 		<tr>
@@ -479,13 +550,21 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 				<input type="text" name="set_orp_status" value="<?php echo $g5['setting']['set_orp_status']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
+		</tr>
+            <tr>
+			<th scope="row">생산시간구간</th>
+			<td colspan="3">
+				<?php echo help('01=05:10:00-10:09:59,02=10:10:00-12:59:59,03=13:00:00-15:09:59,04=15:10:00-17:09:59,05=17:10:00-19:09:59,06=19:10:00-21:09:59,07=21:10:00-23:09:59,081=23:10:00-23:59:59,082=00:00:00-01:09:59,09=01:10:00-03:09:59,10=03:10:00-05:09:59'); ?>
+				<input type="text" name="set_itm_shift" value="<?php echo $g5['setting']['set_itm_shift']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
         </tbody>
 		</table>
 	</div>
 </section>
 
 
-    
+
 <section id="anc_cf_message">
     <h2 class="h2_frm">메시지설정</h2>
     <?php echo $pg_anchor; ?>

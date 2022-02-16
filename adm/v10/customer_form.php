@@ -20,7 +20,7 @@ if ($w == '') {
     $html_title = '추가';
     
     // 권한이 없는 경우
-    if(auth_check($auth[$sub_menu],"d",1)) {
+    if(auth_check($auth[$sub_menu],"w",1)) {
         $style_mb_id = 'background-color:#dadada !important;';
         $style_mb_id_saler = 'background-color:#dadada !important;';
         $style_mb_name = 'background-color:#dadada !important;';
@@ -65,7 +65,7 @@ else if ($w == 'u') {
 	}
 	
 	// 영업자 정보 변경 불가항목!
-	if($w=='u' && auth_check($auth[$sub_menu],"d",1)) {
+	if($w=='u' && auth_check($auth[$sub_menu],"w",1)) {
 		$saler_readonly = 'readonly';
 		$saler_mark = '<span style="color:darkorange;">★</span>';
 	}
@@ -88,8 +88,6 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 <style>
 .set_send_type {margin-right:5px;}
 .set_send_type input {margin-right:4px;}
-#sp_notice{color:yellow;margin-left:10px;}
-#sp_notice.sp_error{color:red;}
 </style>
 
 <form name="form01" id="form01" action="./customer_form_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data">
@@ -125,11 +123,11 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 			<input type="text" name="com_name" value="<?php echo $com['com_name'] ?>" id="com_name" required class="frm_input required" style="width:200px;" <?=$saler_readonly?>>
 				<?=$saler_mark?>
 		</td>
-		<th scope="row">업체유형</th>
+		<th scope="row">구분</th>
 		<td>
-			<select name="com_type" id="com_type" title="업체유형" required class="">
-				<option value="">업체유형을 선택하세요.</option>
-				<?php echo $g5['set_com_type_value_options']?>
+			<select name="com_type" id="com_type" title="업종선택" required class="">
+				<option value="">업체구분을 선택하세요.</option>
+				<?php echo $g5['set_com_type_options']?>
 			</select>
 			<script>$('select[name=com_type]').val("<?=$com['com_type']?>").attr('selected','selected');</script>
 		</td>
@@ -143,17 +141,8 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 		</td>
 	</tr>
 	<tr> 
-		<th scope="row">업체코드</th>
-		<td>
-			<?php
-			$required = ($com['com_type'] == 'delivery') ? ' required' : '';
-			?>
-			<?php echo help("납품처일경우 업체코드를 입력해 주세요."); ?>
-			<input type="text" name="com_code" value="<?php echo $com['com_code'] ?>" id="com_code"<?=$required?> class="frm_input<?=$required?>" style="width:200px;" onkeyup="javascript:chk_Code(this)">
-			<span id="sp_notice"></span>
-		</td>
 		<th scope="row">대표이메일</th>
-		<td>
+		<td colspan="3">
 			<?php echo help("세금계산서, 계약서, 약정서 등 모든 거래 시 소통할 수 있는 이메일 정보를 필수로 등록하세요."); ?>
 			<input type="text" name="com_email" value="<?php echo $com['com_email'] ?>" id="com_email" class="frm_input required" required style="width:30%;" <?=$saler_readonly?>>
 			<?=$saler_mark?>
@@ -220,7 +209,7 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 			<?php echo help("사업장 주소가 명확하지 않은 경우 [주소검색]을 통해 정확히 입력해 주세요."); ?>
 			<label for="com_zip" class="sound_only">우편번호</label>
 			<input type="text" name="com_zip" value="<?php echo $com['com_zip1'].$com['com_zip2']; ?>" id="com_zip" class="frm_input readonly" maxlength="6" style="width:65px;" <?=$saler_readonly?>>
-			<?php if(!auth_check($auth[$sub_menu],'d',1) || $w=='') { ?>
+			<?php if(!auth_check($auth[$sub_menu],'w',1) || $w=='') { ?>
 			<button type="button" class="btn_frmline" onclick="win_zip('form01', 'com_zip', 'com_addr1', 'com_addr2', 'com_addr3', 'com_addr_jibeon');">주소 검색</button>
 			<?php } ?>
 			<br>
@@ -269,7 +258,7 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 		<td colspan="3">
 			<?php echo help("상태값은 관리자만 수정할 수 있습니다."); ?>
 			<select name="com_status" id="com_status"
-				<?php if (auth_check($auth[$sub_menu],"d",1)) { ?>onFocus='this.initialSelect=this.selectedIndex;' onChange='this.selectedIndex=this.initialSelect;'<?php } ?>>
+				<?php if (auth_check($auth[$sub_menu],"w",1)) { ?>onFocus='this.initialSelect=this.selectedIndex;' onChange='this.selectedIndex=this.initialSelect;'<?php } ?>>
 				<?=$g5['set_com_status_options']?>
 			</select>
 			<script>$('select[name="com_status"]').val('<?=$com['com_status']?>');</script>
@@ -288,19 +277,6 @@ add_javascript(G5_POSTCODE_JS, 0);    //다음 주소 js
 
 <script>
 $(function() {
-	//업체유형을 선택할때 "delivery"일 경우 "업체코드"는 필수입력항목으로 만들기
-	$('#com_type').on('change',function(){
-		if($(this).val() == 'delivery'){
-			$('#com_code').attr('required',true).addClass('required');
-		}
-		else{
-			$('#com_code').attr('required',false).removeClass('required');
-		}
-	});
-
-	//업체코드형식에 맞는지 확인
-    chk_Code(document.getElementById('com_code'));
-
 
     // 영업자검색 클릭
     $("#btn_member").click(function() {
@@ -356,59 +332,6 @@ $(function() {
 
 });
 
-
-function chk_Code(object){
-    var ex = /[\{\}\[\]\/?.,;:|\)*~`!^\+┼<>@\#$%&\'\"\\\(\=ㄱ-ㅎㅏ-ㅣ가-힣]*/g;
-    //var pt = /^[^-_][a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[^-_]$/;
-    var hx = /^[^-_][a-zA-Z0-9]*[^-_]$/; //한국수지만의 패턴
-    object.value = object.value.replace(ex,"");//-_제외한 특수문자,한글입력 불가
-    var str = object.value; 
-    
-    if(hx.test(str)){
-		//console.log(str);
-        var com_idx = '<?=$com_idx?>';
-        var com_code_chk_url = './ajax/com_code_overlap_chk.php';
-        var st = $.trim(str.toUpperCase());
-        var msg = '등록 가능한 코드입니다.';
-        object.value = st;
-        document.getElementById('sp_notice').textContent = msg;
-        $('#sp_notice').removeClass('sp_error');
-        //디비에 bom_part_no가 존재하는지 확인하고 존재하면 에러를 발생
-        //console.log(st);
-        $.ajax({
-            type : 'POST',
-            url : com_code_chk_url,
-            dataType : 'text',
-            data : {'com_idx' : com_idx,'com_code' : st},
-            success : function(res){
-                //console.log(res);
-                if(res == 'ok'){
-                    document.getElementById('sp_notice').textContent = '등록 가능한 코드입니다.';
-                    $('#sp_notice').removeClass('sp_error');
-                }
-                else if(res == 'overlap'){
-                    document.getElementById('sp_notice').textContent = '이미 등록된 코드입니다.';
-                    $('#sp_notice').removeClass('sp_error');
-                    $('#sp_notice').addClass('sp_error');
-                }
-                else if(res == 'same'){
-                    document.getElementById('sp_notice').textContent = '업체코드 설정완료';
-                    $('#sp_notice').removeClass('sp_error');
-                }
-            },
-            error : function(xmlReq){
-                alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
-            }
-        });
-    }
-    else {
-        document.getElementById('sp_notice').textContent = '코드규칙에 맞지않습니다.';
-        $('#sp_notice').removeClass('sp_error');
-        $('#sp_notice').addClass('sp_error');
-    }
-}
-
-
 function form01_submit(f) {
 
     // 이메일 검증에 사용할 정규식
@@ -421,14 +344,6 @@ function form01_submit(f) {
         f.com_email.focus();
         return false; 
     }
-
-	if($('#com_type') == 'delivery'){ //업체유형이 "납품처(delivery)"일 경우에만 
-		if($('#sp_notice').hasClass('sp_error')){
-			alert('올바른 제품코드를 입력해 주세요.');
-			$('input[name="bom_part_no"]').focus();
-			return false;
-		}
-	}
 
     return true;
 }

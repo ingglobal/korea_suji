@@ -6,10 +6,10 @@ check_demo();
 
 auth_check($auth[$sub_menu],"w");
 
-// print_r2($trm_idx);
-// echo "<br>==========<br>";
-// print_r2($trm_status);
-// exit;
+//print_r2($trm_idx);
+//echo "<br>==========<br>";
+//print_r2($trm_status);
+//exit;
 
 //-- depth 설정 및 공백 체크
 $prev_depth = 0;
@@ -67,10 +67,19 @@ for($i=0;$i<sizeof($trm_name);$i++) {
         $trm_sort[$i] = $i;
 
     // 업체번호
-	$com_idx = ($_POST['com_idx']) ? $_POST['com_idx'] : 0 ;
+	// $com_idx[$i] = $_SESSION['ss_com_idx'];
+	// echo $com_idx[$i]."<br>";
+	// exit;
 
-	// echo $_POST['com_idx']."<br>";
-	// echo $com_idx."<br><br><br>";
+	//echo $trm_name[$i].'->'.$trm_depth[$i].":::";
+	//echo 'depth_array['.$trm_depth[$i].']카운트 -> '.$depth_array[$trm_depth[$i]].' | ';
+	//echo "INSERT INTO {$g5['term_table']} (trm_idx,trm_idx_parent,trm_country,trm_name,trm_taxonomy,trm_content,trm_sort,trm_left,trm_right,trm_status,trm_reg_dt)
+	//				VALUES ('$trm_idx[$i]','".$idx_array[$trm_depth[$i]-1]."','ko_KR','$trm_name[$i]','".$taxonomy."','$trm_content[$i]','$i', 1, 2, '".$trm_status[$i]."', now())
+	//				ON DUPLICATE KEY UPDATE trm_idx_parent = '".$idx_array[$trm_depth[$i]-1]."', trm_name = '$trm_name[$i]', trm_content = '$trm_content[$i]', trm_sort = '$i', trm_left = 1, trm_right = 2 ";
+	//echo "<br><br>";
+	//continue;
+	//echo $trm_status[$i];
+
 	//-- 맨 처음 항목 입력 left=1, right=2 설정
 	if($i == 0) {
 		$sql = "INSERT INTO {$g5['term_table']} (trm_idx,trm_idx_parent,com_idx,trm_country,trm_name,trm_name2,trm_type,trm_taxonomy,trm_content,trm_sort,trm_left,trm_right,trm_more,trm_status,trm_reg_dt)
@@ -88,9 +97,7 @@ for($i=0;$i<sizeof($trm_name);$i++) {
                                             , trm_right = 2
 		";
 		sql_query($sql,1);
-		// echo $_POST['com_idx']."<br>";
-		// echo $com_idx."<br>";
-		// echo $sql.'<br><br>';
+		echo $sql.'<br><br>';
 	}
 	else {
 
@@ -116,9 +123,7 @@ for($i=0;$i<sizeof($trm_name);$i++) {
 							, trm_right = @myLeft + 2
 			";
 			sql_query($sql,1);
-			// echo $_POST['com_idx']."<br>";
-			// echo $com_idx."<br>";
-			// echo $sql.'<br><br>';
+			echo $sql.'<br><br>';
 		}
 		//-- leaf_node가 아니면 동 레벨 idx 참조해서 left, right 생성
 		else {
@@ -144,9 +149,7 @@ for($i=0;$i<sizeof($trm_name);$i++) {
 							, trm_right = @myRight + 2
 			";
 			sql_query($sql,1);
-			//echo $_POST['com_idx']."<br>";
-			//echo $com_idx."<br>";
-			//echo $sql.'<br><br>';
+			echo $sql.'<br><br>';
 		}
 	}
 
@@ -155,7 +158,7 @@ for($i=0;$i<sizeof($trm_name);$i++) {
 	$idx_array[$trm_depth[$i]] = $trm_idx[$i];	//-- left, right 기준 값 저장
 	$idx_array[$trm_depth[$i]] = sql_insert_id();	//-- left, right 기준 값 저장
 }
-//exit;
+
 
 // 캐시 파일 삭제 (초기화)
 $files = glob(G5_DATA_PATH.'/cache/term-*');

@@ -1,7 +1,7 @@
 <?php
 $sub_menu = "915130";
 include_once('./_common.php');
-
+include_once(G5_USER_ADMIN_LIB_PATH.'/category.lib.php');
 auth_check($auth[$sub_menu],'w');
 
 // 변수 설정, 필드 구조 및 prefix 추출
@@ -13,10 +13,11 @@ $fname = preg_replace("/_form/","",$g5['file_name']); // _form을 제외한 파�
 $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 넘겨야 할 변수들
 
 // 분류선택 박스(리스트 내부 사용)
-$sql = "SELECT * 
-        FROM {$g5['bom_category_table']}
-        WHERE com_idx = '".$_SESSION['ss_com_idx']."'
-        ORDER BY bct_id, bct_order
+/*
+$sql = " SELECT *
+            FROM {$g5['bom_category_table']}
+            WHERE com_idx = '".$_SESSION['ss_com_idx']."'
+            ORDER BY bct_id, bct_order
 ";
 $result = sql_query($sql,1);
 
@@ -30,7 +31,7 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
     }
     $category_select .= '<option value="'.$row['bct_id'].'">'.$cat_name.'</option>'.PHP_EOL;
 }
-
+*/
 
 if ($w == '') {
     $sound_only = '<strong class="sound_only">필수</strong>';
@@ -60,7 +61,7 @@ else if ($w == 'u') {
         $flesql = " SELECT * FROM {$g5['file_table']}
         WHERE fle_db_table = 'bom'
         AND fle_type IN ('bomf1','bomf2','bomf3','bomf4','bomf5','bomf6')
-        AND fle_db_id = '".${$pre."_idx"}."' ORDER BY fle_reg_dt,fle_idx DESC ";
+        AND fle_db_id = '".${$pre."_idx"}."' ORDER BY fle_reg_dt,fle_idx ";
         //print_r3($flesql);
         $fle_rs = sql_query($flesql,1);
 
@@ -96,8 +97,10 @@ for ($i=0;$i<sizeof($check_array);$i++) {
 	${$check_array[$i].'_'.${$pre}[$check_array[$i]]} = ' checked';
 }
 
-$html_title = ($w=='')?'추가':'수정'; 
+$html_title = ($w=='')?'추가':'수정';
 $g5['title'] = '제품(BOM) '.$html_title;
+// print_r2($g5['line_reverse']['1라인']);
+// exit;
 include_once ('./_head.php');
 ?>
 <script src="<?=G5_USER_ADMIN_JS_URL?>/multifile/jquery.MultiFile.min.js" type="text/javascript" language="javascript"></script>
@@ -117,8 +120,8 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 .MultiFile-wrap .MultiFile-list > .MultiFile-label .MultiFile-remove::after{content:'×';display:block;position:absolute;left:0;top:0;width:20px;height:20px;border:1px solid #ccc;border-radius:50%;font-size:14px;line-height:20px;text-align:center;}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span{}
 .MultiFile-wrap .MultiFile-list > .MultiFile-label > span span.MultiFile-label{display:inline-block;font-size:14px;border:1px solid #444;background:#333;padding:2px 5px;border-radius:3px;line-height:1.2em;margin-top:5px;}
-#sp_notice{color:yellow;margin-left:10px;}
-#sp_notice.sp_error{color:red;}
+#sp_notice,#sp_ex_notice{color:yellow;margin-left:10px;}
+#sp_notice.sp_error,#sp_ex_notice.sp_error{color:red;}
 </style>
 
 <form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -129,7 +132,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
-<input type="hidden" name="<?php echo $pre; ?>_idx" value="<?php echo ${$pre."_idx"} ?>"-->
+<input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
 <input type="hidden" name="sca" value="<?php echo $sca ?>">
 <input type="hidden" name="ser_bom_type" value="<?php echo $ser_bom_type ?>">
 
@@ -169,32 +172,32 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
             <script>$('select[name="<?=$pre?>_type"]').val('<?=${$pre}[$pre.'_type']?>');</script>
 		</td>
     </tr>
-	<tr> 
+	<tr>
 		<th scope="row">카테고리</th>
 		<td>
-            <select name="bct_id" id="bct_id" required class="required">
-                <option value="">선택하세요</option>
-                <?php echo conv_selected_option($category_select, ${$pre}['bct_id']); ?>
-            </select>
+            <?php
+            $cat = new category_list(${$pre}['bct_id']);
+            echo $cat->run();
+            ?>
 		</td>
-		<th scope="row">공급처</th>
+		<th scope="row">납품회사(고객처)</th>
 		<td>
-            <input type="hidden" name="com_idx_provider" value="<?=$bom['com_idx_provider']?>"><!-- 거래처번호 -->
-			<input type="text" name="com_name2" value="<?php echo $com2['com_name'] ?>" id="com_name2" class="frm_input" readonly>
-            <a href="./company_provider_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_provider">공급처찾기</a>
+            <input type="hidden" name="com_idx_customer" value="<?=$bom['com_idx_customer']?>"><!-- 고객처번호 -->
+			<input type="text" name="com_name" value="<?php echo $com['com_name'] ?>" id="com_name" class="frm_input readonly" readonly>
+            <a href="javascript:" link="./customer_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_customer">고객처찾기</a>
 		</td>
     </tr>
     <tr>
-        <th scope="row">제품코드</th>
+        <th scope="row">제품코드(P/NO)</th>
         <td>
             <input type="text" name="bom_part_no" value="<?php echo ${$pre}['bom_part_no'] ?>" id="bom_part_no" required class="frm_input required" style="width:150px;" onkeyup="javascript:chk_Code(this)">
             <span id="sp_notice"></span>
         </td>
-        <th scope="row">고객처</th>
+        <th scope="row">공급회사(매입처)</th>
 		<td>
-            <input type="hidden" name="com_idx_customer" value="<?=$bom['com_idx_customer']?>"><!-- 거래처번호 -->
-			<input type="text" name="com_name" value="<?php echo $com['com_name'] ?>" id="com_name" class="frm_input required" required readonly>
-            <a href="./company_customer_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_customer">고객처찾기</a>
+            <input type="hidden" name="com_idx_provider" value="<?=$bom['com_idx_provider']?>"><!-- 고객처번호 -->
+			<input type="text" name="com_name2" value="<?php echo $com2['com_name'] ?>" id="com_name2" class="frm_input required" required readonly>
+            <a href="jvaascript:" link="./customer_provider_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_provider">공급처찾기</a>
 		</td>
     </tr>
     <tr>
@@ -206,24 +209,24 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
         $ar['value_type'] = 'number';
         $ar['help'] = '구매단위를 숫자로 입력하세요.';
         $ar['width'] = '50px';
+        if(${$pre}['bom_type'] != 'product'){
+        $ar['colspan'] = '3';
+        }
         $ar['unit'] = '개';
         $ar['form_script'] = 'onClick="javascript:chk_Number(this)"';
         echo create_td_input($ar);
         unset($ar);
         ?>
-        <?php
-        $ar['id'] = 'bom_lead_time';
-        $ar['name'] = '평균리드타임';
-        $ar['type'] = 'input';
-        $ar['help'] = '리드타임을 초단위로 입력하세요.(1일=86400)';
-        $ar['value'] = ${$pre}[$ar['id']];
-        $ar['width'] = '60px';
-        $ar['unit'] = '초';
-        $ar['value_type'] = 'number';
-        $ar['form_script'] = 'onClick="javascript:chk_Number(this)"';
-        echo create_td_input($ar);
-        unset($ar);
-        ?>
+        <?php if(${$pre}['bom_type'] == 'product'){ ?>
+        <th scope="row">메인생산설비라인</th>
+		<td>
+            <select name="trm_idx_line" id="trm_idx_line">
+                <option value="">라인선택</option>
+                <?=$line_form_options?>
+            </select>
+            <script>$('select[name="trm_idx_line').val('<?=$bom['trm_idx_line']?>');</script>
+		</td>
+        <?php } ?>
     </tr>
     <tr>
         <th scope="row">가격정보</th>
@@ -260,17 +263,11 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
     </tr>
     <?php if(${$pre}['bom_type'] == 'product'){ ?>
     <tr>
-        <?php
-        $ar['id'] = 'bom_ex_label';
-        $ar['name'] = '고객업체(외부)라벨';
-        $ar['type'] = 'input';
-        $ar['width'] = '400px';
-        $ar['help'] = "고객업체에서 제공한 본제품에 해당하는 외부라벨의 정보를 입력하세요.";
-        $ar['value'] = ${$pre}[$ar['id']];
-        $ar['colspan'] = 3;
-        echo create_td_input($ar);
-        unset($ar);
-        ?>
+        <th scope="row">고객업체(외부)라벨</th>
+        <td colspan="3">
+            <input type="text" name="bom_ex_label" value="<?php echo ${$pre}['bom_ex_label'] ?>" id="bom_ex_label" class="frm_input" style="width:150px;text-transform:uppercase;" onkeyup="javascript:chk_exCode(this)">
+            <span id="sp_ex_notice"></span>
+        </td>
     </tr>
     <?php } ?>
     <tr class="tr_price" style="display:<?=($w=='u')?'none':''?>">
@@ -334,7 +331,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 echo '</ul>'.PHP_EOL;
             }
             ?>
-        </td>	
+        </td>
     </tr>
     <tr>
         <th scope="row"><label for="multi_file2">모니터 이미지파일#2</label></th>
@@ -350,7 +347,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 echo '</ul>'.PHP_EOL;
             }
             ?>
-        </td>	
+        </td>
     </tr>
     <tr>
         <th scope="row"><label for="multi_file3">모니터 이미지파일#3</label></th>
@@ -366,7 +363,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 echo '</ul>'.PHP_EOL;
             }
             ?>
-        </td>	
+        </td>
     </tr>
     <tr>
         <th scope="row"><label for="multi_file4">모니터 이미지파일#4</label></th>
@@ -382,7 +379,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 echo '</ul>'.PHP_EOL;
             }
             ?>
-        </td>	
+        </td>
     </tr>
     <tr>
         <th scope="row"><label for="multi_file5">모니터 이미지파일#5</label></th>
@@ -398,7 +395,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 echo '</ul>'.PHP_EOL;
             }
             ?>
-        </td>	
+        </td>
     </tr>
     <tr>
         <th scope="row"><label for="multi_file6">모니터 이미지파일#6</label></th>
@@ -414,7 +411,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 echo '</ul>'.PHP_EOL;
             }
             ?>
-        </td>	
+        </td>
     </tr>
     <?php } ?>
 	</tbody>
@@ -427,36 +424,19 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
 </div>
 </form>
 
-<script>   
+<script>
 $(function() {
-    //카테고리 선택이 될때마다 어느정도 관련된 제품코드값을 미리 입력해줌
-    $('#bct_id').on('change',function(){
-        var ccd = $(this).val();
-        var cat_call_url = './ajax/com_category_name_call.php';
-        $.ajax({
-            type : 'POST',
-            url : cat_call_url,
-            dataType : 'text',
-            data : {'bct_id' : ccd},
-            success : function(res){
-                $('#bom_part_no').val(res);
-                //코드형식에 맞는지 확인
-                chk_Code(document.getElementById('bom_part_no'));
-            },
-            error : function(xmlReq){
-                alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
-            }
-        });
-    });
     //코드형식에 맞는지 확인
     chk_Code(document.getElementById('bom_part_no'));
+    <?php if(${$pre}['bom_type'] == 'product'){ ?>
+    chk_exCode(document.getElementById('bom_ex_label'));
+    <?php } ?>
 
-
-    <?php if($w == 'u' && ${$pre}['bom_type'] == 'product'){ ?>   
+    <?php if($w == 'u' && ${$pre}['bom_type'] == 'product'){ ?>
     var bom_file_cnt = $('.bom_file').length;
     for(var i=1; i<=bom_file_cnt; i++){
         $('#multi_file'+i).MultiFile({
-            max: 1,
+            max: <?=$g5['setting']['set_monitor_cnt']?>,
             accept: 'gif|jpg|png'
         });
     }
@@ -473,21 +453,21 @@ $(function() {
            $('.tr_price').hide();
 	});
 
-    // 공급처찾기 버튼 클릭
-	$("#btn_provider").click(function(e) {
-		e.preventDefault();
-        var href = $(this).attr('href');
-		winProviderSelect = window.open(href, "winProviderSelect", "left=300,top=150,width=550,height=600,scrollbars=1");
-        winProviderSelect.focus();
-	});
-    
     // 거래처찾기 버튼 클릭
 	$("#btn_customer").click(function(e) {
 		e.preventDefault();
-        var href = $(this).attr('href');
+        var href = $(this).attr('link');
 		winCustomerSelect = window.open(href, "winCustomerSelect", "left=300,top=150,width=550,height=600,scrollbars=1");
         winCustomerSelect.focus();
 	});
+
+    // 공급처찾기 버튼 클릭
+    $("#btn_provider").click(function(e) {
+        e.preventDefault();
+        var href = $(this).attr('link');
+        winProviderSelect = window.open(href, "winProviderSelect", "left=300,top=150,width=550,height=600,scrollbars=1");
+        winProviderSelect.focus();
+    });
 
     // 가격 입력 쉼표 처리
 	$(document).on( 'keyup','input[name$=_price], #bom_moq, #bom_lead_time',function(e) {
@@ -535,8 +515,9 @@ function chk_Number(object){
 
 function chk_Code(object){
     var ex = /[\{\}\[\]\/?.,;:|\)*~`!^\+┼<>@\#$%&\'\"\\\(\=ㄱ-ㅎㅏ-ㅣ가-힣]*/g;
-    var pt = /^[^-_][a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[^-_]$/;
-    var hx = /^[^-_][a-zA-Z0-9]+[-][a-zA-Z0-9]+[-][a-zA-Z0-9]+[^-_]$/; //한국수지만의 패턴
+    var hx = /[A-Z0-9-_]{3,20}/;
+    //var pt = /^[^-_][a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[^-_]$/;
+    //var hx = /^[^-_][a-zA-Z0-9]+[-][a-zA-Z0-9]+[-][a-zA-Z0-9]+[^-_]$/; //한국수지만의 패턴
     object.value = object.value.replace(ex,"");//-_제외한 특수문자,한글입력 불가
     var str = object.value; 
     
@@ -583,19 +564,51 @@ function chk_Code(object){
     }
 }
 
-function form01_submit(f) {
-
-    if(!f.bct_id.value){
-        alert('카테고리를 선택해 주세요.');
-        f.bct_id.focus();
-        return false;
+<?php if(${$pre}['bom_type'] == 'product'){ ?>
+function chk_exCode(object){
+    var ex = /[\{\}\[\]\/?.,;:|\)*~`!^\+┼<>@\#$%&\'\"\\\(\=ㄱ-ㅎㅏ-ㅣ가-힣]*/g;
+    var hx = /[A-Z0-9-_]{5,20}/;
+    
+    //var pt = /^[^-_][a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[-_]?[a-zA-Z0-9]+[^-_]$/;
+    //var hx = /^[^-_][a-zA-Z0-9]+[-][a-zA-Z0-9]+[-][a-zA-Z0-9]+[^-_]$/; //한국수지만의 패턴
+    object.value = object.value.replace(ex,"");//-_제외한 특수문자,한글입력 불가
+    var str = object.value;  
+    
+    if(hx.test(str)){
+        var st = $.trim(str.toUpperCase());
+        var msg = '등록 가능한 외부라벨코드입니다.';
+        object.value = st;
+        document.getElementById('sp_ex_notice').textContent = msg;
+        $('#sp_ex_notice').removeClass('sp_error');
     }
+    else {
+        if(str){
+            document.getElementById('sp_ex_notice').textContent = '코드규칙에 맞지않습니다.';
+            $('#sp_ex_notice').removeClass('sp_error');
+            $('#sp_ex_notice').addClass('sp_error');
+        }
+        else {
+            document.getElementById('sp_ex_notice').textContent = '코드가 입력되지 않았습니다.';
+            $('#sp_ex_notice').removeClass('sp_error');
+        }
+    }
+}
+<?php } ?>
+
+function form01_submit(f) {
 
     if($('#sp_notice').hasClass('sp_error')){
         alert('올바른 제품코드를 입력해 주세요.');
         $('input[name="bom_part_no"]').focus();
         return false;
     }
+
+    if($('#sp_ex_notice').hasClass('sp_error')){
+        alert('올바른 외부라벨 코드를 입력해 주세요.');
+        $('input[name="bom_ex_label"]').focus();
+        return false;
+    }
+
     return true;
 }
 

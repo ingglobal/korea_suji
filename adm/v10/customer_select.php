@@ -6,16 +6,12 @@ include_once('./_common.php');
 if($member['mb_level']<4)
 	alert_close('접근할 수 없는 메뉴입니다.');
 
-if($file_name == 'order_form2'){
-    if(!$data_id)
-        alert_close('데이터가 제대로 넘어오지 않았습니다.');
-}
-
 $where = array();
-$where[] = " com_level = 2 AND com_status NOT IN ('trash','delete') ";   // 디폴트 검색조건
+//$where[] = " com_level = 2 AND com_status NOT IN ('trash','delete','del') ";   // 디폴트 검색조건
+$where[] = " com_level >= 2 AND com_status NOT IN ('trash','delete','del') ";   // 디폴트 검색조건
 
 // 운영권한이 없으면 자기것만
-if (!$member['mb_manager_yn']) {
+if (false) { //(!$member['mb_manager_yn']) {
     $where[] = " mb_id_saler = '".$member['mb_id']."' ";
 }
 
@@ -52,7 +48,7 @@ if (!$sst) {
 }
 $sql_order = " ORDER BY {$sst} {$sod} ";
 
-$rows = $config['cf_page_rows'];
+$rows = 30;//$config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
@@ -77,7 +73,7 @@ $total_count_display = ($member['mb_manager_account_yn']) ? ' ('.number_format($
 $g5['title'] = '업체 검색'.$total_count_display;
 include_once('./_head.sub.php');
 
-$qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($sch_word).'&file_name='.$file_name.'&data_id='.$data_id;
+$qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($sch_word).'&file_name='.$file_name;
 ?>
 <style>
 .td_com_tel, .td_com_president {white-space:nowrap;}
@@ -89,19 +85,18 @@ $qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($s
     <form name="ftarget" method="get">
     <input type="hidden" name="frm" value="<?php echo $_GET['frm']; ?>">
     <input type="hidden" name="file_name" value="<?php echo $_GET['file_name']; ?>">
-    <input type="hidden" name="data_id" value="<?php echo $_GET['data_id']; ?>">
     <input type="hidden" name="d" value="<?php echo $_REQUEST['d']; ?>">
 
     <div id="scp_list_find">
         <select name="sch_field" id="sch_field">
             <option value="com_name">업체명</option>
             <option value="com_president">대표자</option>
-            <option value="mb_name_saler">업체담당자</option>
-            <option value="com_idx">업체번호</option>
+            <!--option value="mb_name_saler">업체담당자</option-->
+            <!--option value="com_idx">업체번호</option-->
         </select>
         <script>$('select[name=sch_field]').val('<?php echo $sch_field?>').attr('selected','selected')</script>
         <input type="text" name="sch_word" id="sch_word" value="<?php echo get_text($sch_word); ?>" class="frm_input required" required size="20">
-        <input type="submit" value="검색" class="btn_frmline btn btn_10">
+        <input type="submit" value="검색" class="btn btn_01">
         <a href="<?php echo $_SERVER['SCRIPT_NAME']?>?frm=<?php echo $_REQUEST['frm']?>&d=<?php echo $_REQUEST['d']?>" class="btn btn_b10">검색취소</a>
     </div>
     
@@ -151,7 +146,7 @@ $qstr1 = 'frm='.$frm.'&d='.$d.'&sch_field='.$sch_field.'&sch_word='.urlencode($s
     </div>
     </form>
 
-    <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr1.'&amp;page='); ?>
+    <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr1.'&amp;provider='.$provider.'&amp;page='); ?>
 
     <div class="win_btn ">
         <button type="button" onclick="window.close();" class="btn btn-secondary">닫기</button>
@@ -168,35 +163,15 @@ $('.btn_select').click(function(e){
     e.preventDefault();
     <?php
     // 이전 파일의 폼에 따라 전달 내용 변경
-    if($file_name == 'bom_form' || $file_name == 'order_form' || $file_name == 'order_list' || $file_name == 'order_list2' || $file_name == 'order_out_form') {
+    if($file_name == 'bom_form' || $file_name == 'order_form' || $file_name == 'order_list' || $file_name == 'order_out_form') {
     ?>
+    <?php if($provider){ ?>
+        $("input[name=com_idx_provider]", opener.document).val( $(this).closest('td').attr('com_idx') );
+        $("input[name=com_name2]", opener.document).val( $(this).closest('td').attr('com_name') );
+    <?php } else { ?>
         $("input[name=com_idx_customer]", opener.document).val( $(this).closest('td').attr('com_idx') );
         $("input[name=com_name]", opener.document).val( $(this).closest('td').attr('com_name') );
-    <?php
-    }
-    else if($file_name == 'order_form2'){
-    ?>
-        var same_flag = false;
-        var data_id = '<?=$data_id?>';
-        var this_com_idx = $(this).closest('td').attr('com_idx');
-        var this_com_name = $(this).closest('td').attr('com_name');
-        var parent_bom_idx = $(opener.document).find('.dd-item[data-id="'+data_id+'"]').find('.dd3-content').find('.bom_name').attr('bom_idx');
-        $(opener.document).find('.dd-item').each(function(){
-            var lobj = $(this).find('.dd3-content').find('.bom_name');
-            var lobj_bom_idx = lobj.attr('bom_idx');
-            var lobj_com_idx = lobj.find('.com_name').attr('com_idx_customer');
-            if(lobj_bom_idx == parent_bom_idx && lobj_com_idx == this_com_idx){
-                same_flag = true;
-            }
-        });
-
-        if(same_flag){
-            alert('동일한 제품에 동일한 거래처를 선택할 수는 없습니다.');
-            return false;
-        }
-        var parent_com_obj = $(opener.document).find('.dd-item[data-id="'+data_id+'"]').find('.dd3-content').find('.bom_name').find('.com_name');
-        parent_com_obj.attr('com_idx_customer',$(this).closest('td').attr('com_idx'));
-        parent_com_obj.text($(this).closest('td').attr('com_name'));
+    <?php } ?>
     <?php
     }
     // 대시보드 설비 추가 or 대시보드 설비그룹, 설비검색

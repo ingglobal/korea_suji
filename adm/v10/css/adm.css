@@ -37,6 +37,8 @@ input[type="checkbox"]:before{content: "";position: absolute;width:100%;height:1
 input[type="checkbox"]:checked:before{-webkit-box-shadow: inset 0 1px 1px #1f4fa8, 0 1px 0 #1f4fa8;-moz-box-shadow: inset 0 1px 1px #1f4fa8, 0 1px 0 #1f4fa8;box-shadow: inset 0 1px 1px #1f4fa8, 0 1px 0 #1f4fa8;background:#1f4fa8;}
 input[type="checkbox"]:checked:after{font-family:FontAwesome;position:absolute;content:'\f00c';color:#fff;width:100%;height:100%;}
 
+
+.btn_top_menu_active {color:#bb4700 !important;}
 /* 레이아웃 (default_project에서 width:1100px 선언된 부분 무력화  */
 #container {width: inherit;background:#060D1B;padding:0 0 0 240px;}
 #container.container-small{padding-left:70px;}
@@ -191,6 +193,7 @@ a.btn_frmline{background:#095D9D;border-radius:0;}
 a.ov_listall {background: #1e2531;}
 a.ov_listall:hover {background: #5b6b8a;}
 .btn_03, a.btn_03 {background: #09829d;}
+.btn_04, a.btn_04 {background: #D33838;color:#fff !important;}
 .btn_confirm{text-align:center;}
 .btn_confirm .btn_submit{color:#fff !important;}
 a.btn_cancel{background:#43535C;border:1px solid #434343;}
@@ -234,11 +237,18 @@ td.td_grpset{border-left:1px solid #4b5465;}
 .top_inf .top_mag #mng_name{width:120px;}
 .top_inf .top_mag #mng_email{width:200px;}
 
+.txt_blueb{color:#0000ff;}
 .txt_blueblink{color:#0000ff;animation:blink .5s ease-in-out infinite alternate;-webkit-animation:blink .5s ease-in-out infinite alternate;-moz-animation:blink .5s ease-in-out infinite alternate;-ms-animation:blink .5s ease-in-out infinite alternate;-o-animation:blink .5s ease-in-out infinite alternate;}
+.txt_orange{color:#ffa500 !important;}
 .txt_orangeblink{color:#ffa500 !important;animation:blink .5s ease-in-out infinite alternate;-webkit-animation:blink .5s ease-in-out infinite alternate;-moz-animation:blink .5s ease-in-out infinite alternate;-ms-animation:blink .5s ease-in-out infinite alternate;-o-animation:blink .5s ease-in-out infinite alternate;}
+.txt_red{color:#ff0000;}
 .txt_redblink{color:#ff0000;animation:blink .5s ease-in-out infinite alternate;-webkit-animation:blink .5s ease-in-out infinite alternate;-moz-animation:blink .5s ease-in-out infinite alternate;-ms-animation:blink .5s ease-in-out infinite alternate;-o-animation:blink .5s ease-in-out infinite alternate;}
 .txt_gray{color:#aaa;}
 .txt_green{color:green;}
+.txt_skyblue{color:skyblue;}
+.txt_brown{color:brown;}
+.txt_yellow{color:yellow;}
+.txt_pink{color:pink;}
 
 
 #pc_change{display:block;position:fixed;bottom:10px;right:70px;width:30px;height:30px;line-height:28px;text-align:center;font-size:1.2em;background: rgba(255,255,255,0.4);color:#000;}

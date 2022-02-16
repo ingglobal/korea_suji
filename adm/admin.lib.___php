@@ -1,7 +1,7 @@
 <?php
 // 대표님 휴대폰으로 통신해서 아이피가 바뀌면 자동 로그아웃!!
 // if (get_session('ss_mb_key') !== $admin_key && $member['mb_level'] < 8) { 이 부분 변경되었습니다.
-// 삭제권한이 없어도 페이지 접근 가능하도록 한다
+// 삭제 권한이 없어도 페이지 접근 가능하도록 수정한다.
 if (!defined('_GNUBOARD_')) exit;
 
 /*

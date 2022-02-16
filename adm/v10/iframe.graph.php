@@ -1,5 +1,6 @@
 <?php
 include_once('./_common.php');
+// 그래프를 추출하는 파일입니다. x1, x2....>>>>graph<<<... max
 
 // mms_idx 는 반드시 존재해야 한다.
 if(!$mms_idx)
@@ -104,6 +105,7 @@ else {
 <script src="<?php echo G5_URL?>/lib/highcharts/Highstock/code/highstock.js"></script>
 <script src="<?php echo G5_URL?>/lib/highcharts/Highstock/code/modules/data.js"></script>
 <script src="<?php echo G5_URL?>/lib/highcharts/Highstock/code/modules/exporting.js"></script>
+<script src="<?php echo G5_URL?>/lib/highcharts/Highstock/code/themes/high-contrast-dark.js"></script>
 <script src="<?php echo G5_URL?>/lib/highcharts/moment.js"></script><!-- 다양한 시간 표현을 위한 플러그인 -->
 
 <div id="graph_wrapper">
@@ -262,7 +264,7 @@ else {
            chr_amp_slider.slider("option", "max", chr_amp);
            chr_amp_slider.slider("option", "value", chr_amp);
         }
-        // 이동값 설정
+        // 이동값 설정
         if(chr_move<chr_move_slider.slider("option","min")) {
            alert('이동 최소값은 '+chr_move_slider.slider("option","min")+'입니다.');
            return false;
@@ -315,7 +317,7 @@ var graphs2 = [], seriesOptions = [], data_series = [], graph_type = 'spline', g
 // graphs attr in in chart div
 // 변수가 바뀌면 graph_id를 바꿔줘야 합니다. 테스트하려면 주석 해제 후 [확인]만 하면 됩니다.
 // graphs[0] = {
-//     dta_data_url: "icmms.co.kr/device/json",
+//     dta_data_url: "bogwang.epcs.co.kr/device/json",
 //     dta_json_file: "measure",
 //     dta_group: "mea",
 //     mms_idx: 7,
@@ -333,7 +335,7 @@ var graphs2 = [], seriesOptions = [], data_series = [], graph_type = 'spline', g
 //     graph_id: 'bWVhc3VyZV9tZWFfN18xXzBfMF8wXzAsMV8wXw'
 // };
 // graphs[1] = {
-//     dta_data_url: "icmms.co.kr/device/json",
+//     dta_data_url: "bogwang.epcs.co.kr/device/json",
 //     dta_json_file: "output",
 //     dta_group: "product",
 //     mms_idx: 7,
@@ -653,7 +655,7 @@ $(document).on('click','#fsearch button[type=submit]',function(e){
                         +'&dta_item='+dta_item+'&dta_unit='+dta_unit
                         +'&st_date='+st_date+'&st_time='+st_time+'&en_date='+en_date+'&en_time='+en_time
                         +'&graph_id='+graph_id1;
-        // console.log(dta_url);
+        console.log(dta_url);
 
         Highcharts.getJSON(
             dta_url,
@@ -955,7 +957,7 @@ $(function(e) {
     if(!$mbd_idx) {
     ?>
         $.ajax({
-            url:'//icmms.co.kr/device/json/output.default.php',
+            url:'//bogwang.epcs.co.kr/device/json/output.default.php',
             data:{"token":"1099de5drf09","mms_idx":"<?=$mms_idx?>"},
             dataType:'json', timeout:10000, beforeSend:function(){}, success:function(res){
                 // console.log(res);

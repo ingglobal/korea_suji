@@ -226,3 +226,49 @@ function getGraphURL(url) {
 }    
 }
 
+//전체 체크/체크해제
+if(typeof(check_all2)!='function') {
+function check_all2(f) {
+    //alert($('input[name="chk[]"]').length);
+    if($('#chkall').is(':checked')) {
+        $('input[name^="chk"]').attr('checked',true);
+    }
+    else {
+        $('input[name^="chk"]').attr('checked',false);
+    }
+}    
+}
+//
+if(typeof(is_checked2)!='function') {
+function is_checked2(chk_obj)
+{
+    var checked = false;
+    chk_obj.each(function(){
+        if($(this).is(':checked')) checked = true;
+    });
+    return checked;
+}
+}
+
+//현재 시간일시 2022-01-05 12:30:40 형식으로 반환
+if(typeof(current_ymd_hms)!='function') {
+function current_ymd_hms()
+{
+    var date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+    var time = new Date().toTimeString().split(" ")[0];
+    var date_time = date+' '+time;
+    return date_time;
+}
+}
+
+//현재 시간일시 20220105123040 형식으로 반환
+if(typeof(current_ymdhms)!='function') {
+function current_ymdhms()
+{
+    var date = new Date(+new Date() + 3240 * 10000).toISOString().split("T")[0]
+    var time = new Date().toTimeString().split(" ")[0];
+    var datetime = date+time;
+    datetime = datetime.replace(/[-:]/g,'');
+    return datetime;
+}
+}

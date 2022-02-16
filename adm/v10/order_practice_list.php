@@ -8,16 +8,14 @@ $g5['title'] = '생산실행계획';
 // include_once('./_top_menu_orp.php');
 include_once('./_head.php');
 // echo $g5['container_sub_title'];
+/*
 $sql_common = " FROM {$g5['order_practice_table']} AS orp
     LEFT JOIN {$g5['order_out_practice_table']} AS oop ON orp.orp_idx = oop.orp_idx
     LEFT JOIN {$g5['order_out_table']} AS oro ON oop.oro_idx = oro.oro_idx
 "; 
-/*
-$sql_common = " FROM {$g5['order_practice_table']} AS orp
-LEFT JOIN {$g5['order_out_practice_table']} AS oop USING(orp_idx)
-LEFT JOIN {$g5['order_out_table']} AS oro USING(oro_idx)
-"; 
 */
+$sql_common = " FROM {$g5['order_practice_table']} AS orp
+"; 
 
 $where = array();
 // 디폴트 검색조건 (used 제외)
@@ -26,16 +24,28 @@ $where[] = " orp_status NOT IN ('del','delete','trash') AND orp.com_idx = '".$_S
 // 검색어 설정
 if ($stx != "") {
     switch ($sfl) {
-		case ( $sfl == 'ori_idx' || $sfl == 'itm_idx' || $sfl == 'orp.oro_idx' || $sfl == 'oro.com_idx_customer' ) :
+		case ( $sfl == 'orp_id' ) :
 			$where[] = " {$sfl} = '".trim($stx)."' ";
-            break;
-		case ( $sfl == 'bct_id' ) :
-			$where[] = " {$sfl} LIKE '".trim($stx)."%' ";
             break;
         default :
 			$where[] = " $sfl LIKE '%".trim($stx)."%' ";
             break;
     }
+}
+
+if($trm_idx_line){
+    $where[] = " orp.trm_idx_line = '".$trm_idx_line."' ";
+}
+
+if($orp_start_date && $orp_done_date){
+    $where[] = " orp.orp_start_date >= '".$orp_start_date."' ";
+    $where[] = " orp.orp_done_date <= '".$orp_done_date."' ";
+}
+else if($orp_start_date && !$orp_done_date){
+    $where[] = " orp.orp_start_date = '".$orp_start_date."' ";
+}
+else if(!$orp_start_date && $orp_done_date){
+    $where[] = " orp.orp_done_date = '".$orp_start_date."' ";
 }
 
 // 최종 WHERE 생성
@@ -48,7 +58,7 @@ if (!$sst) {
 }
 
 $sql_order = " ORDER BY {$sst} {$sod} ";
-$sql_group = " GROUP BY oop.orp_idx ";
+$sql_group = ""; //" GROUP BY orp.orp_idx ";
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
 $row = sql_fetch($sql);
 $total_count = $row['cnt'];
@@ -58,8 +68,7 @@ $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
-$sql = " SELECT *,
-        SUM(oop.oop_count) AS orp_count
+$sql = " SELECT *
         {$sql_common} {$sql_search} {$sql_group} {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
@@ -71,8 +80,6 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 ?>
 <style>
 .tbl_head01 thead tr th{position:sticky;top:100px;z-index:100;}
-.td_chk{position:relative;}
-.td_chk .chkdiv_btn{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,255,0,0);}
 .td_bom_name {text-align:left !important;}
 .td_orp_part_no, .td_com_name, .td_orp_maker
 ,.td_orp_items, .td_orp_items_title {text-align:left !important;}
@@ -106,54 +113,54 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
     <label for="sfl" class="sound_only">검색대상</label>
     <select name="sfl" id="sfl">
-        <option value="customer_name"<?php echo get_selected($_GET['sfl'], "customer_name"); ?>>거래처</option>
-        <option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
-        <option value="com_idx_customer"<?php echo get_selected($_GET['sfl'], "com_idx_customer"); ?>>거래처번호</option>
-        <option value="oro_idx"<?php echo get_selected($_GET['sfl'], "oro_idx"); ?>>출하번호</option>
-        <option value="ord_idx"<?php echo get_selected($_GET['sfl'], "ord_idx"); ?>>수주번호</option>
+        <option value="orp_idx"<?php echo get_selected($_GET['sfl'], "orp_idx"); ?>>생산계획ID</option>
+        <option value="orp_order_no"<?php echo get_selected($_GET['sfl'], "orp_order_no"); ?>>지시번호</option>
     </select>
     <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
     <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
-    <label for="orp_start2_date" class="sch_label">
-        <span>시작일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-        <input type="text" name="orp_start_date" value="<?php echo $orp_start_date ?>" id="orp_start2_date" readonly class="frm_input readonly" placeholder="시작일" style="width:100px;" autocomplete="off">
+    <label for="trm_idx_line" class="sch_label">
+        <span>설비라인<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
+        <select name="trm_idx_line" id="trm_idx_line">
+            <option value="">라인선택</option>
+            <?=$line_form_options?>
+        </select>
     </label>
-    <label for="orp_done2_date" class="sch_label">
+    <label for="orp_start_date" class="sch_label">
+        <span>시작일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
+        <input type="text" name="orp_start_date" value="<?php echo $orp_start_date ?>" id="orp_start_date" readonly class="frm_input readonly" placeholder="시작일" style="width:100px;" autocomplete="off">
+    </label>
+    <label for="orp_done_date" class="sch_label">
         <span>완료일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-        <input type="text" name="orp_done_date" value="<?php echo $orp_done_date ?>" id="orp_done2_date" readonly class="frm_input readonly" placeholder="완료일" style="width:100px;" autocomplete="off">
+        <input type="text" name="orp_done_date" value="<?php echo $orp_done_date ?>" id="orp_done_date" readonly class="frm_input readonly" placeholder="완료일" style="width:100px;" autocomplete="off">
     </label>
     <input type="submit" class="btn_submit" value="검색">
 </form>
 
 <div class="local_desc01 local_desc" style="display:no ne;">
-    <p>지시수량에 필요한 자재가 부족한 경우 <span class="color_red">빨간색</span>으로 표시됩니다. 자재 창고위치에 따라 현장 오차가 있을 수 있으므로 반드시 확인하시고 진행하세요.</p>
-    <p>상태값이 '확정'인 경우는 관련 정보를 수정하지 마세요. (지시수량, 공정, 라인 정보 등..)</p>
-    <p>'생산수량' 항목의 값은 생산이 진행중일 때 표시됩니다.</p>
+    <p style="display:none;">지시수량에 필요한 자재가 부족한 경우 <span class="color_red">빨간색</span>으로 표시됩니다. 자재 창고위치에 따라 현장 오차가 있을 수 있으므로 반드시 확인하시고 진행하세요.</p>
+    <p>생산계획 등록후 생산자/완료일/메모 외의 정보는 수정할 수 없습니다.</p>
+    <p style="display:none;">'생산수량' 항목의 값은 생산이 진행중일 때 표시됩니다.</p>
 </div>
 
-<div class="select_input">
+<div class="select_input" style="display:no ne;">
     <h3>선택목록 데이터일괄 입력</h3>
     <p style="padding:30px 0 20px">
-        <label for="" class="slt_label">
+        <label for="" class="slt_label" style="display:none;">
             <span>라인<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
             <select id="o_line">
                 <option value="">-라인선택-</option>
                 <?=$line_form_options?>
             </select>
         </label>
-        <label for="o_start_date" class="slt_label">
-            <span>시작일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-            <input type="text" value="" id="o_start_date" readonly class="frm_input readonly" placeholder="시작일" style="width:100px;" autocomplete="off">
-        </label>
-        <label for="o_done_date" class="slt_label">
-            <span>완료일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-            <input type="text" value="" id="o_done_date" readonly class="frm_input readonly" placeholder="완료일" style="width:100px;" autocomplete="off">
-        </label>
         <label for="" class="slt_label">
+            <span>완료일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
+            <input type="text" id="o_date" value="" class="tbl_input o_date_end" style="width:80px;" autocomplete="off">
+        </label>
+        <label for="" class="slt_label" style="display:none;">
             <span>상태<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-            <select id="o_status">
+            <select name="o_status" id="o_status">
                 <option value="">-선택-</option>
-                <?=$g5['set_orp_status_value_options']?>
+                <?=$g5['set_oro_status_value_options']?>
             </select>
         </label>
         <input type="button" id="slt_input" onclick="slet_input(document.getElementById('form01'));" value="선택항목 일괄입력" class="btn btn_02">
@@ -195,11 +202,12 @@ $('.data_blank').on('click',function(e){
         </th>
         <th scope="col">ID</th>
         <th scope="col">지시번호</th>
-        <th scope="col">설비라인</th>
+        <th scope="col">라인</th>
         <th scope="col">시작일</th>
         <th scope="col">완료일</th>
-        <th scope="col">지시무게(kg)</th>
-        <th scope="col">수주/출하</th>
+        <th scope="col">계획수량</th>
+        <!--th scope="col">실시간생산</th-->
+        <!--th scope="col">수주/출하</th-->
         <th scope="col">상태</th>
         <th scope="col">관리</th>
     </tr>
@@ -207,10 +215,9 @@ $('.data_blank').on('click',function(e){
     </tr>
     </thead>
     <tbody>
-    <?php
+        <?php
     for ($i=0; $row=sql_fetch_array($result); $i++) {
-        
-
+        $oop = sql_fetch(" SELECT SUM(oop_count) AS cnt FROM {$g5['order_out_practice_table']} WHERE orp_idx = '{$row['orp_idx']}' ");
         $s_mod = '<a href="./order_practice_form.php?'.$qstr.'&amp;w=u&amp;orp_idx='.$row['orp_idx'].'" class="btn btn_03">수정</a>';
         $s_copy = '<a href="./order_practice_form.php?'.$qstr.'&w=c&orp_idx='.$row['orp_idx'].'" class="btn btn_03" style="margin-right:5px;">복제</a>';
 
@@ -219,63 +226,43 @@ $('.data_blank').on('click',function(e){
 
     <tr class="<?php echo $bg; ?>" tr_id="<?php echo $row['orp_idx'] ?>">
         <td class="td_chk">
-            <input type="hidden" name="orp_idx[<?php echo $row['orp_idx'] ?>]" value="<?php echo $row['orp_idx'] ?>" id="orp_idx_<?php echo $row['orp_idx'] ?>">
+            <input type="hidden" name="orp_idx[<?php echo $row['orp_idx'] ?>]" value="<?php echo $row['orp_idx'] ?>" class="orp_idx_<?php echo $row['orp_idx'] ?>">
             <label for="chk_<?php echo $i; ?>" class="sound_only"><?php echo get_text($row['orp_name']); ?> <?php echo get_text($row['orp_nick']); ?>님</label>
             <input type="checkbox" name="chk[]" value="<?php echo $row['orp_idx'] ?>" id="chk_<?php echo $i ?>">
             <div class="chkdiv_btn" chk_no="<?=$i?>"></div>
         </td>
         <td class="td_orp_id"><?=$row['orp_idx']?></td>
-        <td class="td_orp_order_no">
-            <input type="text" name="orp_order_no[<?=$row['orp_idx']?>]" value="<?=$row['orp_order_no']?>" readonly class="tbl_input readonly orp_order_no_<?=$row['orp_idx']?>" style="width:140px;background:#000 !important;">
-        </td><!-- 지시번호 -->
-        <td class="td_orp_line td_orp_line_<?=$row['orp_idx']?>"><!-- 공정/라인 -->
-            <input type="hidden" name="trm_idx_line[<?=$row['orp_idx']?>]" value="<?=$row['trm_idx_line']?>" class="trm_idx_line_<?=$row['orp_idx']?>">
-            <input type="text" value="<?=$g5['line_name'][$row['trm_idx_line']]?>" readonly class="tbl_input orp_operation_line_<?=$row['orp_idx']?>" style="width:auto;">
-        </td>
-        <td class="td_orp_start_date td_orp_start_date_<?=$row['orp_idx']?>"><!-- 시작일 -->
-            <?php $row['orp_start_date'] = ($row['orp_start_date']=='0000-00-00'||!$row['orp_start_date'])?'':$row['orp_start_date']; ?>
-            <input type="text" name="orp_start_date[<?=$row['orp_idx']?>]" value="<?=$row['orp_start_date']?>" readonly class="tbl_input orp_start_date_<?=$row['orp_idx']?>" style="width:80px;">
-        </td>
-        <td class="td_orp_done_date td_orp_done_date_<?=$row['orp_idx']?>"><!-- 완료일 -->
+        <td class="td_orp_order_no"><?=$row['orp_order_no']?></td><!-- 지시번호 -->
+        <td class="td_orp_operation_line"><?=$g5['line_name'][$row['trm_idx_line']]?></td><!-- 공정/라인 -->
+        <td class="td_orp_start_date"><?=$row['orp_start_date']?></td><!-- 시작일 -->
+        <td class="td_orp_done_date td_orp_done_date_<?=$row['orp_idx']?>""><!-- 완료일 -->
             <?php $row['orp_done_date'] = ($row['orp_done_date']=='0000-00-00'||!$row['orp_done_date'])?'':$row['orp_done_date']; ?>
-            <input type="text" name="orp_done_date[<?=$row['orp_idx']?>]" value="<?=$row['orp_done_date']?>" readonly class="tbl_input orp_done_date_<?=$row['orp_idx']?>" style="width:80px;">
+            <input type="text" name="orp_done_date[<?=$row['orp_idx']?>]" orp="1" orp_idx="<?=$row['orp_idx']?>" value="<?=$row['orp_done_date']?>" readonly class="tbl_input shf_one orp_done_date_<?=$row['orp_idx']?>" style="width:80px;">
         </td>
-        <td class="td_orp_count"><!-- 지시무게(kg) -->
-            <?=number_format($row['orp_count'])?>&nbsp;&nbsp;kg
+        <td class="td_orp_count"><!-- 지시수량 -->
+        <?=number_format($oop['cnt'])?>&nbsp;&nbsp;개
         </td>
-        <td class="td_ord_idx"><!-- 수주/출하번호 -->
-            <a href="?sfl=oro.ord_idx&stx=<?=$row['ord_idx']?>"><?=$row['ord_idx']?></a>
-            -
-            <a href="?sfl=orp.oro_idx&stx=<?=$row['oro_idx']?>"><?=$row['oro_idx']?></a>
-        </td>
-        <td class="td_orp_status td_orp_status_<?=$row['orp_idx']?>">
-            <input type="hidden" name="orp_status[<?php echo $row['orp_idx'] ?>]" class="orp_status_<?php echo $row['orp_idx'] ?>" value="<?php echo $row['orp_status']?>">
-            <input type="text" value="<?php echo $g5['set_orp_status_value'][$row['orp_status']]?>" readonly class="tbl_input readonly orp_status_name_<?php echo $row['orp_idx'] ?>" style="width:60px;text-align:center;">
-        </td><!-- 상태 -->
+        <td class="td_orp_status"><?=$g5['set_orp_status_value'][$row['orp_status']]?></td><!-- 상태 -->
         <td class="td_mng">
-			<?php //echo $s_copy?>
 			<?=$s_mod?>
 		</td>
     </tr>
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='19' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='9' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>
 </div>
 
 <div class="btn_fixed_top">
-    <?php if (false){ //(!auth_check($auth[$sub_menu],'d')) { ?>
-       <a href="javascript:" id="btn_excel_upload" class="btn btn_02" style="margin-right:50px;">엑셀등록</a>
-    <?php } ?>
     <?php if (!auth_check($auth[$sub_menu],'w')) { ?>
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
-    <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
-    <a href="./order_practice_form.php" id="member_add" class="btn btn_01">추가하기</a>
     <?php } ?>
-
+    <?php if($is_admin){ ?>
+    <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
+    <?php } ?>
 </div>
 
 
@@ -283,37 +270,9 @@ $('.data_blank').on('click',function(e){
 
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;page='); ?>
 
-<div id="modal01" title="엑셀 파일 업로드" style="display:none;">
-    <form name="form02" id="form02" action="./material_excel_upload.php" onsubmit="return form02_submit(this);" method="post" enctype="multipart/form-data">
-        <table>
-        <tbody>
-        <tr>
-            <td style="line-height:130%;padding:10px 0;">
-                <ol>
-                    <li>엑셀은 97-2003통합문서만 등록가능합니다. (*.xls파일로 저장)</li>
-                    <li>엑셀은 하단에 탭으로 여러개 있으면 등록 안 됩니다. (한개의 독립 문서이어야 합니다.)</li>
-                </ol>
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:15px 0;">
-                <input type="file" name="file_excel" onfocus="this.blur()">
-            </td>
-        </tr>
-        <tr>
-            <td style="padding:15px 0;">
-                <button type="submit" class="btn btn_01">확인</button>
-            </td>
-        </tr>
-        </tbody>
-        </table>
-    </form>
-</div>
-
 
 <script>
 $("input[name*=_date],input[id*=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
-
 
 
 var first_no = '';
@@ -366,14 +325,30 @@ $('.chkdiv_btn').on('click',function(e){
 });
 
 
-// 엑셀등록 버튼
-$( "#btn_excel_upload" ).on( "click", function() {
-    $( "#modal01" ).dialog( "open" );
+$('.shf_one').on('keyup',function(e){
+    var ask = e.keyCode;
+    var oro_idx = $(e.target).attr('orp_idx');
+    var oro_n = $(e.target).attr('orp');
+
+
+    if(ask == 38){ //위쪽 화살표 눌렀을 경우
+        var trobj = $(this).parent().parent();
+        if(trobj.prev().find('td').find('input[orp="'+oro_n+'"]').length)
+            trobj.prev().find('td').find('input[orp="'+oro_n+'"]').focus();
+        return false;
+    }
+    else if(ask == 40){ //아래쪽 화살표를 눌렀을 경우
+        var trobj = $(this).parent().parent();
+        if(trobj.next().find('td').find('input[orp="'+oro_n+'"]').length)
+            trobj.next().find('td').find('input[orp="'+oro_n+'"]').focus();
+        return false;
+    }
+    else if((ask < 48 || ask > 57) && (ask < 96 || ask > 105) && (ask < 37 || ask > 40) && ask != 16 && ask != 9 && ask != 46 && ask != 8){
+        $(this).val('');
+        return false;
+    }
 });
-$( "#modal01" ).dialog({
-    autoOpen: false
-    , position: { my: "right-10 top-10", of: "#btn_excel_upload"}
-});
+
 
 
 // 마우스 hover 설정
@@ -399,8 +374,7 @@ function chk_Number(object){
         $(this).val($(this).val().replace(/[^0-9|-]/g,""));
     });
 }
- 
-
+  
 
 function slet_input(f){
     var chk_count = 0;
@@ -420,45 +394,26 @@ function slet_input(f){
 
 
 
-    var o_line = document.getElementById('o_line').value;
-    var o_line_name = $('#o_line').find('option[value="'+o_line+'"]').text();
-    var o_start_date = $.trim(document.getElementById('o_start_date').value);
-    var o_done_date = $.trim(document.getElementById('o_done_date').value);
-    var o_status = document.getElementById('o_status').value;
-    var o_status_name = $('#o_status').find('option[value="'+o_status+'"]').text();
-    //출하예정의 날짜 형식 체크
-    if(!dt_pattern.test(o_start_date) && o_start_date != ''){
+    var o_date = $.trim(document.getElementById('o_date').value);
+    //완료일의 날짜 형식 체크
+    if(!dt_pattern.test(o_date) && o_date != ''){
         alert('날짜 형식에 맞는 데이터를 입력해 주세요.\r\n예)2021-02-05');
-        document.getElementById('o_start_date').value = '0000-00-00';
-        document.getElementById('o_start_date').focus();
+        document.getElementById('o_date').value = '0000-00-00';
+        document.getElementById('o_date').focus();
         return false;
     }
-    //출하일 날짜 형식 체크
-    if(!dt_pattern.test(o_done_date) && o_done_date != ''){
-        alert('날짜 형식에 맞는 데이터를 입력해 주세요.\r\n예)2021-02-05');
-        document.getElementById('o_done_date').value = '0000-00-00';
-        document.getElementById('o_done_date').focus();
-        return false;
-    }
+    
     //console.log(chk_idx);return;
     for(var idx in chk_idx){
         //console.log(idx);continue;
-        if(o_line){
-            $('.td_orp_line_'+chk_idx[idx]).find('input[type="hidden"]').val(o_line);
-            $('.td_orp_line_'+chk_idx[idx]).find('input[type="text"]').val(o_line_name);
-        }
-        if(o_start_date){
-            $('.td_orp_start_date_'+chk_idx[idx]).find('input[type="text"]').val(o_start_date);
-        }
-        if(o_done_date){
-            $('.td_orp_done_date_'+chk_idx[idx]).find('input[type="text"]').val(o_done_date);
-        }
-        if(o_status){
-            $('.td_orp_status_'+chk_idx[idx]).find('input[type="hidden"]').val(o_status);
-            $('.td_orp_status_'+chk_idx[idx]).find('input[type="text"]').val(o_status_name);
+        if(o_date){
+            $('.td_orp_done_date_'+chk_idx[idx]).find('input[type="text"]').val(o_date);
         }
     }
 }
+
+
+
 
 
 function form01_submit(f)

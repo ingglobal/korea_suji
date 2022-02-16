@@ -28,7 +28,7 @@ function func_update_bom($arr) {
         // print_r3($sql);
         $com = sql_fetch($sql,1);
         // 거래처 정보 없으면 생성
-        if(!$com['com_idx_customer']) {
+        if(!$com['com_idx_provider']) {
             $sql = "INSERT INTO {$g5['company_table']} SET
                         com_idx_par = '".$_SESSION['ss_com_idx']."'
                         , com_name = '".addslashes($arr['com_name'])."'
@@ -40,20 +40,19 @@ function func_update_bom($arr) {
                         , com_update_dt = '".G5_TIME_YMDHIS."'
             ";
             sql_query($sql,1);
-            $com['com_idx_customer'] = sql_insert_id();
+            $com['com_idx_provider'] = sql_insert_id();
         }
 
     }
     // 완제품인 경우, 거래처 com_idx = MY com_idx
     else if($arr['bom_type']=='product') {
-        $com['com_idx_customer'] = $_SESSION['ss_com_idx'];
+        $com['com_idx_provider'] = $_SESSION['ss_com_idx'];
     }
     // 거래처 정보 =======================================================
 
-
+    //bct_id = '".$arr['bct_id']."',
     $sql_common = " com_idx = '".$_SESSION['ss_com_idx']."',
-                    com_idx_customer = '".$com['com_idx_customer']."',
-                    bct_id = '".$arr['bct_id']."',
+                    com_idx_provider = '".$com['com_idx_provider']."',
                     bom_name = '".addslashes($arr['bom_name'])."',
                     bom_type = '".$arr['bom_type']."',
                     bom_price = '".$arr['bom_price']."',
@@ -66,9 +65,11 @@ function func_update_bom($arr) {
     ";
     $bom = sql_fetch($sql,1);
     if(!$bom['bom_idx']) {
+        //설비라인은 정해진게 없으면 일단 1번라인으로 설정해 놓자.
         $sql = " INSERT INTO {$g5['bom_table']} SET
                     {$sql_common} 
                     , bom_part_no = '".$arr['bom_part_no']."'
+                    , trm_idx_line = '".$g5['line_reverse']['1라인']."'
                     , bom_status = 'ok'
                     , bom_reg_dt = '".G5_TIME_YMDHIS."'
         ";
@@ -119,6 +120,24 @@ function func_update_bom($arr) {
 }
 
 
+// 엑셀 자재 삭제 처리 함후
+if(!function_exists('func_delete_bom_item')){
+function func_delete_bom_item($arr) {
+    global $g5,$demo;
+
+    if(!$arr['bom_idx'] || !$arr['bom_child_arr']) return false;
+
+    $sql = "DELETE FROM {$g5['bom_item_table']}
+            WHERE bom_idx = '".$arr['bom_idx']."'
+                AND bom_idx_child NOT IN (".implode(',',$arr['bom_child_arr']).")
+    ";
+    sql_query($sql,1);
+
+    return $arr['bom_idx'];
+}
+}
+
+
 // ref: https://github.com/PHPOffice/PHPExcel
 require_once G5_LIB_PATH."/PHPExcel-1.8/Classes/PHPExcel.php"; // PHPExcel.php을 불러옴.
 $objPHPExcel = new PHPExcel();
@@ -132,7 +151,7 @@ try {
     // 업로드한 PHP 파일을 읽어온다.
 	$objPHPExcel = PHPExcel_IOFactory::load($filename);
 	$sheetsCount = $objPHPExcel -> getSheetCount();
-
+    
 	// 시트Sheet별로 읽기
     $allData = array();
 	for($i = 0; $i < $sheetsCount; $i++) {
@@ -194,6 +213,7 @@ for($i=0;$i<=sizeof($allData[0]);$i++) {
     // 초기화
     unset($arr);
 
+    
     // 파트 넘버가 존재해야 함
     // 해당 라인만 추출
     if(!preg_match("/[가-힝]/",$allData[0][$i][1])
@@ -202,21 +222,21 @@ for($i=0;$i<=sizeof($allData[0]);$i++) {
         // 한줄에 두개 상품이 있는 경우가 있으므로 제품을 배열로 분리
         // 쟈재인 경우 (자재는 항상 존재하므로 배열 0번에 배치시킴)
         if($allData[0][$i][9]) {
-            $arr[$i][0]['com_name'] = $allData[0][$i][8];
-            $arr[$i][0]['bom_part_no'] = $allData[0][$i][9];
-            $arr[$i][0]['bom_part_no_parent'] = $allData[0][$i][2];
-            $arr[$i][0]['bom_name'] = $allData[0][$i][10];
-            $arr[$i][0]['bom_price'] = $allData[0][$i][11];
-            $arr[$i][0]['bit_count'] = $allData[0][$i][12];
+            $arr[$i][0]['com_name'] = trim($allData[0][$i][8]);
+            $arr[$i][0]['bom_part_no'] = trim($allData[0][$i][9]);
+            $arr[$i][0]['bom_part_no_parent'] = trim($allData[0][$i][2]);
+            $arr[$i][0]['bom_name'] = trim($allData[0][$i][10]);
+            $arr[$i][0]['bom_price'] = trim($allData[0][$i][11]);
+            $arr[$i][0]['bit_count'] = trim($allData[0][$i][12]);
             $arr[$i][0]['bom_type'] = 'material';
         }
         // 완제품인 경우, 배열1번
         if($allData[0][$i][2]) {
-            $arr[$i][1]['cartype'] = $allData[0][$i][1];
-            $arr[$i][1]['bom_part_no'] = $allData[0][$i][2];
-            $arr[$i][1]['bom_part_no_parent'] = $allData[0][$i][2];
-            $arr[$i][1]['bom_name'] = $allData[0][$i][3];
-            $arr[$i][1]['bom_price'] = $allData[0][$i][4];
+            $arr[$i][1]['cartype'] = trim($allData[0][$i][1]);
+            $arr[$i][1]['bom_part_no'] = trim($allData[0][$i][2]);
+            $arr[$i][1]['bom_part_no_parent'] = trim($allData[0][$i][2]);
+            $arr[$i][1]['bom_name'] = trim($allData[0][$i][3]);
+            $arr[$i][1]['bom_price'] = trim($allData[0][$i][4]);
             $arr[$i][1]['bom_type'] = 'product';
         }
 
@@ -231,6 +251,13 @@ for($i=0;$i<=sizeof($allData[0]);$i++) {
 
     // 완제품 있으면 먼저 생성 (부모 코드가 있어야 함)
     if(is_array($arr[$i][1])) {
+        // 엑셀 삭제 처리
+        // print_r3($bom_childs[$bom_par]);
+        $ar['bom_idx'] = $bom_par;
+        $ar['bom_child_arr'] = $bom_childs[$bom_par];
+        func_delete_bom_item($ar);
+        unset($ar);
+
         // print_r3('parent');
         $ar = $arr[$i][1];
         $bom_par = func_update_bom($ar);
@@ -245,7 +272,7 @@ for($i=0;$i<=sizeof($allData[0]);$i++) {
     unset($ar);
 
     // print_r3($bom_par);  // 부모 bom_idx
-
+    $bom_childs[$bom_par][] = $bom_child;    
 
     // // 자재인 경우는 bom_item 테이블을 구성해야 함
     if($arr[$i][0]['bom_type']=='material') {
@@ -291,6 +318,7 @@ for($i=0;$i<=sizeof($allData[0]);$i++) {
     }
     $idx--; // 자재 일련번호 증가(음수)
 
+    
 
     // 메시지 보임
     if($arr[$i][0]['bom_part_no']) {
@@ -316,6 +344,13 @@ for($i=0;$i<=sizeof($allData[0]);$i++) {
         echo "<script> document.all.cont.innerHTML = ''; </script>\n";
 
 }
+// 엑셀 삭제 처리, for문 전체 돌고 나서 마지막 처리
+// print_r3($bom_childs[$bom_par]);
+$ar['bom_idx'] = $bom_par;
+$ar['bom_child_arr'] = $bom_childs[$bom_par];
+func_delete_bom_item($ar);
+unset($ar);
+
 
 
 

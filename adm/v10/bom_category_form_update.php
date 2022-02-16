@@ -14,7 +14,6 @@ auth_check_menu($auth, $sub_menu, "d");
 check_admin_token();
 
 $sql_common = " bct_name            = '$bct_name'
-                , bct_desc          = '$bct_desc'
                 , com_idx           = '".$_SESSION['ss_com_idx']."'
                 , bct_order         = '$bct_order'
                 , bct_update_dt     = '".G5_TIME_YMDHIS."'

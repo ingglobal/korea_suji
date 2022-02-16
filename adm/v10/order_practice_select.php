@@ -12,9 +12,11 @@ $where[] = "com_idx = '".$_SESSION['ss_com_idx']."' AND orp_status NOT IN ('tras
 //$sch_field = ($w == '') ? 'orp_idx' : $sch_field;
 
 // 운영권한이 없으면 자기것만
+/*
 if (!$member['mb_manager_yn']) {
     $where[] = " mb_id_saler = '".$member['mb_id']."' ";
 }
+*/
 
 $sql_common = " FROM {$g5['order_practice_table']} AS orp ";
 //print_r2($g5['line_reverse']);
@@ -44,16 +46,12 @@ else
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
-/*
-if (!$sst) {
-    $sst = "orp_start_date, orp_reg_dt";
-    $sod = "DESC";
-}
-*/
-$sstsod = "orp_start_date desc, orp_reg_dt desc";
 
-// $sql_order = " ORDER BY {$sst} {$sod} ";
-$sql_order = " ORDER BY {$sstsod} ";
+if (!$sst) {
+    $sst = "orp_start_date desc, orp_reg_dt desc";
+    $sod = "";
+}
+$sql_order = " ORDER BY {$sst} {$sod} ";
 
 $rows = $config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
@@ -109,6 +107,7 @@ add_javascript('<script src="'.G5_USER_ADMIN_JS_URL.'/bwg_datepicker.js"></scrip
         <script>$('select[name=sch_field]').val('<?php echo $sch_field?>').attr('selected','selected')</script>
         <input type="text" name="sch_word" id="sch_word" value="<?php echo get_text($sch_word); ?>" class="frm_input required" required size="20" autocomplate="off">
         <input type="submit" value="검색" class="btn_frmline btn btn_02" style="height:26px;">
+        <a href="<?php echo $_SERVER['SCRIPT_NAME']?>?file_name=<?=$file_name?>" class="btn btn_b10">취소</a>
     </div>
 
     <div class="tbl_head01 tbl_wrap new_win_con">
@@ -116,7 +115,7 @@ add_javascript('<script src="'.G5_USER_ADMIN_JS_URL.'/bwg_datepicker.js"></scrip
         <caption>검색결과</caption>
         <thead>
         <tr>
-            <th scope="col">ID</th>
+            <th scope="col">생산계획ID</th>
             <th scope="col">지시번호</th>
             <th scope="col">설비라인</th>
             <th scope="col">생산(시작)일</th>
@@ -139,7 +138,6 @@ add_javascript('<script src="'.G5_USER_ADMIN_JS_URL.'/bwg_datepicker.js"></scrip
             <td class="td_orp_start_date"><?php echo $row['orp_start_date']; ?></td>
             <td class="td_mng td_mng_s"
                 orp_idx="<?php echo $row['orp_idx']; ?>"
-                trm_idx_line="$row['trm_idx_line']"
                 line_name = "<?php echo $row['orp_idx'].'-('.$g5['line_name'][$row['trm_idx_line']].')'; ?>"
                 orp_order_no="<?php echo $row['orp_order_no']; ?>"
                 orp_start_date="<?php echo $row['orp_start_date']; ?>">
@@ -197,18 +195,23 @@ $('.btn_select').click(function(e){
     ?>
         // 폼이 존재하면
         if( $("form[name=<?php echo $frm;?>]", opener.document).length > 0 ) {
-            $("input[name=orp_idx]", opener.document).val( $(this).closest('td').attr('orp_idx') );
-            $("input[name=line_name]", opener.document).val( $(this).closest('td').attr('line_name') );
+            $("input[name=orp_idx]", opener.document).val( $(this).closest('td').attr('orp_idx') ).attr('required',true);
+            $("input[name=line_name]", opener.document).val( $(this).closest('td').attr('line_name') ).attr('required',true).addClass('required');
+
+            //설비선택 해제
+            $("#trm_idx_line", opener.document).val('').attr('required',false).removeClass('required');
+            //생산담당자 해제
+            $("#mb_id", opener.document).val('').attr('required',false);
+            $("#mb_name", opener.document).val('').attr('required',false).removeClass('required');
+            //생산일정 해제
+            $("#orp_start_date", opener.document).val('').attr('required',false).removeClass('required');
+            $("#orp_end_date", opener.document).val('').attr('required',false).removeClass('required');
         }
         else {
             alert('값을 전달할 폼이 존재하지 않습니다.');
         }
     <?php
     }
-    else if($file_name=='order_practice_form'){
-    ?>
-
-    <?php }
 
     // ajax 호출이 있을 때는 너무 빨리 창을 닫으면 안 됨
     if($file_name!='company_list') {

@@ -375,6 +375,60 @@ $g5['write_default_fields'] = array(
 	,"wr_10" => "varchar(255) NOT NULL"
 );
 
+
+if (isset($_REQUEST['sfl2']))  {
+    $sfl2 = trim($_REQUEST['sfl2']);
+    $sfl2 = preg_replace("/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*\s]/", "", $sfl2);
+    if ($sfl2)
+        $qstr .= '&amp;sfl=' . urlencode($sfl2); // search field (검색 필드)
+} else {
+    $sfl2 = '';
+}
+
+
+if (isset($_REQUEST['stx2']))  { // search text (검색어)
+    $stx2 = get_search_string(trim($_REQUEST['stx2']));
+    if ($stx2 || $stx2 === '0')
+        $qstr .= '&amp;stx=' . urlencode(cut_str($stx2, 20, ''));
+} else {
+    $stx2 = '';
+}
+
+if (isset($_REQUEST['sst2']))  {
+    $sst2 = trim($_REQUEST['sst2']);
+    $sst2 = preg_replace("/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*\s]/", "", $sst2);
+    if ($sst2)
+        $qstr .= '&amp;sst2=' . urlencode($sst2); // search sort (검색 정렬 필드)
+} else {
+    $sst2 = '';
+}
+
+if (isset($_REQUEST['sod2']))  { // search order (검색 오름, 내림차순)
+    $sod2 = preg_match("/^(asc|desc)$/i", $sod2) ? $sod2 : '';
+    if ($sod2)
+        $qstr .= '&amp;sod2=' . urlencode($sod2);
+} else {
+    $sod2 = '';
+}
+
+
+if (isset($_REQUEST['sst3']))  {
+    $sst3 = trim($_REQUEST['sst3']);
+    $sst3 = preg_replace("/[\<\>\'\"\\\'\\\"\%\=\(\)\/\^\*\s]/", "", $sst3);
+    if ($sst3)
+        $qstr .= '&amp;sst3=' . urlencode($sst3); // search sort (검색 정렬 필드)
+} else {
+    $sst3 = '';
+}
+
+if (isset($_REQUEST['sod3']))  { // search order (검색 오름, 내림차순)
+    $sod3 = preg_match("/^(asc|desc)$/i", $sod3) ? $sod3 : '';
+    if ($sod3)
+        $qstr .= '&amp;sod3=' . urlencode($sod3);
+} else {
+    $sod3 = '';
+}
+
 // 로그인을 할 때마다 로그 파일 삭제해야 용량을 확보할 수 있음 
 if(basename($_SERVER["SCRIPT_FILENAME"]) == 'login_check.php') {
 	// 지난시간을 초로 계산해서 적어주시면 됩니다.

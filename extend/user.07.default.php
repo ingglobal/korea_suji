@@ -25,16 +25,16 @@ foreach ($set_values as $set_value) {
 }
 unset($set_values);unset($set_value);
 
-
 // 모든 분류 추출, 로딩속도 개선을 위해 캐시 처리, 기본적으로 12시간 (자주 안 바뀜)
 $term_cache_time = 12;
 if( is_array($g5['set_taxonomies_value']) ) {
+    //print_r2($g5);
     foreach ($g5['set_taxonomies_value'] as $key=>$value) {
-        // print_r3($key.'/'.$value);
+        //print_r3($key.'/'.$value);
         // 캐시 파일이 없거나 캐시 시간을 초과했으면 (재)생성
         $term_cache_file = G5_DATA_PATH.'/cache/term-'.$key.'.php';
         @$term_cache_filetime = filemtime($term_cache_file);
-        if( !file_exists($term_cache_file) || $term_cache_filetime < (G5_SERVER_TIME - 3600*$term_cache_time) ) {
+        if ( !file_exists($term_cache_file) || $term_cache_filetime < (G5_SERVER_TIME - 3600*$term_cache_time) ) {
             @unlink($term_cache_file);
             
             $g5[$key] = array();
@@ -119,6 +119,7 @@ if( is_array($g5['set_taxonomies_value']) ) {
             $result = sql_query($sql,1);
             //echo $sql;
             for($i=0; $row=sql_fetch_array($result); $i++) {
+                //print_r3($row);
                 $g5[$key][$i] = $row;
 				//-- 지역 키값
                 $g5[$key.'_key'][$row['term_idx']] = $row;
@@ -134,6 +135,8 @@ if( is_array($g5['set_taxonomies_value']) ) {
                 $g5[$key.'_up_names'][$row['term_idx']] = $row['up_names'];
                 //-- 부서 이름
                 $g5[$key.'_name'][$row['term_idx']] = trim($row['term_name']);
+                //-- 반전명
+                $g5[$key.'_reverse'][$row['term_name']] = trim($row['term_idx']);
                 //-- 조직코드 정렬 우선순위
                 $g5[$key.'_sort'][$row['term_idx']] = $i;
                 //-- 바로 상위 카테고리 idx
@@ -142,7 +145,7 @@ if( is_array($g5['set_taxonomies_value']) ) {
                 $g5[$key.'_uptop_idx'][$row['term_idx']] = $row['uptop_idx'];
                 //-- 카테고리 lefa_node 여부
                 $g5[$key.'_lefa_yn'][$row['term_idx']] = $row['leaf_node_yn'];
-                
+                //print_r2($g5[$key.'_reverse']);
                 // 추가 부분 unserialize
                 $unser = unserialize(stripslashes($row['trm_more']));
                 if( is_array($unser) ) {
@@ -194,9 +197,14 @@ if( is_array($g5['set_taxonomies_value']) ) {
         }
     }
 }
-
+//exit;
+//설비라인 array('1라인'=>46)이러한 형식으로 저장
+$g5['line_reverse'] = array();
+foreach($g5['line_up_names'] as $k => $v){
+    $g5['line_reverse'][$v] = $k;
+}
 // 공정/라인/위치/작업장 미리 추출해 두고 가져다 쓰도록 합니다.
-$g5['set_customer_category'] = array('operation','line','location','site');
+$g5['set_customer_category'] = array('operation','location','site');
 if( is_array($g5['set_customer_category']) || $_SESSION['ss_com_idx'] ) {
     foreach ($g5['set_customer_category'] as $key=>$value) {
         // print_r3($key.'/'.$value);
@@ -338,7 +346,7 @@ if( is_array($g5['set_customer_category']) || $_SESSION['ss_com_idx'] ) {
         // 분류 카테고리 옵션 생성 (다운idxs 포함해서 변수 넘길 때)
         for($i=0; $i<@sizeof($g5[$value]); $i++) {
             ${$value.'_select_options'} .= '<option value="'.$g5[$value][$i]['down_idxs'].'">'.$g5[$value][$i]['up_names'].'</option>';	// value 모든 하위값 다 가지고 있어야 함
-            ${$value.'_form_options'} .= '<option value="'.$g5[$value][$i]['term_idx'].'">'.$g5[$value][$i]['up_names'].'</option>';		// 수정(등록) 시는 특정값 설정되어야 함
+            ${$value.'_form_options'} .= '<option value="'.$g5[$value][$i]['term_idx'].'">'.$g5[$value][$i]['up_names'].'#</option>';		// 수정(등록) 시는 특정값 설정되어야 함
             ${$value.'_radio_options'} .= '<label for="set_'.$value.'_idx_'.$g5[$value][$i]['term_idx'].'" class="set_'.$value.'_idx"><input type="radio" id="set_'.$value.'_idx_'.$g5[$value][$i]['term_idx'].'" name="set_'.$value.'_idx" value="'.$g5[$value][$i]['term_idx'].'">'.$g5[$value][$i]['term_name'].'</label>';
             ${$value.'_checkbox_options'} .= '<label for="set_'.$value.'_idx_'.$g5[$value][$i]['term_idx'].'" class="set_'.$value.'_idx"><input type="checkbox" id="set_'.$value.'_idx_'.$g5[$value][$i]['term_idx'].'" name="set_'.$value.'_idx[]" value="'.$g5[$value][$i]['term_idx'].'">'.$g5[$value][$i]['term_name'].'</label>';
         }
@@ -439,7 +447,7 @@ if($_SESSION['ss_com_idx']) {
         @unlink($customer_cache_file);
         
         $g5['customer'] = array();
-        $sql = " SELECT com_idx, com_name, com_names, com_status FROM {$g5['company_table']} WHERE com_level = 2 AND com_idx_par = '".$_SESSION['ss_com_idx']."' ";
+        $sql = " SELECT com_idx, com_name, com_names, com_status FROM {$g5['company_table']} WHERE (com_level = 2 AND com_idx_par = '{$_SESSION['ss_com_idx']}') OR com_idx = '{$_SESSION['ss_com_idx']}' ";
         $result = sql_query($sql,1);
         for ($i=0; $row = sql_fetch_array($result); $i++) {
             $g5['customer'][$row['com_idx']] = $row;
@@ -480,103 +488,7 @@ for($i=0; $row=sql_fetch_array($result); $i++) {
 //print_r2($department_shop_categorys);
 
 
-// 분배타입설정
-$set_values = explode("\n", $g5['setting']['set_sra_type']);
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', trim($set_value));
-    if($key&&$value) {
-        $g5['set_sra_type'][$key] = $value.' ('.$key.')';
-        $g5['set_sra_type_value'][$key] = $value;
-        $g5['set_sra_type_value_key'][$value] = $key;
-        $g5['set_sra_type_radios'] .= '<label for="set_sra_type_'.$key.'" class="set_sra_type"><input type="radio" id="set_sra_type_'.$key.'" name="set_sra_type" value="'.$key.'">'.$value.'</label>';
-        $g5['set_sra_type_checkboxs'] .= '<label for="set_sra_type_'.$key.'" class="set_sra_type"><input type="hidden" name="set_sra_type_'.$key.'" value=""><input type="checkbox" id="set_sra_type_'.$key.'" value="'.$key.'">'.$value.'</label>';
-        $g5['set_sra_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-        $g5['set_sra_type_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-    }
-}
-unset($set_values);unset($set_value);
 
-// 업종
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_com_type']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_com_type'][$key] = $value.' ('.$key.')';
-	$g5['set_com_type_value'][$key] = $value;
-	$g5['set_com_type_radios'] .= '<label for="set_com_type_'.$key.'" class="set_com_type"><input type="radio" id="set_com_type_'.$key.'" name="set_com_type" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_com_type_checkboxs'] .= '<label for="set_com_type_'.$key.'" class="set_com_type"><input type="hidden" name="set_com_type_'.$key.'" value=""><input type="checkbox" id="set_com_type_'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_com_type_buttons'] .= '<a href="javascript:" class="set_com_type" cmm_status="'.$key.'">'.$value.'</a>';
-	$g5['set_com_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_com_type_options_value'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 직책(권한) mb_1
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_mb_positions']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_mb_positions'][$key] = $value.' ('.$key.')';
-	$g5['set_mb_positions_value'][$key] = $value;
-	$g5['set_mb_positions_radios'] .= '<label for="set_mb_positions_'.$key.'" class="set_mb_positions"><input type="radio" id="set_mb_positions_'.$key.'" name="set_mb_positions" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_mb_positions_checkboxs'] .= '<label for="set_mb_positions_'.$key.'" class="set_mb_positions"><input type="hidden" name="set_mb_positions_'.$key.'" value=""><input type="checkbox" id="set_mb_positions_'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_mb_positions_buttons'] .= '<a href="javascript:" class="set_mb_positions" cmm_status="'.$key.'">'.$value.'</a>';
-	$g5['set_mb_positions_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_mb_positions_options_value'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-
-// 직급(직위) mb_3
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_mb_ranks']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_mb_ranks'][$key] = $value.' ('.$key.')';
-	$g5['set_mb_ranks_value'][$key] = $value;
-	$g5['set_mb_ranks_radios'] .= '<label for="set_mb_ranks_'.$key.'" class="set_mb_ranks"><input type="radio" id="set_mb_ranks_'.$key.'" name="set_mb_ranks" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_mb_ranks_checkboxs'] .= '<label for="set_mb_ranks_'.$key.'" class="set_mb_ranks"><input type="hidden" name="set_mb_ranks_'.$key.'" value=""><input type="checkbox" id="set_mb_ranks_'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_mb_ranks_buttons'] .= '<a href="javascript:" class="set_mb_ranks" cmm_status="'.$key.'">'.$value.'</a>';
-	$g5['set_mb_ranks_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_mb_ranks_options_value'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-
-// 업체-영업자상태값 설정
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_cms_status']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_cms_status'][$key] = $value.' ('.$key.')';
-	$g5['set_cms_status_value'][$key] = $value;
-	$g5['set_cms_status_radios'] .= '<label for="set_cms_status_'.$key.'" class="set_cms_status"><input type="radio" id="set_cms_status_'.$key.'" name="set_cms_status" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_cms_status_buttons'] .= '<a href="javascript:" class="set_cms_status" cms_status="'.$key.'">'.$value.'</a>';
-	$g5['set_cms_status_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-}
-unset($set_values);unset($set_value);
-
-// 업체-회원상태값 설정
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_cmm_status']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_cmm_status'][$key] = $value.' ('.$key.')';
-	$g5['set_cmm_status_value'][$key] = $value;
-	$g5['set_cmm_status_radios'] .= '<label for="set_cmm_status_'.$key.'" class="set_cmm_status"><input type="radio" id="set_cmm_status_'.$key.'" name="set_cmm_status" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_cmm_status_buttons'] .= '<a href="javascript:" class="set_cmm_status" cmm_status="'.$key.'">'.$value.'</a>';
-	$g5['set_cmm_status_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-}
-unset($set_values);unset($set_value);
-
-
-// 업체상태값
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_com_status']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_com_status'][$key] = $value.' ('.$key.')';
-	$g5['set_com_status_value'][$key] = $value;
-	$g5['set_com_status_radios'] .= '<label for="set_com_status_'.$key.'" class="set_com_status"><input type="radio" id="set_com_status_'.$key.'" name="set_com_status" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_com_status_buttons'] .= '<a href="javascript:" class="set_com_status" cmm_status="'.$key.'">'.$value.'</a>';
-	$g5['set_com_status_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_com_status_options_value'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
 
 
 // 수퍼관리자인 경우의 추가 설정
@@ -626,29 +538,6 @@ for($i=0; $row=sql_fetch_array($result); $i++) {
 	$member['mms_'.$row['mbd_type']] = $row['mbd_mms'];
 }
 
-// 데이타타입
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_data_type']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', trim($set_value));
-	$g5['set_data_type'][$key] = $value.' ('.$key.')';
-	$g5['set_data_type_value'][$key] = $value;
-	$g5['set_data_type_radios'] .= '<label for="set_data_type_'.$key.'" class="set_data_type"><input type="radio" id="set_data_type_'.$key.'" name="set_data_type" value="'.$key.'">'.$value.'</label>';
-	$g5['set_data_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.trim($key).')</option>';
-	$g5['set_data_type_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 데이타기준 (교대기준, 날짜기준)
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_mms_set_data']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', trim($set_value));
-	$g5['set_mms_set_data'][$key] = $value.' ('.$key.')';
-	$g5['set_mms_set_data_value'][$key] = $value;
-	$g5['set_mms_set_data_radios'] .= '<label for="set_mms_set_data_'.$key.'" class="set_mms_set_data"><input type="radio" id="set_mms_set_data_'.$key.'" name="set_mms_set_data" value="'.$key.'">'.$value.'</label>';
-	$g5['set_mms_set_data_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.trim($key).')</option>';
-	$g5['set_mms_set_data_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
 
 // 데이타그룹, 데이터그룹별 그래프 초기값도 추출
 $set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_data_group']));
@@ -690,113 +579,29 @@ $seconds_text = array(
 );
 
 // default data_url
-$g5['set_data_url'] = 'icmms.co.kr';
+$g5['set_data_url'] = 'bogwang.epcs.co.kr';
 
-// 코드타입 (r,a,p)
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_cod_type']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', trim($set_value));
-	$g5['set_cod_type'][$key] = $value.' ('.$key.')';
-	$g5['set_cod_type_value'][$key] = $value;
-	$g5['set_cod_type_radios'] .= '<label for="set_cod_type_'.$key.'" class="set_cod_type"><input type="radio" id="set_cod_type_'.$key.'" name="set_cod_type" value="'.$key.'">'.$value.'</label>';
-	$g5['set_cod_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.trim($key).')</option>';
-	$g5['set_cod_type_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 코드그룹명 (err, pre)
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_cod_group']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', trim($set_value));
-	$g5['set_cod_group'][$key] = $value.' ('.$key.')';
-	$g5['set_cod_group_value'][$key] = $value;
-	$g5['set_cod_group_radios'] .= '<label for="set_cod_group_'.$key.'" class="set_cod_group"><input type="radio" id="set_cod_group_'.$key.'" name="set_cod_group" value="'.$key.'">'.$value.'</label>';
-	$g5['set_cod_group_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.trim($key).')</option>';
-	$g5['set_cod_group_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 코드상태값
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_cod_status']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_cod_status'][$key] = $value.' ('.$key.')';
-	$g5['set_cod_status_value'][$key] = $value;
-	$g5['set_cod_status_radios'] .= '<label for="set_cod_status_'.$key.'" class="set_cod_status"><input type="radio" id="set_cod_status_'.$key.'" name="set_cod_status" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_cod_status_buttons'] .= '<a href="javascript:" class="set_cod_status" cms_status="'.$key.'">'.$value.'</a>';
-	$g5['set_cod_status_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-}
-unset($set_values);unset($set_value);
-
-// 예지주기
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_cod_interval']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_cod_interval'][$key] = $value.' ('.$key.')';
-	$g5['set_cod_interval_value'][$key] = $value;
-	$g5['set_cod_interval_radios'] .= '<label for="set_cod_interval_'.$key.'" class="set_cod_interval"><input type="radio" id="set_cod_interval_'.$key.'" name="set_cod_interval" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_cod_interval_buttons'] .= '<a href="javascript:" class="set_cod_interval" cms_status="'.$key.'">'.$value.'</a>';
-	$g5['set_cod_interval_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_cod_interval_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 메시지발송수단
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_send_type']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_send_type'][$key] = $value.' ('.$key.')';
-	$g5['set_send_type_value'][$key] = $value;
-	$g5['set_send_type_radios'] .= '<label for="set_send_type_'.$key.'" class="set_send_type"><input type="radio" id="set_send_type_'.$key.'" name="set_send_type" value="'.$key.'">'.$value.'('.$key.')</label>';
-	$g5['set_send_type_buttons'] .= '<a href="javascript:" class="set_send_type" cms_status="'.$key.'">'.$value.'</a>';
-	$g5['set_send_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_send_type_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 가동상태
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_run_status']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_run_status'][$key] = $value.' ('.$key.')';
-	$g5['set_run_status_value'][$key] = $value;
-}
-unset($set_values);unset($set_value);
-
-// 설비상태설정
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_mst_type']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_mst_type'][$key] = $value.' ('.$key.')';
-	$g5['set_mst_type_value'][$key] = $value;
-	$g5['set_mst_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_mst_type_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 로그인 첫페이지
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_first_page']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_first_page'][$key] = $value.' ('.$key.')';
-	$g5['set_first_page_value'][$key] = $value;
-	$g5['set_first_page_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_first_page_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
-
-// 원가설정타입
-$set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_csc_type']));
-foreach ($set_values as $set_value) {
-	list($key, $value) = explode('=', $set_value);
-	$g5['set_csc_type'][$key] = $value.' ('.$key.')';
-	$g5['set_csc_type_value'][$key] = $value;
-	$g5['set_csc_type_options'] .= '<option value="'.trim($key).'">'.trim($value).' ('.$key.')</option>';
-	$g5['set_csc_type_value_options'] .= '<option value="'.trim($key).'">'.trim($value).'</option>';
-}
-unset($set_values);unset($set_value);
 
 // BOM구성 표시
 $g5['set_bom_type_displays'] = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_bom_type_display']));
 
+//kpi,m-erp,데이터 관련 페이지 접근할때만 item_sum테이블을 초기화한다.
+if($sub_menu == '960100' || $sub_menu == '955400' || $sub_menu == '955500'){
+    //item_sum 테이블 초기화
+    $truncate_sql = " TRUNCATE {$g5['item_sum_table']} ";
+    sql_query($truncate_sql,1);
+
+    $sqls = " INSERT INTO {$g5['item_sum_table']} (com_idx, mms_idx, mmg_idx, itm_date, itm_shift, trm_idx_line, bom_idx, bom_part_no, itm_price, itm_status, itm_count)
+            SELECT itm.com_idx, itm.mms_idx, 14, itm_date, itm_shift, trm_idx_line, oop.bom_idx, bom_part_no, itm_price, itm_status
+            , COUNT(itm_idx) AS itm_count
+            FROM {$g5['item_table']} AS itm
+                LEFT JOIN {$g5['order_out_practice_table']} AS oop ON oop.oop_idx = itm.oop_idx
+                LEFT JOIN {$g5['order_practice_table']} AS orp ON orp.orp_idx = oop.orp_idx
+            WHERE itm_status NOT IN ('trash','delete')
+                AND itm_date != '0000-00-00'
+            GROUP BY itm_date, itm.mms_idx, trm_idx_line, itm_shift, bom_idx, itm_status
+            ORDER BY itm_date ASC, trm_idx_line, itm_shift, bom_idx, itm_status 
+    ";
+    sql_query($sqls,1);
+}
 ?>
