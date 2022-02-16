@@ -200,8 +200,10 @@ if( is_array($g5['set_taxonomies_value']) ) {
 //exit;
 //설비라인 array('1라인'=>46)이러한 형식으로 저장
 $g5['line_reverse'] = array();
-foreach($g5['line_up_names'] as $k => $v){
-    $g5['line_reverse'][$v] = $k;
+if(!empty($g5['line_reverse'])){
+    foreach($g5['line_up_names'] as $k => $v){
+        $g5['line_reverse'][$v] = $k;
+    }
 }
 // 공정/라인/위치/작업장 미리 추출해 두고 가져다 쓰도록 합니다.
 $g5['set_customer_category'] = array('operation','location','site');
