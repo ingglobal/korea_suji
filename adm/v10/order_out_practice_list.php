@@ -220,9 +220,9 @@ $('.data_blank').on('click',function(e){
         <th scope="col">(수주일)<br>생산일</th>
         <th scope="col">설비</th>
         <th scope="col">전일재고</th>
-        <th scope="col">출하계획<br>납품수량</th>
+        <th scope="col">출하계획<br>납품무게(kg)</th>
         <th scope="col">과부족</th>
-        <th scope="col">지시수량</th>
+        <th scope="col">지시무게(kg)</th>
         <th scope="col">시간1<br>08:00<br>~10:00</th>
         <th scope="col">시간2<br>10:10<br>~12:00</th>
         <th scope="col">시간3<br>13:00<br>~15:00</th>

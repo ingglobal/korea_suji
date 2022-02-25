@@ -15,6 +15,10 @@ $g5['title'] = $com['com_name'].' 설비그룹 선택';
 include_once('./_head.sub.php');
 
 
+$rows = $config['cf_page_rows'];
+if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
+$from_record = ($page - 1) * $rows; // 시작 열을 구함
+
 //-- 카테고리 구조 추출 --//
 $sql = "SELECT 
 			mmg_idx
@@ -67,6 +71,10 @@ $sql = "SELECT
 ";
 //echo $sql;
 $result = sql_query($sql,1);
+
+$count = sql_fetch_array( sql_query(" SELECT FOUND_ROWS() as total ") ); 
+$total_count = $count['total'];
+$total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 ?>
 <style>
 .btn_fixed_top {position:absolute;top: 12px;}
@@ -118,7 +126,6 @@ $result = sql_query($sql,1);
         </tbody>
         </table>
     </div>
-
     <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr1.'&amp;page='); ?>
 
     <div class="win_btn ">

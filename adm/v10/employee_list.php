@@ -5,11 +5,11 @@ include_once('./_common.php');
 auth_check($auth[$sub_menu], 'r');
 
 $sql_common = " FROM {$g5['member_table']} AS mb 
-                LEFT JOIN {$g5['company_member_table']} AS cmm ON cmm.mb_id = mb.mb_id
+                LEFT JOIN {$g5['company_member_table']} AS cmm ON mb.mb_id = cmm.mb_id
 "; 
 
 $where = array();
-$where[] = " mb_level = 4 ";   // 디폴트 검색조건
+$where[] = " mb_level = '4' ";   // 디폴트 검색조건
 
 // 해당 업체만
 $where[] = " mb_4 = '".$_SESSION['ss_com_idx']."' ";
@@ -43,15 +43,15 @@ $sql_group = " GROUP BY mb.mb_id ";
 
 if (!$sst) {
     $sst = "mb_datetime";
-    $sod = "desc";
+    $sod = "DESC";
 }
 
-$sql_order = " order by {$sst} {$sod} ";
+$sql_order = " ORDER BY {$sst} {$sod} ";
 
 $sql = " SELECT count(*) AS cnt FROM (select cmm_idx as cnt {$sql_common} {$sql_search} {$sql_group}) AS db1 ";
 $row = sql_fetch($sql,1);
 $total_count = $row['cnt'];
-//print_r3($sql).'<br>';
+// print_r3($sql).'<br>';
 
 $rows = $config['cf_page_rows'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산

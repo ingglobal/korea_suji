@@ -1,60 +1,46 @@
 <?php
-$sub_menu = "930105";
+$sub_menu = "920100";
 include_once('./_common.php');
 
 auth_check($auth[$sub_menu],'w');
 
-// 변수 설정, 필드 구조 및 prefix 추출
-$table_name = 'order_practice';
-$g5_table_name = $g5[$table_name.'_table'];
-$fields = sql_field_names($g5_table_name);
-$pre = substr($fields[0],0,strpos($fields[0],'_'));
-$fname = preg_replace("/_form/","",$g5['file_name']); // _form을 제외한 파일명
-$qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 넘겨야 할 변수들
 
+$total_count = 0;
 if ($w == '') {
     $sound_only = '<strong class="sound_only">필수</strong>';
     $w_display_none = ';display:none';  // 쓰기에서 숨김
-
-    ${$pre}[$pre.'_count'] = 1;
-    ${$pre}[$pre.'_start_date'] = G5_TIME_YMD;
-    ${$pre}[$pre.'_status'] = 'pending';
+	//$row['prj_status'] = 'inprocess';
+    
 }
 else if ($w == 'u') {
-    $u_display_none = ';display:none;';  // 수정에서 숨김
+    $sql = " SELECT * FROM {$g5['order_table']} WHERE ord_idx = '{$ord_idx}' ";
+    $ord = sql_fetch($sql);
+    $csql = sql_fetch(" SELECT com_name FROM {$g5['company_table']} WHERE com_idx = '{$ord['com_idx_customer']}' ");
+    $ord['com_name_customer'] = $csql['com_name'];
 
-	${$pre} = get_table_meta($table_name, $pre.'_idx', ${$pre."_idx"});
-    if (!${$pre}[$pre.'_idx'])
-		alert('존재하지 않는 자료입니다.');
-    // print_r3(${$pre});
-    $bom = get_table_meta('bom','bom_idx',${$pre}['bom_idx']);    // BOM
-    $shf = get_table_meta('shift','shf_idx',${$pre}['shf_idx']);    // 작업구간
-    $mb1 = get_table_meta('member','mb_id',${$pre}['mb_id']);    // 생산자
-
+    $sql_it = " SELECT *
+                        ,( SELECT bct_name FROM {$g5['bom_category_table']} WHERE bct_id = LEFT(bom.bct_id,2) ) AS cat1
+                        ,( SELECT bct_name FROM {$g5['bom_category_table']} WHERE bct_id = LEFT(bom.bct_id,4) ) AS cat2
+                FROM {$g5['order_item_table']} AS ori
+                    LEFT JOIN {$g5['bom_table']} AS bom ON ori.bom_idx = bom.bom_idx 
+                    LEFT JOIN {$g5['bom_category_table']} AS bct ON bom.bct_id = bct.bct_id 
+                WHERE ord_idx = '{$ord_idx}' AND ori_status NOT IN('trash','delete','del','cancel') ORDER BY bom_sort ";
+    $result = sql_query($sql_it,1);
+    $total_count = sql_num_rows($result);
 }
-else
-    alert('제대로 된 값이 넘어오지 않았습니다.');
 
 
-// 라디오&체크박스 선택상태 자동 설정 (필드명 배열 선언!)
-$check_array=array('mb_field');
-for ($i=0;$i<sizeof($check_array);$i++) {
-	${$check_array[$i].'_'.${$pre}[$check_array[$i]]} = ' checked';
-}
+
 
 $html_title = ($w=='')?'추가':'수정'; 
-$g5['title'] = '실행계획 '.$html_title;
+$g5['title'] = '수주 '.$html_title;
 include_once ('./_head.php');
 
-
-
+add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_JS_URL.'/nestable/jquery.nestable.css">', 0);
+add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.css">', 0);
+//print_r3($ord);
 ?>
 <style>
-.span_oop_count {margin-left:20px;color:yellow;}
-.span_com_idx_customer {margin-left:30px;}
-.span_oro_date_plan {margin-left:20px;}
-.div_oop_count {display:inline-block;float:right;color:yellow;}
-
 .tbl_frm01:after {display:block;visibility:hidden;clear:both;content:'';}
 .div_wrapper {display:inline-block;background:#1e2531;width:49.5%;}
 .dd {min-width: 100%;}
@@ -67,9 +53,11 @@ include_once ('./_head.php');
 .div_bom_list {min-height:600px;padding:10px 20px;}
 #frame_bom_list {width:100%;min-height:600px;}
 .empty_table {background:#1e2531;}
+#sp_notice,#sp_ex_notice{color:yellow;margin-left:10px;}
+#sp_notice.sp_error,#sp_ex_notice.sp_error{color:red;}
 </style>
 
-<form name="form01" id="form01" action="./<?=$g5['file_name']?>_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
+<form name="form01" id="form01" action="./order_form_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
 <input type="hidden" name="w" value="<?php echo $w ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
@@ -77,14 +65,12 @@ include_once ('./_head.php');
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
-<input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
+<input type="hidden" name="com_idx" value="<?=$_SESSION['ss_com_idx']?>">
+<input type="hidden" name="ord_idx" value="<?=$ord_idx?>">
 <input type="hidden" name="sca" value="<?php echo $sca ?>">
-<input type="hidden" name="ser_bom_type" value="<?php echo $ser_bom_type ?>">
-
 
 <div class="local_desc01 local_desc" style="display:no ne;">
-    <p>생산지시수량을 확인하시고 입력해 주세요. 지시수량은 출하수량보다 큰 값이면 안 됩니다.</p>
-    <p>확정된 실행계획은 수정할 수 없습니다. 생산에 사용할 자재가 할당되어 있기 때문에 변경하게 되면 재고 수량에 혼란이 생길 수 있습니다.</p>
+    <p>형식에 맞는 엑셀 파일로 수주데이터를 이괄 등록 할 수 있습니다.</p>
 </div>
 
 <div class="tbl_frm01 tbl_wrap">
@@ -97,92 +83,154 @@ include_once ('./_head.php');
 		<col style="width:35%;">
     </colgroup>
 	<tbody>
-    <tr>
-        <th scope="row">작업지시번호</th>
-        <td>
-            <input type="text" name="orp_order_no" id="orp_order_no" required readonly class="frm_input required readonly" style="width:150px;" value="<?=${$pre}['orp_order_no']?>">
-        </td>
-        <th scope="row">상태</th>
-        <td>
-            <select name="<?=$pre?>_status" id="<?=$pre?>_status">
-            <?=$g5['set_orp_status_options']?>
-            </select>
-            <script>$('select[name="<?=$pre?>_status"]').val('<?=${$pre}[$pre.'_status']?>');</script>
-        </td>
-    </tr>
 	<tr>
-        <th scope="row">라인설비</th>
+        <!--th scope="row">거래처</th>
 		<td>
-            <select name="trm_idx_line" id="trm_idx_line">
-                <option value="">라인선택</option>
-                <?=$line_form_options?>
+            <input type="hidden" name="com_idx_customer" value="<?=$ord['com_idx_customer']?>">
+			<input type="text" name="com_name" value="<?php echo $ord['com_name_customer'] ?>" id="com_name" class="frm_input required readonly" required readonly>
+            <a href="./customer_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_customer">거래처찾기</a>
+		</td-->
+        <th scope="row">수주금액</th>
+		<td>
+			<input type="text" name="ord_price" id="ord_price" value="<?=number_format($ord['ord_price'])?>" readonly class="frm_input readonly" style="width:130px;text-align:right;">&nbsp;원
+		</td>
+        <th scope="row">수주상태</th>
+        <td>
+            <select name="ord_status" id="ord_status">
+                <?=$g5['set_ord_status_options']?>
             </select>
-            <script>$('select[name="trm_idx_line').val('<?=${$pre}['trm_idx_line']?>');</script>
-		</td>
-        <th scope="row">생산자</th>
-		<td>
-            <input type="hidden" name="mb_id" id="mb_id" value="<?=${$pre}['mb_id']?>">
-			<input type="text" name="mb_name" id="mb_name" value="<?php echo $mb1['mb_name'] ?>" id="mb_name" class="frm_input" readonly>
-            <a href="./member_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_member">찾기</a>
-		</td>
+            <script>(w == '') ? $('select[name="ord_status"]').val('ok') : $('select[name="ord_status"]').val('<?=$ord['ord_status']?>');</script>
+        </td>
     </tr>
     <tr>
-        <?php
-        $ar['id'] = 'orp_start_date';
-        $ar['name'] = '생산시작일';
-        $ar['type'] = 'input';
-        $ar['width'] = '80px';
-        $ar['readonly'] = 'readonly';
-        $ar['required'] = 'required';
-        $ar['value'] = ${$pre}[$ar['id']];
-        echo create_td_input($ar);
-        unset($ar);
-        ?>
-        <?php
-        $ar['id'] = 'orp_done_date';
-        $ar['name'] = '생산종료일';
-        $ar['type'] = 'input';
-        $ar['width'] = '80px';
-        $ar['readonly'] = 'readonly';
-        $ar['required'] = 'required';
-        $ar['value'] = ${$pre}[$ar['id']];
-        echo create_td_input($ar);
-        unset($ar);
-        ?>
+        <th scope="row"><label for="ord_date">수주일</label></th>
+        <td colspan="3">
+            <input type="text" name="ord_date" id="ord_date" value="<?=$ord['ord_date']?>" readonly required class="date frm_input readonly required" style="width:130px;">
+            <span id="sp_notice" class="<?=(($ord['ord_date'])?'':'sp_error')?>"><?=(($ord['ord_date'])?'':'수주일을 입력해 주세요.')?></span>
+        </td>
     </tr>
-    <tr>
+	</tbody>
+	</table>
+</div>
+
+<div class="local_desc01 local_desc" style="display:no ne;">
+    <p>오른편에서 품명을 검색하고 입력한 다음 주문상품목록을 구성하세요.</p>
+    <p>구성이 끝났으면 상단 [확인] 버튼을 클릭하여 저장하세요.</p>
+</div>
+<div class="tbl_frm01">
+    <div class="div_wrapper div_left">
+        <div class="div_title">
+            <?php if($row['com_name']){ ?>
+            <span class="ord_title"><?=$row['com_name']?></span>의 수주 설정
+            <?php }else{ ?>
+            수주설정
+            <?php } ?>
+            <a href="javascript:" id="del-item" class="btn_03 btn float_right"> 초기화</a>
+        </div>
+
+        <div class="dd" id="nestable3">
+        <ol class="dd-list">
         <?php
-        $ar['id'] = 'bom_memo';
-        $ar['name'] = '메모';
-        $ar['type'] = 'textarea';
-        $ar['value'] = ${$pre}[$ar['id']];
-        $ar['colspan'] = 3;
-        echo create_tr_input($ar);
-        unset($ar);
-        ?> 
-    </tr>
-</tbody>
-</table>
+        $depth = 0;
+        for ($i=0; $row=sql_fetch_array($result); $i++) {
+            $row['idx'] = $i+1;
+            $row['com_customer'] = get_table('company','com_idx',$row['com_idx_customer']);
+            $row['bit_count'] = $row['bit_count'] ?: 1;
+            $bno = sql_fetch(" SELECT bom_part_no,bom_name FROM {$g5['bom_table']} WHERE bom_idx = '{$row['bom_idx']}' ");
+            $row['bom_part_no'] = $bno['bom_part_no'];
+            $row['bom_name'] = $bno['bom_name'];
+			
+			$otq_sql = " SELECT SUM(oro_count) AS ous FROM {$g5['order_out_table']} WHERE ord_idx = '{$row['ord_idx']}' AND ori_idx = '{$row['ori_idx']}' AND oro_status NOT IN('trash','delete','del','cancel') ";
+			//echo $otq_sql;
+            $otq = sql_fetch($otq_sql);
+			$out_cnt = ($otq['ous']) ? $otq['ous'] : 0;
+			//echo $out_cnt;
+			$cnt_blick = '';//($out_cnt != $row['ori_count']) ? ' txt_redblink' : '';
+            echo '
+            <li class="dd-item dd3-item" data-id="'.$row['idx'].'">
+                <div class="dd-handle dd3-handle">Drag</div>
+                <div class="dd3-content" bom_idx_child="'.$row['bom_idx'].'">
+                    <span class="bom_name">[<span style="color:orange;">'.$row['cat1'].' > '.$row['cat2'].'</span>]'.cut_str($row['bom_name'],20).'('.$row['ori_idx'].')</span>
+                    <div class="add_items">
+                        <span class="bom_part_no">'.$row['bom_part_no'].'</span>
+                        <span class="bom_price" price="'.$row['ori_price'].'"><b>'.number_format($row['ori_price']).'</b>원</span>
+                        <span class="span_count"><span class="bit_count'.$cnt_blick.'">'.$row['ori_count'].'</span>개</span>
+                        <img src="https://icongr.am/clarity/times.svg?size=30&color=444444" class="btn_remove" title="삭제">
+                    </div>
+                </div>
+            </li>'.PHP_EOL;
+        }
+        if( $i == 0 ) {
+            echo '<li class="empty_table">구성품이 없습니다.</li>';
+        }
+        ?>
+        </ol>
+        </div>
+        
+        <div style="clear:both;"></div>
+        <div class="btn_control">
+            <!-- ========================================= -->
+            <div class="div_serialize" style="display:none;">
+            <p><strong>Serialised Output (per list)</strong></p>
+            <textarea class="navi_result" id="nestable3-output" name="serialized"></textarea>
+            </div>
+            <!-- ========================================= -->
+        </div>
+    </div>
+    <div class="div_wrapper div_right float_right">
+        <div class="div_title">
+            <span class="bom_title2">제품 리스트</span>
+        </div>
+        <div class="div_bom_list">
+            <iframe id="frame_bom_list" src="./order_item_list.php?file_name=<?=$g5['file_name']?>" frameborder="0" scrolling="no"></iframe>
+        </div>
+
+    </div>
 </div>
 
 <div class="btn_fixed_top">
-    <a href="./<?=$fname?>_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
+    <a href="./order_list.php?<?php echo $qstr ?>" class="btn btn_02">목록</a>
     <input type="submit" value="확인" class="btn_submit btn" accesskey='s'>
 </div>
 </form>
-
 <script src="<?=G5_USER_ADMIN_JS_URL?>/nestable/jquery.nestable.js"></script>
 <script>
 $(function() {
-    $("input[name$=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+    <?php if($w == ''){ ?>
+    $("input[name=ord_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99",
+    onSelect: function(date,datepicker){
+        chk_Code(date);
+    }
+    });
+    <?php } ?>
+    // 가격 입력 쉼표 처리
+	$(document).on( 'keyup','input[name$=_price]',function(e) {
+        if(!isNaN($(this).val().replace(/,/g,'')))
+            $(this).val( thousand_comma( $(this).val().replace(/,/g,'') ) );
+	});
+    // 가격정보 보임 숨김
+	$(".btn_price_add").click(function(e) {
+        if( $('.tr_price').is(':hidden') ) {
+            $('.tr_price').show();
+        }
+        else
+           $('.tr_price').hide();
+	});
 
-        
-    // 생산자
-	$("#btn_member").click(function(e) {
+    // 거래처찾기 버튼 클릭
+	$("#btn_customer").click(function(e) {
 		e.preventDefault();
         var href = $(this).attr('href');
-		winMember = window.open(href, "winMember", "left=300,top=150,width=550,height=600,scrollbars=1");
-        winMember.focus();
+		winCustomerSelect = window.open(href, "winCustomerSelect", "left=300,top=150,width=550,height=600,scrollbars=1");
+        winCustomerSelect.focus();
+	});
+
+    // 가격 입력 쉼표 처리
+	$(document).on( 'keyup','input[name$=_price]',function(e) {
+//        console.log( $(this).val() )
+//		console.log( $(this).val().replace(/,/g,'') );
+        if(!isNaN($(this).val().replace(/,/g,'')))
+            $(this).val( thousand_comma( $(this).val().replace(/,/g,'') ) );
 	});
 
 });
@@ -412,13 +460,39 @@ function totalCalculatePrice(){
 //################################### //상품목록 종료 ######################################
 
 
-
 // 숫자만 입력
 function chk_Number(object){
     $(object).keyup(function(){
         $(this).val($(this).val().replace(/[^0-9|-]/g,""));
     });
 }
+
+
+function chk_Code(date){
+    var date_chk_url = './ajax/ord_date_overlap_chk.php';
+    $.ajax({
+        type : 'POST',
+        url : date_chk_url,
+        dataType : 'text',
+        data : {'ord_date' : date},
+        success : function(res){
+            //console.log(res);
+            if(res == 'ok'){
+                document.getElementById('sp_notice').textContent = '등록 가능한 날짜입니다.';
+                $('#sp_notice').removeClass('sp_error');
+            }
+            else if(res == 'overlap'){
+                document.getElementById('sp_notice').textContent = '이미 등록된 날짜입니다.';
+                $('#sp_notice').removeClass('sp_error');
+                $('#sp_notice').addClass('sp_error');
+            }
+        },
+        error : function(xmlReq){
+            alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+        }
+    });
+}
+
 
 function form01_submit(f) {
     // 폼에 input 박스가 한개라도 있으면 안 된다.
@@ -431,6 +505,12 @@ function form01_submit(f) {
         return false;
     }
 
+    if($('#sp_notice').hasClass('sp_error')){
+        alert('등록가능한 수주일를 입력해 주세요.');
+        $('input[name="ord_date"]').focus();
+        return false;
+    }
+
     if(!$('#nestable3 .dd-list .dd-item').length){
         alert('적어도 상품 한 개 이상은 등록해야 합니다.');
         return false;
@@ -438,7 +518,6 @@ function form01_submit(f) {
 
     return true;
 }
-
 </script>
 
 <?php

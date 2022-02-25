@@ -87,26 +87,10 @@ include_once('./_head.sub.php');
     <input type="hidden" name="com_idx" value="<?php echo $_REQUEST['com_idx']; ?>">
 
     <div id="div_search">
-        <select name="sca" id="sca">
-            <option value="">전체분류</option>
-            <?php
-            $sql1 = "   SELECT * FROM {$g5['bom_category_table']}
-                        WHERE com_idx = '".$_SESSION['ss_com_idx']."'
-                        ORDER BY bct_id, bct_order
-            ";
-            $result1 = sql_query($sql1);
-            for ($i=0; $row1=sql_fetch_array($result1); $i++) {
-                $len = strlen($row1['bct_id']) / 2 - 1;
-                for ($j=0; $j<$len; $j++) { $row1['nbsp'] .= '&nbsp;&nbsp;&nbsp;'; } // 들여쓰기공백
-                echo '<option value="'.$row1['bct_id'].'" '.get_selected($sca, $row1['bct_id']).'>'.$row1['nbsp'].$row1['bct_name'].'</option>'.PHP_EOL;
-            }
-            ?>
-        </select>
         <select name="sfl" id="sfl">
+            <option value="bom_part_no"<?php echo get_selected($_GET['sfl'], "bom_part_no"); ?>>품번</option>
             <option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
-            <option value="com_idx_customer"<?php echo get_selected($_GET['sfl'], "com_idx_customer"); ?>>거래처번호</option>
-            <option value="bom_maker"<?php echo get_selected($_GET['sfl'], "bom_maker"); ?>>메이커</option>
-            <option value="bom_memo"<?php echo get_selected($_GET['sfl'], "bom_idx"); ?>>메모</option>
+            <option value="com_name"<?php echo get_selected($_GET['sfl'], "com_name"); ?>>고객처명</option>
         </select>
         <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
         <input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input" style="width:160px;">
@@ -120,7 +104,7 @@ include_once('./_head.sub.php');
         <thead>
         <tr>
             <th scope="col"><?php echo subject_sort_link('bom_name') ?>품명</a></th>
-            <th scope="col">제품코드</th>
+            <th scope="col">파트넘버</th>
             <th scope="col">업체명</th>
             <th scope="col">단가</th>
             <th scope="col">타입</th>

@@ -495,6 +495,20 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">반제품상태</th>
+			<td colspan="3">
+				<?php echo help('finish=재고,ing=투입,compounding=컴파운딩,move=이전,scrap=폐기,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량,trash=삭제'); ?>
+				<input type="text" name="set_half_status" value="<?php echo $g5['setting']['set_half_status']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">반제품불량타입</th>
+			<td colspan="3">
+				<?php echo help('error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량'); ?>
+				<input type="text" name="set_half_defect_type" value="<?php echo $g5['setting']['set_half_defect_type']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">완제품생산시간대</th>
 			<td colspan="3">
 				<?php echo help('1=시간1,2=시간2,3=시간3,4=시간4,5=시간5,6=시간6,7=시간7,8=시간8,9=시간9,10=시간10'); ?>
