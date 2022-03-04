@@ -205,7 +205,7 @@ $('.data_blank').on('click',function(e){
         <th scope="col">라인</th>
         <th scope="col">시작일</th>
         <th scope="col">완료일</th>
-        <th scope="col">계획수량</th>
+        <th scope="col">계획무게</th>
         <!--th scope="col">실시간생산</th-->
         <!--th scope="col">수주/출하</th-->
         <th scope="col">상태</th>
@@ -240,7 +240,7 @@ $('.data_blank').on('click',function(e){
             <input type="text" name="orp_done_date[<?=$row['orp_idx']?>]" orp="1" orp_idx="<?=$row['orp_idx']?>" value="<?=$row['orp_done_date']?>" readonly class="tbl_input shf_one orp_done_date_<?=$row['orp_idx']?>" style="width:80px;">
         </td>
         <td class="td_orp_count"><!-- 지시수량 -->
-        <?=number_format($oop['cnt'])?>&nbsp;&nbsp;개
+        <?=number_format($oop['cnt'])?>&nbsp;&nbsp;kg
         </td>
         <td class="td_orp_status"><?=$g5['set_orp_status_value'][$row['orp_status']]?></td><!-- 상태 -->
         <td class="td_mng">

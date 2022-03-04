@@ -23,59 +23,86 @@ $where[] = " ori.ori_status NOT IN('trash','delete','del','cancel') AND oro.oro_
 // 검색어 설정
 if ($stx != "") {
     switch ($sfl) {
-		case ( $sfl == 'ori_idx' || $sfl == 'itm_idx' || $sfl == 'oro.oro_idx' || $sfl == 'oro.com_idx_customer' ) :
+		case ( $sfl == 'oro.ord_idx' ) :
 			$where[] = " {$sfl} = '".trim($stx)."' ";
             break;
-		case ( $sfl == 'bct_id' ) :
-			$where[] = " {$sfl} LIKE '".trim($stx)."%' ";
+    }
+}
+
+
+// 검색어 설정
+if ($stx2 != "") {
+    switch ($sfl2) {
+		case ( $sfl2 == 'bom.bom_part_no' ) :
+			$where[] = " {$sfl2} = '".trim($stx2)."' ";
+            break;
+		case ( $sfl2 == 'bom.bom_name' ) :
+			$where[] = " {$sfl2} LIKE '%".trim($stx2)."%' ";
             break;
         default :
-			$where[] = " $sfl LIKE '%".trim($stx)."%' ";
+			$where[] = " $sfl2 LIKE '%".trim($stx2)."%' ";
             break;
     }
 }
 
 if($ord_date){
     $where[] = " ord.ord_date = '".$ord_date."' ";
+    $qstr .= '&ord_date='.$ord_date;
 }
 if($oro_date_plan){
-    $where[] = " oro_date_plan = '".$oro_date_plan."' ";
+    $where[] = " oro.oro_date_plan = '".$oro_date_plan."' ";
+    $qstr .= '&oro_date_plan='.$oro_date_plan;
 }
 if($oro_date){
-    $where[] = " oro_date = '".$oro_date."' ";
+    $where[] = " oro.oro_date = '".$oro_date."' ";
+    $qstr .= '&oro_date='.$oro_date;
 }
 
 // 최종 WHERE 생성
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
-//if (!$sst) {
+if (!$sst) {
     //$sst = "ord.ord_reg_dt, oro.ord_idx, oro.ori_idx, oro.oro_idx";
-    $sst = "ord.ord_reg_dt desc, oro.ori_idx desc";
+    $sst = "ord.ord_reg_dt";
     //$sod = "desc";
-    $sod = "";
-//}
+    $sod = "desc";
+}
+if (!$sst2) {
+    $sst2 = ", bom.bom_sort";
+    $sod2 = "";
+}
+
 //$sql_group = " GROUP BY ord.ord_idx ";
 $sql_order = " ORDER BY {$sst} {$sod} ";
 
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
 $row = sql_fetch($sql);
 $total_count = $row['cnt'];
-
-$rows = 1000;//$config['cf_page_rows'];
+//한 페이지 목록수를 100개를 넘길수 없도록 해라 로딩속도 때문에
+if($schrows){
+    $rows = ($schrows > 200) ? 200 : $schrows;
+}
+else{
+    $rows = 30;
+}
+//$rows = ($schrows)?$schrows:100;//$config['cf_page_rows'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
-$sql = "SELECT oro.*, ori.bom_idx, ori.ori_count, bom.bom_name, bom.bct_id, ord.ord_date, ord.ord_reg_dt
+$sql = "SELECT oro.*, oop.orp_idx, ori.bom_idx, ori.ori_count, bom.bom_name, bom.bom_part_no, bom.bct_id, ord.ord_date, ord.ord_reg_dt
         {$sql_common} {$sql_search} {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
-//print_r3($sql);
+// print_r3($sql);
 $result = sql_query($sql,1);
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 넘겨야 할 변수들
+//print_r2($g5['line_name']);exit;
+
+//print_r2($g5['customer']);
 ?>
 <style>
 /*.container_wr{min-width:1672px;overflow-x:auto;}*/
@@ -83,7 +110,10 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 .td_chk{position:relative;}
 .td_chk .chkdiv_btn{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,255,0,0);}
 .td_bom_name {text-align:left !important;}
+.sp_cat{color:orange;font-size:0.85em;}
+.sp_pno{color:skyblue;}
 .td_orp_idx{position:relative;}
+.td_orp_idx span{color:skyblue;font-size:1em;}
 .td_orp_idx span a{color:orange;font-size:1em;}
 .td_oro_part_no, .td_com_name, .td_oro_maker
 ,.td_oro_items, .td_oro_items_title {text-align:left !important;}
@@ -96,6 +126,11 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 .span_oro_price b, .span_bit_count b {color:#737132;font-weight:normal;}
 #modal01 table ol {padding-right: 20px;text-indent: -12px;padding-left: 12px;}
 #modal01 form {overflow:hidden;}
+#modal01 .sp_note{color:yellow;margin-top:5px;}
+#modal01 .sp_note.sp_old{color:skyblue;}
+.ui-dialog .ui-dialog-content{
+    padding:0.5em 0.5em;
+}
 .ui-dialog .ui-dialog-titlebar-close span {
     display: unset;
     margin: -8px 0 0 -8px;
@@ -106,42 +141,51 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 .slt_label{position:relative;}
 .slt_label span{position:absolute;top:-23px;left:0px;z-index:2;}
 .slt_label .data_blank{position:absolute;top:3px;right:-18px;z-index:2;font-size:1.1em;cursor:pointer;}
+
+.loading{display:inline-block;}
+.loading_hide{display:none;}
 </style>
 
 <div class="local_ov01 local_ov">
     <?php echo $listall ?>
     <span class="btn_ov01"><span class="ov_txt">총 </span><span class="ov_num"> <?php echo number_format($total_count) ?>건 </span></span>
 </div>
-
-<form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
+<form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get" autocomplete="off">
 	<label for="sfl" class="sound_only">검색대상</label>
 	<select name="sfl" id="sfl">
-		<option value="oro.com_idx_customer"<?php echo get_selected($_GET['sfl'], "oro.com_idx_customer"); ?>>거래처번호</option>
-		<option value="oro.oro_idx"<?php echo get_selected($_GET['sfl'], "oro.oro_idx"); ?>>출하번호</option>
-		<option value="bom_name"<?php echo get_selected($_GET['sfl'], "bom_name"); ?>>품명</option>
 		<option value="oro.ord_idx"<?php echo get_selected($_GET['sfl'], "oro.ord_idx"); ?>>수주번호</option>
-		<option value="oro.ori_idx"<?php echo get_selected($_GET['sfl'], "oro.ori_idx"); ?>>수주상품번호</option>
 	</select>
 	<label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
-	<input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input">
-	<label for="ord_date" class="sch_label">
+	<input type="text" name="stx" value="<?php echo $stx ?>" id="stx" class="frm_input" style="width:80px;margin-right:10px;">
+	<select name="sfl2" id="sfl2">
+		<option value="bom.bom_part_no"<?php echo get_selected($_GET['sfl2'], "bom_part_no"); ?>>품번</option>
+		<option value="bom.bom_name"<?php echo get_selected($_GET['sfl2'], "bom_name"); ?>>품명</option>
+	</select>
+	<label for="stx2" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+	<input type="text" name="stx2" value="<?php echo $stx2 ?>" id="stx2" class="frm_input" style="margin-right:10px;">
+    <label for="schrows" class="sch_label" style="margin-right:10px;">
+        <span>표시갯수<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
+        <input type="text" name="schrows" placeholder="표시할 갯수" value="<?php echo $schrows ?>" id="schrows" class="frm_input" style="width:100px;text-align:right;" onClick="javascript:chk_Number(this)">
+    </label>
+	<label for="ord_date" class="sch_label" style="margin-right:10px;">
 		<span>수주일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
 		<input type="text" name="ord_date" value="<?php echo $ord_date ?>" id="ord_date" readonly class="frm_input readonly" placeholder="수주일" style="width:100px;" autocomplete="off">
 	</label>
-	<label for="oro_date_plan" class="sch_label">
+	<label for="oro_date_plan" class="sch_label" style="margin-right:10px;">
 		<span>출하예정일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
 		<input type="text" name="oro_date_plan" value="<?php echo $oro_date_plan ?>" id="oro_date_plan" readonly class="frm_input readonly" placeholder="출하예정일" style="width:100px;" autocomplete="off">
 	</label>
 	<label for="oro_date" class="sch_label">
 		<span>실출하일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-		<input type="text" name="oro_date_plan" value="<?php echo $oro_date ?>" id="oro_date" readonly class="frm_input readonly" placeholder="실출하일" style="width:100px;" autocomplete="off">
+		<input type="text" name="oro_date" value="<?php echo $oro_date ?>" id="oro_date" readonly class="frm_input readonly" placeholder="실출하일" style="width:100px;" autocomplete="off">
 	</label>
 	<input type="submit" class="btn_submit" value="검색">
 </form>
 
 <div class="local_desc01 local_desc" style="display:no ne;">
     <p>부분적으로 <span style="color:pink">복수선택</span>을 할 경우에는 첫번째 항목을 <span style="color:skyblue">[Check]</span>하고, 마지막 항목을 <span style="color:skyblue">[Shft+Click]</span> 하세요.
-    <p>부분적으로 <span style="color:pink">복수선택해제</span>를 할 경우에는 첫번째 항목을 <span style="color:skyblue">[Check]</span>하고, 마지막 항목을 <span style="color:skyblue">[Alt+Click]</span> 하세요.
+    <p style="display:none;">부분적으로 <span style="color:pink">복수선택해제</span>를 할 경우에는 첫번째 항목을 <span style="color:skyblue">[Check]</span>하고, 마지막 항목을 <span style="color:skyblue">[Alt+Click]</span> 하세요.
+    <p style="display:no ne;">표시갯수는 한 페이지에 보여지는 목록의 갯수를 의미합니다.<span style="color:red;"> 최대 200개까지</span> 설정이 가능합니다.(로딩속도에 영향을 주므로 되도록 50이하의 수치로 설정해 주세요.)</p>
 </div>
 
 <div class="select_input">
@@ -189,9 +233,14 @@ $('.data_blank').on('click',function(e){
 </script>
 <form name="form01" id="form01" action="./order_out_list_update.php" onsubmit="return form01_submit(this);" onsubmit2="return form01_submit(this);" method="post" autocomplete="off">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
+<input type="hidden" name="sst2" value="<?php echo $sst2 ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
+<input type="hidden" name="sod2" value="<?php echo $sod2 ?>">
+<input type="hidden" name="schrows" value="<?php echo $schrows ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
+<input type="hidden" name="sfl2" value="<?php echo $sfl2 ?>">
+<input type="hidden" name="stx2" value="<?php echo $stx2 ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="com_idx" value="<?php echo $_SESSION['ss_com_idx'] ?>">
 <input type="hidden" name="token" value="">
@@ -205,17 +254,19 @@ $('.data_blank').on('click',function(e){
             <label for="chkall" class="sound_only">전체</label>
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
-		<th scope="col">번호</th>
+        <th scope="col">번호</th>
         <th scope="col">제품(수주상품번호)</th>
-        <th scope="col">수주<br>무게(kg)</th>
-        <th scope="col">납품계획<br>무게(kg)</th>
+        <th scope="col">D<br>수주무게(kg)</th>
+        <th scope="col">출하계획<br>무게(kg)</th>
         <th scope="col">주간<br>09:00</th>
         <th scope="col">주간<br>12:00</th>
         <th scope="col">주간<br>15:00</th>
         <th scope="col">야간<br>17:00</th>
         <th scope="col">야간<br>19:00</th>
-        <th scope="col">야간<br>21:00</th>
-        <th scope="col">생산계획건수<br><span style="color:orange;">생산계획ID</span></th>
+        <th scope="col">D+1<br>07:00</th>
+        <th scope="col">D+1<br>08:00</th>
+        <th scope="col">D+1<br>09:00</th>
+        <th scope="col">설비라인<br><span style="color:orange;">생산계획ID</span><br>생산일</th>
         <th scope="col">수주일</th>
         <th scope="col">출하예정일</th>
         <th scope="col">출하일</th>
@@ -244,7 +295,11 @@ $('.data_blank').on('click',function(e){
         $orp_exist = sql_fetch($sql2,1);
         $row['orp_cnt'] = $orp_exist['cnt'];
         if($row['orp_cnt']) {
-            $row['orp_count'] = $row['orp_cnt'];
+            //$g5['line_name'][$row['trm_idx_line']]
+            //$row['orp_count'] = $row['orp_cnt'];
+
+            $ordq = sql_fetch(" SELECT trm_idx_line, orp_start_date FROM {$g5['order_practice_table']} WHERE orp_idx = '{$row['orp_idx']}' ");
+            $row['orp_count'] = $g5['line_name'][$ordq['trm_idx_line']];
 
             $sql3 = " SELECT GROUP_CONCAT(orp_idx) AS orp_grp FROM {$g5['order_out_practice_table']} WHERE oro_idx = '".$row['oro_idx']."' ";
             $orp_res = sql_fetch($sql3);
@@ -258,6 +313,7 @@ $('.data_blank').on('click',function(e){
                 $pcnt++;
             }
             $row['orp_count'] .= '<br><span>'.$orp_str.'</span>';
+            $row['orp_count'] .= '<br><span class="dt">'.substr($ordq['orp_start_date'],5).'</span>';
         }
         else {
             //$row['orp_count'] = '<a href="./order_practice_form.php?w=&oro_idx='.$row['oro_idx'].'" target="_blank">생성하기</a>';
@@ -285,23 +341,27 @@ $('.data_blank').on('click',function(e){
             <div class="chkdiv_btn" chk_no="<?=$i?>"></div>
         </td>
         <td class="td_oro_idx"><?=$row['oro_idx']?></td><!-- 출하idx -->
-        <!--td class="td_com_name"><a href="?sfl=oro.com_idx_customer&stx=<?=$row['com_idx_customer']?>"><?=$g5['customer'][$row['com_idx_customer']]['com_name']?></a></td--><!-- 납품처 -->
         <td class="td_bom_name">
-            <?=$row['bct_name_tree']?><br>
-            <?=$row['bom_name']?>(<?=$row['ori_idx']?>)
+            <?php if($row['bct_name_tree']){ ?>
+                <span class="sp_cat"><?=$row['bct_name_tree']?></span><br>
+            <?php } ?>
+            <?=$row['bom_name']?>(<?=$row['ori_idx']?>)<br>
+            <span class="sp_pno">[<?=$row['bom_part_no']?>]</span>
             <input type="hidden" name="bom_idx[<?=$row['oro_idx']?>]" value="<?=$row['bom_idx']?>">
             <input type="hidden" name="com_idx_customer[<?=$row['com_idx_customer']?>]" value="<?=$row['com_idx_customer']?>">
         </td><!-- 제품 -->
-        <td class="td_ord_d_qty"><?=number_format($row['ori_count'])?></td>
+        <td class="td_ord_d_qty"><?=$row['ori_count']?></td>
         <td class="td_oro_count">
-            <input type="text" name="oro_count[<?php echo $row['oro_idx'] ?>]" oro_idx="<?=$row['oro_idx']?>" value="<?=number_format($row['oro_count'])?>" readonly class="readonly shf_total tbl_input sit_amt oro_count_<?php echo $row['oro_idx'] ?>" style="width:65px;background:#000 !important;">
+            <input type="text" name="oro_count[<?php echo $row['oro_idx'] ?>]" oro_idx="<?=$row['oro_idx']?>" value="<?=number_format($row['oro_count'])?>" readonly class="readonly shf_total tbl_input sit_amt oro_count_<?php echo $row['oro_idx'] ?>" style="width:45px;background:#000 !important;">
         </td><!-- 납품계획수량 -->
-        <td class="td_oro_1"><input type="text" oro="1" oro_idx="<?=$row['oro_idx']?>" name="oro_1[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_1']?>" class="tbl_input shf_one oro_1_<?=$row['oro_idx']?>" style="width:55px;text-align:right;"></td><!--//납품시간1-->
-        <td class="td_oro_2"><input type="text" oro="2" oro_idx="<?=$row['oro_idx']?>" name="oro_2[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_2']?>" class="tbl_input shf_one oro_2_<?=$row['oro_idx']?>" style="width:55px;text-align:right;"></td><!--//납품시간2-->
-        <td class="td_oro_3"><input type="text" oro="3" oro_idx="<?=$row['oro_idx']?>" name="oro_3[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_3']?>" class="tbl_input shf_one oro_3_<?=$row['oro_idx']?>" style="width:55px;text-align:right;"></td><!--//납품시간3-->
-        <td class="td_oro_4"><input type="text" oro="4" oro_idx="<?=$row['oro_idx']?>" name="oro_4[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_4']?>" class="tbl_input shf_one oro_4_<?=$row['oro_idx']?>" style="width:55px;text-align:right;"></td><!--//납품시간4-->
-        <td class="td_oro_5"><input type="text" oro="5" oro_idx="<?=$row['oro_idx']?>" name="oro_5[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_5']?>" class="tbl_input shf_one oro_5_<?=$row['oro_idx']?>" style="width:55px;text-align:right;"></td><!--//납품시간5-->
-        <td class="td_oro_6"><input type="text" oro="6" oro_idx="<?=$row['oro_idx']?>" name="oro_6[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_6']?>" class="tbl_input shf_one oro_6_<?=$row['oro_idx']?>" style="width:55px;text-align:right;"></td><!--//납품시간6-->
+        <td class="td_oro_1"><input type="text" oro="1" oro_idx="<?=$row['oro_idx']?>" name="oro_1[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_1']?>" class="tbl_input shf_one oro_1_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간1-->
+        <td class="td_oro_2"><input type="text" oro="2" oro_idx="<?=$row['oro_idx']?>" name="oro_2[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_2']?>" class="tbl_input shf_one oro_2_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간2-->
+        <td class="td_oro_3"><input type="text" oro="3" oro_idx="<?=$row['oro_idx']?>" name="oro_3[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_3']?>" class="tbl_input shf_one oro_3_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간3-->
+        <td class="td_oro_4"><input type="text" oro="4" oro_idx="<?=$row['oro_idx']?>" name="oro_4[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_4']?>" class="tbl_input shf_one oro_4_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간4-->
+        <td class="td_oro_5"><input type="text" oro="5" oro_idx="<?=$row['oro_idx']?>" name="oro_5[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_5']?>" class="tbl_input shf_one oro_5_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간5-->
+        <td class="td_oro_6"><input type="text" oro="6" oro_idx="<?=$row['oro_idx']?>" name="oro_6[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_6']?>" class="tbl_input shf_one oro_6_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간6-->
+        <td class="td_oro_7"><input type="text" oro="7" oro_idx="<?=$row['oro_idx']?>" name="oro_7[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_7']?>" class="tbl_input shf_one oro_7_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간7-->
+        <td class="td_oro_8"><input type="text" oro="8" oro_idx="<?=$row['oro_idx']?>" name="oro_8[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_8']?>" class="tbl_input shf_one oro_8_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td><!--//납품시간8-->
         <td class="td_orp_idx">
             <input type="hidden" name="orp_cnt[<?php echo $row['oro_idx'] ?>]" value="<?php echo $row['orp_cnt'] ?>" class="orp_cnt_<?php echo $row['oro_idx'] ?>">
             <?=$row['orp_count']?>
@@ -334,7 +394,7 @@ $('.data_blank').on('click',function(e){
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='28' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='21' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>
@@ -356,7 +416,7 @@ $('.data_blank').on('click',function(e){
 
 </form>
 
-<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;page='); ?>
+<?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?schrows='.$schrows.'&'.$qstr.'&amp;page='); ?>
 
 <div id="modal01" title="실행계획묶음등록" style="display:none;">
     <form name="form02" id="form02" autocomplete="off">
@@ -370,9 +430,14 @@ $('.data_blank').on('click',function(e){
                 $orp_order_no = "ORP-".$tdcode;
                 ?>
                 <input type="text" name="orp_order_no" id="orp_order_no" value="<?=$orp_order_no?>" readonly class="frm_input readonly">
+                <a href="./order_practice_no_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_practice">찾기</a>
+                <a href="javascript:" class="btn btn_03" id="btn_new">신규</a><br>
+                <input type="hidden" name="orp_no_old" id="orp_no_old" value="">
+                <span class="sp_note">신규 작업지시번호입니다.</span>
+                
             </td>
         </tr>
-        <tr>
+        <tr class="tr_flag">
             <td>
                 <p style="padding:10px 0 6px;">설비선택</p>
                 <select name="trm_idx_line" id="trm_idx_line">
@@ -381,7 +446,7 @@ $('.data_blank').on('click',function(e){
                 </select>
             </td>
         </tr>
-        <tr>
+        <tr class="tr_flag">
            <td>
                 <p style="padding:10px 0 6px;">생산자</p>
                 <input type="hidden" name="mb_id" id="mb_id" value="">
@@ -389,25 +454,19 @@ $('.data_blank').on('click',function(e){
                 <a href="./member_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_member">찾기</a>
            </td>
         </tr>
-        <tr>
+        <tr class="tr_flag">
             <td>
-                <p style="padding:10px 0 6px;">생산시작일 ~ 생산종료일</p>
+                <p style="padding:10px 0 6px;">생산시작일</p>
                 <input type="text" name="orp_start_date" id="orp_start_date" readonly class="frm_input readonly" style="width:100px;">
-                &nbsp;&nbsp;~&nbsp;&nbsp;
-                <input type="text" name="orp_end_date" id="orp_end_date" readonly class="frm_input readonly" style="width:100px;">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p style="padding:10px 0 6px;">상태</p>
-                <select name="orp_status" id="orp_status">
-                <?=$g5['set_orp_status_options']?>
-                </select>
             </td>
         </tr>
         <tr>
             <td style="padding:15px 5px;">
-                <button type="button" onclick="form02_submit(document.getElementById('form02'));" class="btn btn_01">확인</button>
+                <button type="button" id="orp_submit" onclick="form02_submit(document.getElementById('form02'));" class="btn btn_01">확인</button>
+                <p class="loading loading_hide" style="padding-left:10px;">
+                    <img src="<?=G5_USER_ADMIN_IMG_URL?>/loading_small.gif">
+                    <b style="color:yellow;padding-left:10px;">실행중...</b>
+                </p>
             </td>
         </tr>
         </tbody>
@@ -415,6 +474,27 @@ $('.data_blank').on('click',function(e){
     </form>
 </div>
 <script>
+// 기존 등록된 생산지시번호을 찾을때
+$("#btn_practice").click(function(e) {
+    e.preventDefault();
+    var href = $(this).attr('href');
+    winPracticeNo = window.open(href, "winPracticeNo", "left=300,top=150,width=550,height=600,scrollbars=1");
+    winPracticeNo.focus();
+});
+
+//신규 작업지시서번호입력
+$('#btn_new').click(function(e) {
+    e.preventDefault();
+    //alert(current_ymdhms());
+    $('#orp_order_no').val('ORP-'+current_ymdhms());
+    $('#orp_no_old').val("");
+    $('.sp_note').removeClass('sp_old').text('신규 작업지시번호입니다.');
+    $('#orp_submit').attr('onclick',"form02_submit(document.getElementById('form02'));");
+    $('.tr_flag').show();
+});
+
+
+
 
 
 // 생산자
@@ -424,6 +504,7 @@ $("#btn_member").click(function(e) {
     winMember = window.open(href, "winMember", "left=300,top=150,width=550,height=600,scrollbars=1");
     winMember.focus();
 });
+
 
 var first_no = '';
 var second_no = '';
@@ -519,7 +600,9 @@ function calsum(ori_idx){
     var oro4 = ($('input[name="oro_4['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_4['+ori_idx+']"]').val()) : 0;
     var oro5 = ($('input[name="oro_5['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_5['+ori_idx+']"]').val()) : 0;
     var oro6 = ($('input[name="oro_6['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_6['+ori_idx+']"]').val()) : 0;
-    var orot = oro1 + oro2 + oro3 + oro4 + oro5 + oro6;
+    var oro7 = ($('input[name="oro_7['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_7['+ori_idx+']"]').val()) : 0;
+    var oro8 = ($('input[name="oro_8['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_8['+ori_idx+']"]').val()) : 0;
+    var orot = oro1 + oro2 + oro3 + oro4 + oro5 + oro6 + oro7 + oro8;
     var oro_input = $('input[name="oro_count['+ori_idx+']"]');
     if(!isNaN(oro_input.val().replace(/,/g,'')))
         oro_input.val(thousand_comma(orot));
@@ -638,35 +721,35 @@ function form01_submit(f)
             if(f.elements[i].name == "chk[]" && f.elements[i].checked){
                 //출하갯수 데이터가 없으면 등록 안됨
                 if($('.oro_count_'+f.elements[i].value).val() == '0'){
-                    alert('납품수량값이 없는 항목은 생산실행에 등록할 수 없습니다.');
+                    alert('납품수량값이 없는 항목은 생산계획에 등록할 수 없습니다.');
                     $('.oro_count_'+f.elements[i].value).focus();
                     if($( "#modal01" ).is(':visible')) $( "#modal01" ).dialog("close");
                     return false;
                 }
                 // 실행계획 레코드가 한 개이상 존재하면 등록 안됨
                 if($('.orp_cnt_'+f.elements[i].value).val() != '0'){
-                    alert('이미 실행계획이 등록된 항목을 선택하셨네요.\r\n생산실행이 [생성하기]으로 표시된  항목만 선택가능합니다.');
+                    alert('이미 생산계획이 등록된 항목을 선택하셨네요.\r\n"생산계획건수"가 [없음]으로 표시된  항목만 선택가능합니다.');
                     //$('.orp_cnt_'+f.elements[i].value).focus();
                     if($( "#modal01" ).is(':visible')) $( "#modal01" ).dialog("close");
                     return false;
                 }
                 // 출하예정일 없으면 등록 안됨
                 if($('.oro_date_plan_'+f.elements[i].value).val() == '0000-00-00' || $('.oro_date_plan_'+f.elements[i].value).val() == ''){
-                    alert('출하예정일이 없는 항목은 생산실행에 등록할 수 없습니다.');
+                    alert('출하예정일이 없는 항목은 생산계획에 등록할 수 없습니다.');
                     $('.oro_date_plan_'+f.elements[i].value).focus();
                     if($( "#modal01" ).is(':visible')) $( "#modal01" ).dialog("close");
                     return false;
                 }
                 // 출하처 데이터가 없으면 등록 안됨
                 if($('.com_idx_shipto_'+f.elements[i].value).val() == ''){
-                    alert('출하처 데이터가 없는 항목은 생산실행에 등록할 수 없습니다.');
+                    alert('출하처 데이터가 없는 항목은 생산계획에 등록할 수 없습니다.');
                     $('.com_name_shipto_'+f.elements[i].value).focus();
                     if($( "#modal01" ).is(':visible')) $( "#modal01" ).dialog("close");
                     return false;
                 }
                 // 출하 상태값이 '출하완료','삭제','취소'로 설정된 항목 등록 안됨
                 if($('.oro_status_'+f.elements[i].value).val() == 'ok' || $('.oro_status_'+f.elements[i].value).val() == 'trash' || $('.oro_status_'+f.elements[i].value).val() == 'del' || $('.oro_status_'+f.elements[i].value).val() == 'delete' || $('.oro_status_'+f.elements[i].value).val() == 'cancel'){
-                    alert('[출하완료/삭제/취소]등의 상태값의 항목은 생산실행에 등록할 수 없습니다.');
+                    alert('[출하완료/삭제/취소]등의 상태값의 항목은 생산계획에 등록할 수 없습니다.');
                     $('.oro_status_name_'+f.elements[i].value).focus();
                     if($( "#modal01" ).is(':visible')) $( "#modal01" ).dialog("close");
                     return false;
@@ -700,11 +783,12 @@ $( "#modal01" ).dialog({
         $('#form01').find('input[name="trm_idx_line"]').remove();
         $('#form01').find('input[name="mb_id"]').remove();
         $('#form01').find('input[name="orp_start_date"]').remove();
-        $('#form01').find('input[name="orp_end_date"]').remove();
-        $('#form01').find('input[name="orp_status"]').remove();
+        //$('#form01').find('input[name="orp_end_date"]').remove();
+        //$('#form01').find('input[name="orp_status"]').remove();
     }
 });
 
+//신규생산계획 등록일때
 function form02_submit(f) {
 
     var orp_order_no = f.orp_order_no.value;
@@ -712,8 +796,8 @@ function form02_submit(f) {
     var mb_id = f.mb_id.value;
     var mb_name = f.mb_name.value;
     var orp_start_date = f.orp_start_date.value;
-    var orp_end_date = f.orp_end_date.value;
-    var orp_status = f.orp_status.value;
+    //var orp_end_date = f.orp_end_date.value;
+    //var orp_status = f.orp_status.value;
 
     if(!orp_order_no){
         alert('작업지시번호를 입력해 주세요.');
@@ -738,20 +822,28 @@ function form02_submit(f) {
         f.orp_start_date.focus();
         return false;
     }
-
+    /*
     if(!orp_end_date){
         alert('생산종료일을 입력해 주세요');
         f.orp_end_date.focus();
         return false;
     }
+    */
+
+    if(!confirm("대량데이터처리이므로 시간이 1분이상 소요될수 있습니다.\n실행하는 동안 창을 닫거나, 다른버튼을 클릭해서는 안됩니다.\n작업을 진행하시겠습니까?")){
+        return false;
+    }
+    $('.loading').removeClass('loading_hide');
+
+
     //alert('ok');
     var tkn_obj = $('#form01').find('input[name="token"]');
     $('<input type="hidden" name="orp_order_no" value="'+orp_order_no+'">').insertBefore(tkn_obj);
     $('<input type="hidden" name="trm_idx_line" value="'+trm_idx_line+'">').insertBefore(tkn_obj);
     $('<input type="hidden" name="mb_id" value="'+mb_id+'">').insertBefore(tkn_obj);
     $('<input type="hidden" name="orp_start_date" value="'+orp_start_date+'">').insertBefore(tkn_obj);
-    $('<input type="hidden" name="orp_end_date" value="'+orp_end_date+'">').insertBefore(tkn_obj);
-    $('<input type="hidden" name="orp_status" value="'+orp_status+'">').insertBefore(tkn_obj);
+    //$('<input type="hidden" name="orp_end_date" value="'+orp_end_date+'">').insertBefore(tkn_obj);
+    //$('<input type="hidden" name="orp_status" value="'+orp_status+'">').insertBefore(tkn_obj);
     tkn_obj.val(get_ajax_token());
     document.pressed = '실행계획묶음등록';
     var form01 = document.getElementById('form01');
@@ -760,6 +852,29 @@ function form02_submit(f) {
     return false;
 }
 
+//기존 생산계획에 추가등록일때
+function form03_submit(f) {
+    var orp_order_no = f.orp_order_no.value;
+    var orp_no_old = f.orp_no_old.value;
+    //var orp_status = f.orp_status.value;
+
+    if(!confirm("대량데이터처리이므로 시간이 1분이상 소요될수 있습니다.\n실행하는 동안 창을 닫거나, 다른버튼을 클릭해서는 안됩니다.\n작업을 진행하시겠습니까?")){
+        return false;
+    }
+    $('.loading').removeClass('loading_hide');
+    //return false;
+    //alert('ok');
+    var tkn_obj = $('#form01').find('input[name="token"]');
+    $('<input type="hidden" name="orp_order_no" value="'+orp_order_no+'">').insertBefore(tkn_obj);
+    $('<input type="hidden" name="orp_no_old" value="'+orp_no_old+'">').insertBefore(tkn_obj);
+    //$('<input type="hidden" name="orp_status" value="'+orp_status+'">').insertBefore(tkn_obj);
+    tkn_obj.val(get_ajax_token());
+    document.pressed = '실행계획묶음등록';
+    var form01 = document.getElementById('form01');
+    $('#form01').removeAttr('onsubmit');
+    form01_submit(form01);
+    return false;
+}
 
 // 숫자만 입력
 function lack_num_chk(object){
@@ -784,3 +899,4 @@ function lack_num_chk(object){
 
 <?php
 include_once ('./_tail.php');
+?>

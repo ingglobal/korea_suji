@@ -18,7 +18,13 @@ else if ($w == 'u') {
     $csql = sql_fetch(" SELECT com_name FROM {$g5['company_table']} WHERE com_idx = '{$ord['com_idx_customer']}' ");
     $ord['com_name_customer'] = $csql['com_name'];
 
-    $sql_it = " SELECT * FROM {$g5['order_item_table']} WHERE ord_idx = '{$ord_idx}' AND ori_status NOT IN('trash','delete','del','cancel') ORDER BY ori_idx,ori_reg_dt DESC ";
+    $sql_it = " SELECT *
+                        ,( SELECT bct_name FROM {$g5['bom_category_table']} WHERE bct_id = LEFT(bom.bct_id,2) ) AS cat1
+                        ,( SELECT bct_name FROM {$g5['bom_category_table']} WHERE bct_id = LEFT(bom.bct_id,4) ) AS cat2
+                FROM {$g5['order_item_table']} AS ori
+                    LEFT JOIN {$g5['bom_table']} AS bom ON ori.bom_idx = bom.bom_idx 
+                    LEFT JOIN {$g5['bom_category_table']} AS bct ON bom.bct_id = bct.bct_id 
+                WHERE ord_idx = '{$ord_idx}' AND ori_status NOT IN('trash','delete','del','cancel') ORDER BY bom_sort ";
     $result = sql_query($sql_it,1);
     $total_count = sql_num_rows($result);
 }
@@ -47,6 +53,8 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
 .div_bom_list {min-height:600px;padding:10px 20px;}
 #frame_bom_list {width:100%;min-height:600px;}
 .empty_table {background:#1e2531;}
+#sp_notice,#sp_ex_notice{color:yellow;margin-left:10px;}
+#sp_notice.sp_error,#sp_ex_notice.sp_error{color:red;}
 </style>
 
 <form name="form01" id="form01" action="./order_form_update.php" onsubmit="return form01_submit(this);" method="post" enctype="multipart/form-data" autocomplete="off">
@@ -76,6 +84,12 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
     </colgroup>
 	<tbody>
 	<tr>
+        <!--th scope="row">거래처</th>
+		<td>
+            <input type="hidden" name="com_idx_customer" value="<?=$ord['com_idx_customer']?>">
+			<input type="text" name="com_name" value="<?php echo $ord['com_name_customer'] ?>" id="com_name" class="frm_input required readonly" required readonly>
+            <a href="./customer_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_customer">거래처찾기</a>
+		</td-->
         <th scope="row">수주금액</th>
 		<td>
 			<input type="text" name="ord_price" id="ord_price" value="<?=number_format($ord['ord_price'])?>" readonly class="frm_input readonly" style="width:130px;text-align:right;">&nbsp;원
@@ -92,6 +106,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
         <th scope="row"><label for="ord_date">수주일</label></th>
         <td colspan="3">
             <input type="text" name="ord_date" id="ord_date" value="<?=$ord['ord_date']?>" readonly required class="date frm_input readonly required" style="width:130px;">
+            <span id="sp_notice" class="<?=(($ord['ord_date'])?'':'sp_error')?>"><?=(($ord['ord_date'])?'':'수주일을 입력해 주세요.')?></span>
         </td>
     </tr>
 	</tbody>
@@ -120,7 +135,6 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
         for ($i=0; $row=sql_fetch_array($result); $i++) {
             $row['idx'] = $i+1;
             $row['com_customer'] = get_table('company','com_idx',$row['com_idx_customer']);
-            //print_r2($row);
             $row['bit_count'] = $row['bit_count'] ?: 1;
             $bno = sql_fetch(" SELECT bom_part_no,bom_name FROM {$g5['bom_table']} WHERE bom_idx = '{$row['bom_idx']}' ");
             $row['bom_part_no'] = $bno['bom_part_no'];
@@ -136,10 +150,10 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
             <li class="dd-item dd3-item" data-id="'.$row['idx'].'">
                 <div class="dd-handle dd3-handle">Drag</div>
                 <div class="dd3-content" bom_idx_child="'.$row['bom_idx'].'">
-                    <span class="bom_name">'.cut_str($row['bom_name'],20).'['.$row['com_customer']['com_name'].']</span>
+                    <span class="bom_name">[<span style="color:orange;">'.$row['cat1'].' > '.$row['cat2'].'</span>]'.cut_str($row['bom_name'],20).'('.$row['ori_idx'].')</span>
                     <div class="add_items">
                         <span class="bom_part_no">'.$row['bom_part_no'].'</span>
-                        <span class="bom_price" price="'.$row['ori_price'].'">'.number_format($row['ori_price']).'원</span>
+                        <span class="bom_price" price="'.$row['ori_price'].'"><b>'.number_format($row['ori_price']).'</b>원</span>
                         <span class="span_count"><span class="bit_count'.$cnt_blick.'">'.$row['ori_count'].'</span>kg</span>
                         <img src="https://icongr.am/clarity/times.svg?size=30&color=444444" class="btn_remove" title="삭제">
                     </div>
@@ -182,7 +196,13 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
 <script src="<?=G5_USER_ADMIN_JS_URL?>/nestable/jquery.nestable.js"></script>
 <script>
 $(function() {
-    $("input[name$=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+    <?php if($w == ''){ ?>
+    $("input[name=ord_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99",
+    onSelect: function(date,datepicker){
+        chk_Code(date);
+    }
+    });
+    <?php } ?>
     // 가격 입력 쉼표 처리
 	$(document).on( 'keyup','input[name$=_price]',function(e) {
         if(!isNaN($(this).val().replace(/,/g,'')))
@@ -396,15 +416,12 @@ $(document).on('click','#del-item',function(e){
 // 항목추가 함수
 function add_item(bom_idx, bom_name, bom_part_no, com_name, bom_price, bom_price2) {
     if($('#nestable3 li .dd3-content .add_items .bom_part_no:contains('+bom_part_no+')').length > 0){
-        alert('같은 상품을 올릴수 없습니다. 올라간 상품의 수량(갯수)로 조정하세요.');
+        alert('같은 상품을 올릴수 없습니다. 올라간 상품의 무게(kg)로 조정하세요.');
         return;
     }
 
     var li_dom ='<div class="dd3-content" bom_idx_child="'+bom_idx+'">'
-                +'  <div class="bom_name">'
-                +'      <span class="bom_name">'+bom_name+'</span>'
-                +'      <span class="com_name">['+com_name+']</span>'
-                +'  </div>'
+                +'  <span class="bom_name">'+bom_name+'</span>'
                 +'  <div class="add_items">'
                 +'      <span class="bom_part_no">'+bom_part_no+'</span>'
                 +'      <span class="bom_price" price="'+bom_price2+'">'+bom_price+'원</span>'
@@ -450,6 +467,33 @@ function chk_Number(object){
     });
 }
 
+
+function chk_Code(date){
+    var date_chk_url = './ajax/ord_date_overlap_chk.php';
+    $.ajax({
+        type : 'POST',
+        url : date_chk_url,
+        dataType : 'text',
+        data : {'ord_date' : date},
+        success : function(res){
+            //console.log(res);
+            if(res == 'ok'){
+                document.getElementById('sp_notice').textContent = '등록 가능한 날짜입니다.';
+                $('#sp_notice').removeClass('sp_error');
+            }
+            else if(res == 'overlap'){
+                document.getElementById('sp_notice').textContent = '이미 등록된 날짜입니다.';
+                $('#sp_notice').removeClass('sp_error');
+                $('#sp_notice').addClass('sp_error');
+            }
+        },
+        error : function(xmlReq){
+            alert('Status: ' + xmlReq.status + ' \n\rstatusText: ' + xmlReq.statusText + ' \n\rresponseText: ' + xmlReq.responseText);
+        }
+    });
+}
+
+
 function form01_submit(f) {
     // 폼에 input 박스가 한개라도 있으면 안 된다.
     // input 처리를 하고 return false
@@ -461,8 +505,14 @@ function form01_submit(f) {
         return false;
     }
 
+    if($('#sp_notice').hasClass('sp_error')){
+        alert('등록가능한 수주일를 입력해 주세요.');
+        $('input[name="ord_date"]').focus();
+        return false;
+    }
+
     if(!$('#nestable3 .dd-list .dd-item').length){
-        alert('적어도 상품 1 kg 이상은 등록해야 합니다.');
+        alert('적어도 상품 한 개 이상은 등록해야 합니다.');
         return false;
     }
 

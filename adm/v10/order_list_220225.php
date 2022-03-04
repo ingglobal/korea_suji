@@ -64,7 +64,7 @@ if ($where)
 
 if (!$sst) {
     $sst = "ord_date";
-    $sod = "DESC";
+    $sod = ""; //"DESC";
 }
 
 $sql_order = " order by {$sst} {$sod} ";
@@ -239,47 +239,76 @@ $('.date_blank').on('click',function(e){
                                         <span class="span_bom_name">'.$bom_mod.'('.$row1['ori_idx'].')</span>
                                         <span class="span_bom_part_no">'.$row1['bom_part_no'].'</span>
                                         <span class="span_bom_price"><b>'.number_format($row1['bom_price']).'</b>원</span>
-                                        <span class="span_ori_count"><b><span class="'.$cnt_blick.'">&nbsp;'.number_format($row1['ori_count']).'</span></b> kg</span>
+                                        <span class="span_ori_count"><b><span class="'.$cnt_blick.'">'.$row1['ori_count'].'</span></b>개</span>
                                     </div>';
         }
 		
 		$oro_url = '';
         $oro_btn = '';
         
+        //다음 레코드의 날짜 데이터를 호출
+        $next_sql = " SELECT ord_date FROM {$g5['order_table']} WHERE 
+                        ord_date > '{$row['ord_date']}' 
+                        AND ord_status NOT IN('delete','del','trash')
+                      ORDER BY ord_date LIMIT 0, 1
+        ";
+        // echo $next_sql;
+        $next = sql_fetch($next_sql);
+        //다다음 레코드의 날짜 데이터를 호출
+        $next2_sql = " SELECT ord_date FROM {$g5['order_table']} WHERE 
+                        ord_date > '{$row['ord_date']}' 
+                        AND ord_status NOT IN('delete','del','trash')
+                      ORDER BY ord_date LIMIT 1, 1
+        ";
+        // echo $next_sql;
+        $next2 = sql_fetch($next2_sql);
+        //당일데 해당하는 레코드의 날짜 데이터에서 다음날짜와 다다음날짜를 변수에 저장
+        if($row['ord_date'] == G5_TIME_YMD){
+            $next_date = $next['ord_date'];
+            $next2_date = $next2['ord_date'];
+        }
 
         $creat = 0;
-        
-        if($row['oro']['cnt']){
-            $oro_url = './order_out_list.php?sfl=oro.ord_idx&stx='.$row['ord_idx'];
-            $oro_btn = $row['oro']['cnt'].'건';
-            
-            //또 엑셀을 업데이트해서 새롭게 등록된 제품이 있을 수 있으므로 확인하여 추가 등록 가능하도록 하자
-            $addSql = " SELECT COUNT(*) AS cnt ,(
-                            SELECT COUNT(*) FROM {$g5['order_out_table']} WHERE ord_idx = '{$row['ord_idx']}'
-                                AND oro_status NOT IN('delete','del','trash')
-                        ) AS cnt2 FROM {$g5['order_item_table']} AS ori
-                        LEFT JOIN {$g5['order_out_table']} AS oro ON ori.ori_idx = oro.ori_idx
-                    WHERE ori.ord_idx = '{$row['ord_idx']}' 
-                        AND oro.oro_idx IS NULL 
-                        AND ori.ori_status NOT IN('delete','del','trash')
-            ";
-            //echo $addSql."<br>";
-            $addCnt = sql_fetch($addSql);
-            if ( $addCnt['cnt'] && $addCnt['cnt2'] ){
-                $create = 1;
-                $oro_add_url = './order_out_create.php?w=&ord_idx='.$row['ord_idx'].'&ord_date='.$row['ord_date'].'&add=1';
-                $oro_add_btn = (strtotime($row['ord_date']) >= strtotime(G5_TIME_YMD)) ? '<spn style="color:orange;">추가출하생성</span>' : '';
+        if($row['ord_date'] == G5_TIME_YMD || $row['ord_date'] == $next_date || $row['ord_date'] == $next2_date){
+            if($row['oro']['cnt']){
+                $oro_url = './order_out_list.php?sfl=oro.ord_idx&stx='.$row['ord_idx'];
+                $oro_btn = $row['oro']['cnt'].'건';
+                
+                //또 엑셀을 업데이트해서 새롭게 등록된 제품이 있을 수 있으므로 확인하여 추가 등록 가능하도록 하자
+                $addSql = " SELECT COUNT(*) AS cnt ,(
+                                SELECT COUNT(*) FROM {$g5['order_out_table']} WHERE ord_idx = '{$row['ord_idx']}'
+                                    AND oro_status NOT IN('delete','del','trash')
+                            ) AS cnt2 FROM {$g5['order_item_table']} AS ori
+                            LEFT JOIN {$g5['order_out_table']} AS oro ON ori.ori_idx = oro.ori_idx
+                        WHERE ori.ord_idx = '{$row['ord_idx']}' 
+                            AND oro.oro_idx IS NULL 
+                            AND ori.ori_status NOT IN('delete','del','trash')
+                ";
+                //echo $addSql."<br>";
+                $addCnt = sql_fetch($addSql);
+                if ( $addCnt['cnt'] && $addCnt['cnt2'] ){
+                    $create = 1;
+                    $oro_add_url = './order_out_create.php?w=&ord_idx='.$row['ord_idx'].'&ord_date='.$row['ord_date'].'&add=1';
+                    $oro_add_btn = '<spn style="color:orange;">추가출하생성</span>';
+                }
+                else{
+                    $create = 0;
+                    $oro_add_url = '';
+                    $oro_add_btn = '';
+                }
             }
-            else{
-                $create = 0;
+            else {
+                $create = 1;
+                $oro_url = './order_out_create.php?w=&ord_idx='.$row['ord_idx'].'&ord_date='.$row['ord_date'];
+                $oro_btn = '<spn style="color:orange;">출하생성</span>';
                 $oro_add_url = '';
                 $oro_add_btn = '';
             }
         }
-        else {
-            $create = 1;
-            $oro_url = './order_out_create.php?w=&ord_idx='.$row['ord_idx'].'&ord_date='.$row['ord_date'];
-            $oro_btn = '<spn style="color:orange;">출하생성</span>';
+        else{
+            $create = 0;
+            $oro_url = '';
+            $oro_btn = '<span>-</span>';
             $oro_add_url = '';
             $oro_add_btn = '';
         }
@@ -339,6 +368,7 @@ $('.date_blank').on('click',function(e){
 
 <div class="btn_fixed_top">
     <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
+       <a href="javascript:" id="btn_excel_upload" class="btn btn_02" style="margin-right:50px;">엑셀등록</a>
        <a href="./order_form.php" id="member_add" class="btn btn_01">추가하기</a>
     <?php } ?>
     <?php if ($is_admin){ //(!auth_check($auth[$sub_menu],'w')) { ?>
@@ -352,9 +382,65 @@ $('.date_blank').on('click',function(e){
 </form>
 
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;page='); ?>
+<!--//http://localhost/epcs/adm/v10/order_excel_upload_test.php-->
+<div id="modal01" title="엑셀 파일 업로드" style="display:none;">
+    <form name="form02" id="form02" action="./order_excel_upload.php" onsubmit="return form02_submit(this);" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="com_idx" value="<?=$_SESSION['ss_com_idx']?>">
+    
+        <table>
+        <tbody>
+        <tr>
+            <td style="line-height:130%;padding:10px 0;">
+                <ol class="md_ol">
+                    <li>엑셀은 97-2003통합문서만 등록가능합니다. (*.xls파일로 저장)</li>
+                    <li>엑셀은 하단에 탭으로 여러개 있으면 등록 안 됩니다. (한개의 독립 문서이어야 합니다.)</li>
+                    <li style="color:orange;">대량데이터처리이므로 시간이 걸리는 작업입니다. 실행 되는동안 절대 창을 닫거나 다른 버튼을 클릭하지 마세요. 저장되는 데이터에 문제가 발생할 수 있습니다.</li>
+                </ol>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:15px 0;">
+                <input type="file" name="file_excel" onfocus="this.blur()">
+            </td>
+        </tr>
+        <!--tr>
+            <td>
+                <p>거래처</p>
+                <input type="hidden" name="com_idx_customer">
+                <input type="text" name="com_name" id="btn_customer" url="./customer_select.php?file_name=<?php echo $g5['file_name']?>" required readonly class="frm_input required readonly">
+            </td>
+        </tr-->
+        <tr>
+            <td style="padding:15px 5px;">
+                <button type="submit" class="btn btn_01">확인</button>
+                <p class="loading loading_hide" style="padding-left:10px;">
+                    <img src="<?=G5_USER_ADMIN_IMG_URL?>/loading_small.gif">
+                    <b style="color:yellow;padding-left:10px;">실행중...</b>
+                </p>
+            </td>
+        </tr>
+        </tbody>
+        </table>
+    </form>
+</div>
 
 <script>
+// 엑셀등록 버튼
+$( "#btn_excel_upload" ).on( "click", function() {
+    $( "#modal01" ).dialog( "open" );
+});
+$( "#modal01" ).dialog({
+    autoOpen: false
+    , position: { my: "right-10 top-10", of: "#btn_excel_upload"}
+});
 $("input[name*=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+// 엑셀등록 모달에서 거래처찾기 버튼 클릭
+$("#btn_customer").click(function(e) {
+    e.preventDefault();
+    var href = $(this).attr('url');
+    winCustomerSelect = window.open(href, "winCustomerSelect", "left=300,top=150,width=550,height=600,scrollbars=1");
+    winCustomerSelect.focus();
+});
 
 $('.oroButton').on('click',function(){
     if(!confirm('데이터량에 따라 다소 시간이 걸릴수 있으니\n잠시만 기다려 주십시오.')){

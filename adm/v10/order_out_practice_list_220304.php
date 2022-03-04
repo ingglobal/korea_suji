@@ -85,8 +85,6 @@ if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
 $sql = " SELECT *
-              , ( SELECT SUM(mtr_weight) FROM {$g5['material_table']} WHERE oop_idx = oop.oop_idx AND mtr_type = 'half' AND mtr_status NOT IN('delete','del','trash','cancel') ) AS mtr_sum
-              , ( SELECT SUM(itm_weight) FROM {$g5['item_table']} WHERE oop_idx = oop.oop_idx AND itm_status NOT IN('delete','del','trash','cancel') ) AS itm_sum
         {$sql_common} {$sql_search} {$sql_group} {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
@@ -98,7 +96,6 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 ?>
 <style>
 .tbl_head01 thead tr th{position:sticky;top:100px;z-index:100;}
-.tbl_head01 thead tr th span{display:none;}
 .td_chk{position:relative;}
 .td_chk .chkdiv_btn{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,255,0,0);}
 .td_bom_name {text-align:left !important;}
@@ -226,14 +223,17 @@ $('.data_blank').on('click',function(e){
         <th scope="col">생산종료일</th>
         <th scope="col">출하계획<br>납품수량</th>
         <th scope="col">지시수량</th>
-        <th scope="col">시간1<span><br>08:00<br>~12:00</span></th>
-        <th scope="col">시간2<span><br>13:00<br>~17:00</span></th>
-        <th scope="col">시간3<span><br>17:00<br>~21:00</span></th>
-        <th scope="col">시간4<span><br>21:00<br>~23:59</span></th>
+        <th scope="col">시간1<br>08:00<br>~10:00</th>
+        <th scope="col">시간2<br>10:10<br>~12:00</th>
+        <th scope="col">시간3<br>13:00<br>~15:00</th>
+        <th scope="col">시간4<br>15:10<br>~17:00</th>
+        <th scope="col">시간5<br>17:10<br>~19:00</th>
+        <th scope="col">시간6<br>19:10<br>~21:00</th>
+        <th scope="col">시간7<br>21:10<br>~23:00</th>
+        <th scope="col">시간8<br>23:10<br>~01:00</th>
+        <th scope="col">시간9<br>01:10<br>~03:00</th>
+        <th scope="col">시간10<br>03:10<br>~05:00</th>
         <th scope="col">상태</th>
-        <th scope="col">반제품종료<br>총재고무게</th>
-        <th scope="col">완제품종료<br>총재고무게</th>
-        <th scope="col">감소율</th>
         <th scope="col">관리</th>
     </tr>
     </thead>
@@ -244,8 +244,7 @@ $('.data_blank').on('click',function(e){
 
         $s_mod = '<a href="./order_out_practice_form.php?'.$qstr.'&amp;w=u&amp;oop_idx='.$row['oop_idx'].'" class="btn btn_03">수정</a>';
         //$s_copy = '<a href="./order_out_practice_form.php?'.$qstr.'&w=c&oop_idx='.$row['oop_idx'].'" class="btn btn_03" style="margin-right:5px;">복제</a>';
-        $decrease_rate = ($row['mtr_sum'] && $row['itm_sum']) ? (($row['mtr_sum'] - $row['itm_sum']) / $row['mtr_sum']) * 100 : '-';
-        $decrease_rate = ($decrease_rate == '-') ? '-' : number_format($decrease_rate,1,'.','').'%';
+
         $bg = 'bg'.($i%2);
 
         $bom = get_table_meta('bom','bom_idx',$row['bom_idx']);
@@ -298,13 +297,16 @@ $('.data_blank').on('click',function(e){
         <td class="td_oop_2"><input type="text" oop="2" oop_idx="<?=$row['oop_idx']?>" name="oop_2[<?=$row['oop_idx']?>]" value="<?=$row['oop_2']?>" class="tbl_input shf_one oop_2_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
         <td class="td_oop_3"><input type="text" oop="3" oop_idx="<?=$row['oop_idx']?>" name="oop_3[<?=$row['oop_idx']?>]" value="<?=$row['oop_3']?>" class="tbl_input shf_one oop_3_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
         <td class="td_oop_4"><input type="text" oop="4" oop_idx="<?=$row['oop_idx']?>" name="oop_4[<?=$row['oop_idx']?>]" value="<?=$row['oop_4']?>" class="tbl_input shf_one oop_4_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_5"><input type="text" oop="5" oop_idx="<?=$row['oop_idx']?>" name="oop_5[<?=$row['oop_idx']?>]" value="<?=$row['oop_5']?>" class="tbl_input shf_one oop_5_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_6"><input type="text" oop="6" oop_idx="<?=$row['oop_idx']?>" name="oop_6[<?=$row['oop_idx']?>]" value="<?=$row['oop_6']?>" class="tbl_input shf_one oop_6_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_7"><input type="text" oop="7" oop_idx="<?=$row['oop_idx']?>" name="oop_7[<?=$row['oop_idx']?>]" value="<?=$row['oop_7']?>" class="tbl_input shf_one oop_7_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_8"><input type="text" oop="8" oop_idx="<?=$row['oop_idx']?>" name="oop_8[<?=$row['oop_idx']?>]" value="<?=$row['oop_8']?>" class="tbl_input shf_one oop_8_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_9"><input type="text" oop="9" oop_idx="<?=$row['oop_idx']?>" name="oop_9[<?=$row['oop_idx']?>]" value="<?=$row['oop_9']?>" class="tbl_input shf_one oop_9_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
+        <td class="td_oop_10"><input type="text" oop="10" oop_idx="<?=$row['oop_idx']?>" name="oop_10[<?=$row['oop_idx']?>]" value="<?=$row['oop_10']?>" class="tbl_input shf_one oop_10_<?=$row['oro_idx']?>" style="width:45px;text-align:right;"></td>
         <td class="td_orp_status td_oop_status_<?=$row['oop_idx']?>"">
             <input type="hidden" name="oop_status[<?php echo $row['oop_idx'] ?>]" class="oop_status_<?php echo $row['oop_idx'] ?>" value="<?php echo $row['oop_status']?>">
             <input type="text" value="<?php echo $g5['set_oop_status_value'][$row['oop_status']]?>" readonly class="tbl_input readonly oop_status_name_<?php echo $row['oop_idx'] ?>" style="width:60px;text-align:center;">
         </td><!-- 상태 -->
-        <td class="td_mtr_tweight"><?=(($row['mtr_sum'])?$row['mtr_sum']:'-')?></td>
-        <td class="td_itm_tweight"><?=(($row['itm_sum'])?$row['itm_sum']:'-')?></td>
-        <td class="td_decrease_rate"><?=$decrease_rate?></td>
         <td class="td_mng">
 			<?php ;//$s_copy?>
 			<?=$s_mod?>
@@ -438,7 +440,13 @@ function calsum(oop_idx){
     var oop2 = ($('input[name="oop_2['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_2['+oop_idx+']"]').val()) : 0;
     var oop3 = ($('input[name="oop_3['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_3['+oop_idx+']"]').val()) : 0;
     var oop4 = ($('input[name="oop_4['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_4['+oop_idx+']"]').val()) : 0;
-    var oopt = oop1 + oop2 + oop3 + oop4;
+    var oop5 = ($('input[name="oop_5['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_5['+oop_idx+']"]').val()) : 0;
+    var oop6 = ($('input[name="oop_6['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_6['+oop_idx+']"]').val()) : 0;
+    var oop7 = ($('input[name="oop_7['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_7['+oop_idx+']"]').val()) : 0;
+    var oop8 = ($('input[name="oop_8['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_8['+oop_idx+']"]').val()) : 0;
+    var oop9 = ($('input[name="oop_9['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_9['+oop_idx+']"]').val()) : 0;
+    var oop10 = ($('input[name="oop_10['+oop_idx+']"]').val() != '') ? Number($('input[name="oop_10['+oop_idx+']"]').val()) : 0;
+    var oopt = oop1 + oop2 + oop3 + oop4 + oop5 + oop6 + oop7 + oop8 + oop9 + oop10;
     var oop_input = $('input[name="oop_count['+oop_idx+']"]');
     //과부족.lack_oop_idx = 전일재고.prev_stock_oop_idx + 생산지시수량.oop_count_oop_idx - 출하계획납품수량.oro_count_oop_idx
     var lack_cnt = Number($('.prev_stock_'+oop_idx).text()) + oopt - Number($('.oro_count_'+oop_idx).text());

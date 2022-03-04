@@ -74,10 +74,6 @@ if($w == ''){
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
         ,'oop_4' => array('type'=>'none','value'=>$$pre['oop_4'])
-        ,'oop_5' => array('type'=>'none','value'=>$$pre['oop_5'])
-        ,'oop_6' => array('type'=>'none','value'=>$$pre['oop_6'])
-        ,'oop_7' => array('type'=>'none','value'=>$$pre['oop_7'])
-        ,'oop_8' => array('type'=>'none','value'=>$$pre['oop_8'])
         ,'oop_memo' => array('type'=>'textarea','ttl'=>'메모','value'=>$$pre['oop_memo'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_history' => array('type'=>'text','ttl'=>'로그내용','value'=>$$pre['oop_history'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_status' => array('type'=>'select','ttl'=>'상태','value'=>$$pre['oop_status'],'required'=>true,'width'=>'auto','select'=>$g5['set_oop_status_value'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
@@ -97,10 +93,6 @@ else if($w == 'u' || $w == 'c'){
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
         ,'oop_4' => array('type'=>'none','value'=>$$pre['oop_4'])
-        ,'oop_5' => array('type'=>'none','value'=>$$pre['oop_5'])
-        ,'oop_6' => array('type'=>'none','value'=>$$pre['oop_6'])
-        ,'oop_7' => array('type'=>'none','value'=>$$pre['oop_7'])
-        ,'oop_8' => array('type'=>'none','value'=>$$pre['oop_8'])
         ,'oop_memo' => array('type'=>'textarea','ttl'=>'메모','value'=>$$pre['oop_memo'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_history' => array('type'=>'text','ttl'=>'로그내용','value'=>$$pre['oop_history'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_status' => array('type'=>'select','ttl'=>'상태','value'=>$$pre['oop_status'],'width'=>'auto','select'=>$g5['set_oop_status_value'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
@@ -249,13 +241,14 @@ foreach($f1 as $hk=>$hv){
                 $fctag .= '<a href="./order_practice_select.php?frm=form01&file_name='.$g5['file_name'].'&w='.$w.'&orp_idx='.$fv['value'].'" class="btn btn_02" id="btn_orp">생산계획ID(라인설비별)찾기</a>'.PHP_EOL;
             }
             if($fk == 'oop_1'){
-                $time_arr = array('시간1<br>08:00~10:00','시간2<br>10:10~12:00','시간3<br>13:00~15:00','시간4<br>15:10~17:00','시간5<br>17:10~19:00','시간6<br>19:10~21:00','시간7<br>21:10~23:00','시간8<br>23:10~01:00','시간9<br>01:10~03:00','시간10<br>03:10~05:00');
+                // $time_arr = array('시간1<br>08:00~10:00','시간2<br>10:10~12:00','시간3<br>13:00~15:00','시간4<br>15:10~17:00','시간5<br>17:10~19:00','시간6<br>19:10~21:00','시간7<br>21:10~23:00','시간8<br>23:10~01:00','시간9<br>01:10~03:00','시간10<br>03:10~05:00');
+                $time_arr = array('시간1','시간2','시간3','시간4');
                 $fctag .= '<ul id="cnt_per_time">'.PHP_EOL;
                 for($i=1;$i<=sizeof($time_arr);$i++){
                     $tkey = 'oop_'.$i;
                     $fctag .= '<li>'.PHP_EOL;
                     $fctag .= $time_arr[$i-1].'<br>'.PHP_EOL;
-                    $fctag .= '<input type="text" name="'.$tkey.'" value="'.$$pre[$tkey].'" class="frm_input oop_ex" style="width:80px;text-align:right;margin-top:5px;" onclick="javascript:chk_Number(this)">'.PHP_EOL;
+                    $fctag .= '<input type="text" name="'.$tkey.'" value="'.$$pre[$tkey].'" class="frm_input oop_ex" style="width:80px;text-align:right;margin-top:5px;" onfocus="javascript:chk_Number(this)" onclick="javascript:chk_Number(this)">'.PHP_EOL;
                     $fctag .= '</li>'.PHP_EOL;
                 }
                 $fctag .= '</ul>'.PHP_EOL;

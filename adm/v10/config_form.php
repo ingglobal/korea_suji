@@ -73,6 +73,20 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">디폴트 출하예정까지 날수<br>(수주일로부터 몇일?)</th>
+			<td colspan="3">
+				<?php echo help('ex) 5') ?>
+				<input type="text" name="set_oro_date_plan_cnt" value="<?php echo $g5['setting']['set_oro_date_plan_cnt'] ?>" id="set_oro_date_plan_cnt" required class="required frm_input" style="width:60px;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">디폴트 생산종료일까지 날수<br>(생산시작일로부터 몇일?)</th>
+			<td colspan="3">
+				<?php echo help('ex) 5') ?>
+				<input type="text" name="set_orp_done_date_cnt" value="<?php echo $g5['setting']['set_orp_done_date_cnt'] ?>" id="set_orp_done_date_cnt" required class="required frm_input" style="width:60px;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">모니터별업로드이미지개수</th>
 			<td colspan="3">
 				<?php echo help('예) 3 : 최대 3장 업로드 가능') ?>
@@ -497,15 +511,22 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 		<tr>
 			<th scope="row">반제품상태</th>
 			<td colspan="3">
-				<?php echo help('finish=재고,ing=투입,compounding=컴파운딩,move=이전,scrap=폐기,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량,trash=삭제'); ?>
+				<?php echo help('pending=대기,finish=생산완료,melt=용융기투입,compounding=컴파운딩,merge=병합,scrap=폐기,trash=삭제,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량'); ?>
 				<input type="text" name="set_half_status" value="<?php echo $g5['setting']['set_half_status']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
 		<tr>
-			<th scope="row">반제품불량타입</th>
+			<th scope="row">반제품상태중 양품상태</th>
 			<td colspan="3">
-				<?php echo help('error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량'); ?>
-				<input type="text" name="set_half_defect_type" value="<?php echo $g5['setting']['set_half_defect_type']; ?>" class="frm_input" style="width:70%;">
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) finish'); ?>
+				<input type="text" name="set_half_status_ok" value="<?php echo $g5['setting']['set_half_status_ok']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">반제품상태중 불량품상태</th>
+			<td colspan="3">
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) error_inhomogeneity,error_foreign,error_etc'); ?>
+				<input type="text" name="set_half_status_ng" value="<?php echo $g5['setting']['set_half_status_ng']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
 		<tr>
@@ -518,21 +539,21 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 		<tr>
 			<th scope="row">완제품상태</th>
 			<td colspan="3">
-				<?php echo help('pending=대기,ing=생산중,finish=생산완료,return=반품,refund=환불,scrap=폐기,trash=삭제'); ?>
+				<?php echo help('pending=대기,finish=생산완료,delivery=출하,compounding=컴파운딩,merge=병합,scrap=폐기,trash=삭제,error_color=색상불량,error_properties=물성불량,error_etc=기타불량'); ?>
 				<input type="text" name="set_itm_status" value="<?php echo $g5['setting']['set_itm_status']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
 		<tr>
 			<th scope="row">완제품상태중 양품상태</th>
 			<td colspan="3">
-				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) ing,finish'); ?>
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) finish'); ?>
 				<input type="text" name="set_itm_status_ok" value="<?php echo $g5['setting']['set_itm_status_ok']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
 		<tr>
 			<th scope="row">완제품상태중 불량품상태</th>
 			<td colspan="3">
-				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) error_stitch,error_wrinkle,error_fabric,error_push,error_pollution,error_bottom,error_etc'); ?>
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) error_color,error_properties,error_etc'); ?>
 				<input type="text" name="set_itm_status_ng" value="<?php echo $g5['setting']['set_itm_status_ng']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
