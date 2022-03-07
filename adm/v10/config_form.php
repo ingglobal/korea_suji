@@ -45,6 +45,13 @@ if ($config['cf_sms_use'] && $config['cf_icode_id'] && $config['cf_icode_pw']) {
 		</colgroup>
 		<tbody>
 		<tr>
+			<th scope="row">API통신토큰</th>
+			<td colspan="3">
+				<?php echo help('예)1099de5drf09') ?>
+				<input type="text" name="set_api_token" value="<?php echo $g5['setting']['set_api_token'] ?>" id="set_api_token" required class="required frm_input" style="width:60%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">디폴트상태값</th>
 			<td colspan="3">
 				<?php echo help('pending=대기,auto-draft=자동저장,ok=정상,hide=숨김,trash=삭제') ?>
