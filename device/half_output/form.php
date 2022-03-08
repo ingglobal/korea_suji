@@ -102,7 +102,7 @@ button{cursor:pointer;}
 <?php
 $data_str = "
 'token' : {$g5['setting']['set_api_token']}
-'bom_idx' : 반제품 bom_idx 얻는 쿼리 => SELECT bom_idx_child FROM g5_1_bom_item WHERE bom_idx = '부모 bom_idx'
+'bom_idx' : 반제품 bom_idx 얻는 쿼리 => SELECT bom_idx_child FROM g5_1_bom_item WHERE bom_idx = '부모(완제품) bom_idx'
 'bom_idx_parent' : 완제품의 bom_idx => g5_1_order_out_practice 테이블의 bom_idx
 'oop_idx' : g5_1_order_out_practice 테이블의 oop_idx
 'bom_part_no' : g5_1_bom 테이블의 반제품의 bom_part_no
