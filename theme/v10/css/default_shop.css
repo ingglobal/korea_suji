@@ -2,7 +2,7 @@
 
 /* 초기화 */
 html {overflow-y:scroll}
-body {margin:0;padding:0;font-size:0.75em;font-family:'Malgun Gothic', dotum, sans-serif}
+body {margin:0;padding:0;font-size:0.75em;font-family:'Malgun Gothic', dotum, sans-serif;background:#333;color:#eee;}
 html, h1, h2, h3, h4, h5, h6, form, fieldset, img {margin:0;padding:0;border:0}
 h1, h2, h3, h4, h5, h6 {font-size:1em;font-family:'Malgun Gothic', dotum, sans-serif}
 article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {display:block}
@@ -31,16 +31,21 @@ input[type=text],input[type=password], textarea {
 -ms-transition:all 0.30s ease-in-out;
 -o-transition:all 0.30s ease-in-out;
 outline:none;
+border:1px solid #555 !important;
+background:#444;
+color:#fff;
 }
  
 input[type=text]:focus,input[type=password]:focus, textarea:focus,select:focus {
 -webkit-box-shadow:0 0 5px #9ed4ff;
 -moz-box-shadow:0 0 5px #9ed4ff;
 box-shadow:0 0 5px #9ed4ff;
-border:1px solid #558ab7 !important;
+border:1px solid #555 !important;
+background:#444;
+color:#eee;
 }
  
-.placeholdersjs {color:#aaa !important}
+.placeholdersjs {color:#eee !important}
 #hd, #wrapper, #ft {min-width:1200px}
 
 #hd_pop,
