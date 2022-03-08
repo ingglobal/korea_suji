@@ -2,7 +2,7 @@
 include_once('./_common.php');
 
 if ($member['mb_level'] < 3)
-    goto_url(G5_BBS_URL."/login.php?url=".urlencode(G5_URL."/device/half_end/form.php"));
+    goto_url(G5_BBS_URL."/login.php?url=".urlencode(G5_URL."/device/half_output/form.php"));
 
 $g5['title'] = '반제품출력';
 include_once(G5_PATH.'/head.sub.php');
