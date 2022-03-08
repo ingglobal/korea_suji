@@ -131,8 +131,10 @@ echo nl2br($sql);
             <thead>
                 <tr>
                     <th scope="col">ID<br><span>(oop_idx)</span></th>
-                    <th scope="col">품명<br><span>(bom_idx)</span></th>
-                    <th scope="col">P/NO<br><span>(bom_part_no)</span></th>
+                    <th scope="col">
+                        품명<br><span>(bom_idx)</span><br>
+                        <span>(bom_part_no)</span>
+                    </th>
                     <th scope="col">수주ID<br><span>(ord_idx)</span></th>
                     <th scope="col">계획ID<br><span>(orp_idx)</span></th>
                     <th scope="col">수주일<br><span>(ord_date)</span></th>
@@ -147,6 +149,7 @@ echo nl2br($sql);
                     <th scope="col">측정량<br><span>(mtr_weight)</span></th>
                     <th scope="col">출력</th>
                     <th scope="col">종료</th>
+                    <th scope="col">상세</th>
                 </tr>
             </thead>
             <tbody>
@@ -172,11 +175,11 @@ echo nl2br($sql);
                     }
                     $bom_name = $bom['bom_name'];
                     echo ($row['bct_name_tree'])?'<span class="sp_cat">'.$row['bct_name_tree'].'</span><br>':'';
-                    echo $bom_name;
-                    echo '<br>'.$bom['bct_id'];
-                    ?>
+                    echo '<span style="color:yellow;">'.$bom_name.'</span>';
+                    echo '<br><span style="color:skyblue">'.$bom['bct_id'].'</span>';
+                    ?><br>
+                    <span style="color:orange;"><?=$bom['bom_part_no']?></span>
                 </td>
-                <td class="td_bom_part_no"><?=$bom['bom_part_no']?></td>
                 <td class="td_ord_idx"><?=$row['ord_idx']?></td>
                 <td class="td_orp_idx"><?=$row['orp_idx']?></td>
                 <td class="td_ord_date"><?=(($row['ord_date'])?substr($row['ord_date'],5,5):' - ')?></td>
@@ -202,11 +205,12 @@ echo nl2br($sql);
                     >출력</button>
                 </td>
                 <td class="td_mtr_end"><button type="button" class="btn btn_end">종료</button></td>
+                <td class="td_mtr_detail"><a href="./form.php?oop_idx=<?=$row['oop_idx']?>" class="btn btn_detail">상세</a></td>
             </tr>
             <?php
             }
             if ($i == 0)
-            echo "<tr><td colspan='16' class=\"empty_table\">자료가 없습니다.</td></tr>";
+            echo "<tr><td colspan='15' class=\"empty_table\">자료가 없습니다.</td></tr>";
             ?>
             </tbody>
         </table>
@@ -217,7 +221,7 @@ echo nl2br($sql);
     ?>
     <div class="tbl_head02 tbl_wrap">
         <table>
-        <caption>생산계획 최근 15개 목록</caption>
+        <caption>해당제품의 상세재고목록</caption>
             <thead>
                 <tr>
                     <th scope="col">ID<br><span>mtr_idx</span></th>

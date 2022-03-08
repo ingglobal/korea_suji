@@ -66,7 +66,7 @@ else{
 
 //테스트페이지로부터 호출되었으면 테스트 폼페이지로 이동
 if($test){
-    goto_url('./form.php?oop_idx='.$oop_idx.'&mtr_idx='.$mtr_idx);
+    goto_url('./form.php?oop_idx='.$oop_idx);
 }
 else{
     echo json_encode( array('meta'=>$result_arr) );
