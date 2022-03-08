@@ -64,17 +64,17 @@ if ($where)
 
 if (!$sst) {
     //$sst = "ord.ord_reg_dt, oro.ord_idx, oro.ori_idx, oro.oro_idx";
-    $sst = "ord.ord_reg_dt";
+    $sst = "ord.ord_idx";
     //$sod = "desc";
     $sod = "desc";
 }
 if (!$sst2) {
-    $sst2 = ", bom.bom_sort";
-    $sod2 = "";
+    $sst2 = ", oro.oro_idx";
+    $sod2 = "desc";
 }
 
 //$sql_group = " GROUP BY ord.ord_idx ";
-$sql_order = " ORDER BY {$sst} {$sod} ";
+$sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
 
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
 $row = sql_fetch($sql);
