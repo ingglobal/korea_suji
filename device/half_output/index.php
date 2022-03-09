@@ -33,6 +33,7 @@ if(!check_token1($getData[0]['token'])) {
 	$result_arr = array("code"=>499,"message"=>"token error");
 }
 else if($getData[0]['bom_part_no']) {
+    $bom = get_table_meta('bom','bom_idx',$getData[0]['bom_idx']);
     $arr = $getData[0];
     $mtr_lot = substr($arr['mtr_barcode'],0,6);
     $sql = " INSERT INTO {$g5['material_table']} SET
@@ -46,7 +47,7 @@ else if($getData[0]['bom_part_no']) {
                 , mtr_type = 'half'
                 , mtr_weight = '{$arr['weight']}'
                 , mtr_lot = '{$mtr_lot}'
-                , mtr_price = '{$arr['mtr_price']}'
+                , mtr_price = '{$bom['bom_price']}'
                 , trm_idx_location = '{$arr['trm_idx_location']}'
                 , mtr_status = 'finish'
                 , mtr_input_date = '".G5_TIME_YMD."'

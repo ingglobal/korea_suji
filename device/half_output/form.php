@@ -44,8 +44,8 @@ $sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} {$sst3} {$sod3} ";
 $sql_group = "";//" GROUP BY oop.orp_idx ";
 $todate = G5_TIME_YMD;
 $sql = " SELECT *
-                , ( SELECT SUM(mtr_weight) FROM {$g5['material_table']} WHERE oop_idx = oop.oop_idx ) AS mtr_total
-                , ( SELECT COUNT(*) FROM {$g5['material_table']} WHERE oop_idx = oop.oop_idx AND mtr_reg_dt LIKE '{$todate}%' ) AS mtr_cnt
+                , ( SELECT SUM(mtr_weight) FROM {$g5['material_table']} WHERE oop_idx = oop.oop_idx AND mtr_status = 'finish' ) AS mtr_total
+                , ( SELECT COUNT(*) FROM {$g5['material_table']} WHERE oop_idx = oop.oop_idx AND mtr_status = 'finish' ) AS mtr_cnt
     {$sql_common} {$sql_search} {$sql_group} {$sql_order}
     LIMIT 15
 ";
@@ -123,7 +123,6 @@ $data_str = "
 'bom_part_no' : g5_1_bom 테이블의 반제품의 bom_part_no
 'mtr_name' : g5_1_bom 테이블의 반제품의 bom_name
 'mtr_barcode' : 반제품 barcode는 가공해서 만들어야하는 값
-'mtr_price' : g5_1_bom 테이블의 반제품의 bom_name
 'trm_idx_location' : g5_1_order_practice 테이블의 trm_idx_line
 'weight' : 무게 저울측정 또는 입력값
 ";
@@ -213,7 +212,6 @@ echo nl2br($sql);
                         oop_idx="<?=$row['oop_idx']?>"
                         bom_part_no="<?=$bom2['bom_part_no']?>"
                         mtr_name="<?=$bom2['bom_name']?>"
-                        mtr_price="<?=$bom2['bom_price']?>"
                         trm_idx_location="<?=$row['trm_idx_line']?>"
                         mtr_cnt="<?=($row['mtr_cnt']+1)?>"
                     >출력</button>
@@ -330,7 +328,6 @@ function form_output(obj,ipt,token){
         ,'bom_part_no' : obj.attr('bom_part_no')
         ,'mtr_name' : obj.attr('mtr_name')
         ,'mtr_barcode' : barcode
-        ,'mtr_price' : obj.attr('mtr_price')
         ,'trm_idx_location' : obj.attr('trm_idx_location')
         ,'weight' : ipt
     };
