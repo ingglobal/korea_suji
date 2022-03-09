@@ -57,6 +57,13 @@ ul{list-style:none;padding:0;margin:0;}
 #nav{background:#555;padding:10px;}
 #nav:after{display:block;visibility:hidden;clear:both;content:'';}
 #nav li{float:left;padding-right:20px;}
+
+#tbl_des{display:table;border-collapse:collapse;border-spacing:0px;border:1px solid #777;width:100%;}
+#tbl_des th{width:25%;}
+#tbl_des th,#tbl_des td{border:1px solid #777;}
+#tbl_des td{padding:10px;line-height:1.6em;vertical-align: top;}
+dl:after{display:block;visibility:hidden;clear:both;content:'';}
+dt{float:left;width:120px;}
 #snd_div{padding-bottom:20px;}
 #snd_div h5{margin-top:10px;margin-bottom:0px;}
 #snd_div p{line-height:1.5em;}
@@ -95,9 +102,10 @@ caption{text-align:left;}
 .td_mtr_detail{text-align:center;}
 button{cursor:pointer;}
 .t_mtr_weight{text-align:center;}
-input.weight{background:#333;color:#fff;padding:0 5px;height:20px;width:30px;line-height:20px;text-align:right;}
+input.weight{background:#333;color:#fff;padding:0 5px;height:20px;line-height:20px;width:30px;text-align:right;}
 .t_btn{text-align:center;}
 .btn{font-size:0.8em;}
+.select{height:20px !important;line-height:20px !important;background:#333;color:#fff;}
 </style>
 <h3>
     <a href="<?=G5_USER_ADMIN_URL?>" class="home"><i class="fa fa-home" aria-hidden="true"></i></a>
@@ -112,16 +120,59 @@ input.weight{background:#333;color:#fff;padding:0 5px;height:20px;width:30px;lin
     <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_status/form.php" class="tnb_sql">완제품상태</a></li>
 </ul>
 <div id="snd_div">
-<h5>[상태버튼 클릭시 API에 넘겨줄 데이터]</h5>
-<p>
-<?php
-$data_str = "
-'token' : {$g5['setting']['set_api_token']}
-'oop_idx' : g5_1_order_out_practice 테이블의 oop_idx
-";
-echo nl2br($data_str);
-?>
-</p>
+<h5>[각 기능별 버튼 클릭시 API에 넘겨줄 데이터]</h5>
+<table id="tbl_des">
+    <thead>
+        <tr>
+            <th>재출력</th>
+            <th>용융투입</th>
+            <th>상태</th>
+            <th>검색</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+                <dl>
+                    <dt>token</dt><dd>: <?=$g5['setting']['set_api_token']?></dd>
+                    <dt>type</dt><dd>: 작업유형 => "reoutput"</dd>
+                    <dt>mtr_idx</dt><dd>: g5_1_material 테이블</dd>
+                    <dt>mtr_weight</dt><dd>: g5_1_material 테이블 반제품 변경된 무게</dd>
+                    <p style="color:yellow;">수정한 바코드정보의 라벨을 반드시 재부착 할거라는 보장이 없으므로</p>
+                    <p style="color:yellow;">바코드 정보는 수정하면 안됨 mtr_weight만 수정해서 라벨 재출력함</p>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    <dt>token</dt><dd>: <?=$g5['setting']['set_api_token']?></dd>
+                    <dt>type</dt><dd>: 작업유형 => "melt"</dd>
+                    <dt>mtr_barcode</dt><dd>: 리딩한 바코드정보</dd>
+                    <dt>trm_idx_location</dt><dd>: 71=1라인, 72=2라인</dd>
+                    <p style="color:yellow;">투입직전에도 갑자기 라인변경의 가능성이 있을것 같음</p>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    <dt>token</dt><dd>: <?=$g5['setting']['set_api_token']?></dd>
+                    <dt>type</dt><dd>: 작업유형 => "status"</dd>
+                    <dt>mtr_barcode</dt><dd>: 리딩한 바코드정보</dd>
+                    <dt>mtr_status</dt><dd>: pending=대기,finish=생산완료,melt=용융기투입,compounding=컴파운딩,merge=병합,scrap=폐기,trash=삭제,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량</dd>
+                    <p style="color:yellow;">실제로 현장에서 필요한 상태값은 아래정도의 상태값들만 있으면 된다</p>
+                    <p style="color:yellow;">finish=생산완료,melt=용융기투입,compounding=컴파운딩,merge=병합,scrap=폐기,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량,search=검색</p>
+                </dl>
+            </td>
+            <td>
+                <dl>
+                    <dt>token</dt><dd>: <?=$g5['setting']['set_api_token']?></dd>
+                    <dt>type</dt><dd>: 작업유형 => "search"</dd>
+                    <dt>mtr_barcode</dt><dd>: 리딩한 바코드정보</dd>
+                    <p style="color:yellow;">바코드 정보로 반제품IMP상에서 해당 mtr_idx의 제품을 포커싱해줌</p>
+                    <p style="color:yellow;">현장에 search=검색에 해당하는 바코드가 필요함</p>
+                </dl>
+            </td>
+        </tr>
+    </tbody>
+</table>
 </div>
 <div id="lst_div">
 <h5>[목록 호출쿼리 참조]</h5>
@@ -137,7 +188,7 @@ echo nl2br($sql);
             <caption>생산계획 최근 15개 목록</caption>
             <thead>
                 <tr>
-                    <th scope="col">ID<br><span>(oop_idx)</span></th>
+                    <th scope="col">출생계ID<br><span>(oop_idx)</span></th>
                     <th scope="col">
                         품명<br><span>(bom_idx)</span><br>
                         <span>(bom_part_no)</span>
@@ -203,7 +254,7 @@ echo nl2br($sql);
             </tbody>
         </table>
     </div><!--//.tbl_head02-->
-    <?php if($oop_idx){ 
+    <?php if($oop_idx || $mtr_idx){ 
         $sql = " SELECT * FROM {$g5['material_table']} WHERE oop_idx = '{$oop_idx}' AND mtr_type = 'half' ORDER BY mtr_idx DESC ";
         $result = sql_query($sql,1);
 
@@ -217,44 +268,53 @@ echo nl2br($sql);
                     <th scope="col">ID<br><span>mtr_idx</span></th>
                     <th scope="col">BOMid<br><span>bom_idx</span></th>
                     <th scope="col">BOMPa<br><span>bom_idx_parent</span></th>
-                    <th scope="col">출하생계<br><span>oop_idx</span></th>
+                    <th scope="col">출생계<br><span>oop_idx</span></th>
                     <th scope="col">바코드<br><span>mtr_barcode</span></th>
                     <th scope="col">무게<br><span>mtr_weight</span></th>
                     <th scope="col">라인<br><span>trm_idx_location</span></th>
-                    <th scope="col">라인<br>수정</th>
                     <th scope="col">상태<br><span>mtr_status</span></th>
                     <th scope="col">검색<br><span>search</span></th>
-                    <th scope="col">투입<br><span>melt</span></th>
                 </tr>
             </thead>
             <tbody>
                 <?php for($i=0;$row=sql_fetch_array($result);$i++) {
+                    $bg = 'bg'.($i%2);
+                    $t_focus = ($row['mtr_idx'] == $mtr_idx) ? ' focus' : '';
                 ?>
-                <tr>
+                <tr class="<?php echo $bg.$t_focus; ?>">
                     <td class="t_mtr_idx"><?=$row['mtr_idx']?></td>
                     <td class="t_bom_idx"><?=$row['bom_idx']?></td>
                     <td class="t_bom_idx_parent"><?=$row['bom_idx_parent']?></td>
                     <td class="t_oop_idx"><?=$row['oop_idx']?></td>
                     <td class="t_mtr_barcode"><?=$row['mtr_barcode']?></td>
-                    <td class="t_mtr_weight"><input type="text" name="mtr_weight" class="frm_input weight" value="<?=$row['mtr_weight']?>"  onclick="javascript:chk_number(this)"></td>
-                    <td class="t_trm_idx_location"><?=$row['trm_idx_location']?></td>
-                    <td class="t_trm_idx_modify">
-                        <?php
-                        print_r2($g5['line_name']);
-                        ?>
+                    <td class="t_mtr_weight">
+                        <input type="text" name="mtr_weight" class="frm_input weight" value="<?=$row['mtr_weight']?>"  onclick="javascript:chk_number(this)">
+                        <button type="button" mtr_idx="<?=$row['mtr_idx']?>" class="btn btn_01 btn_reoutput">재출력</button>
                     </td>
-                    <td class="t_mtr_status"><?=$row['mtr_status']?></td>
-                    <td class="t_btn">
-                        <button type="button" class="btn btn_01" id="btn_sch">검색</button>
+                    <td class="t_trm_idx_location">
+                        <select name="trm_idx_location" class="select select_<?=$i?>">
+                            <?php foreach($g5['line_name'] as $lk=>$lv){ ?>
+                            <option value="<?=$lk?>"><?=$lv?>(<?=$lk?>)</option>
+                            <?php } ?>
+                        </select>
+                        <button type="button" mtr_barcode="<?=$row['mtr_barcode']?>" class="btn btn_01 btn_melt">용융투입</button>
+                        <script>$('.select_<?=$i?>').val('<?=$row['trm_idx_location']?>');</script>
+                    </td>
+                    <td class="t_mtr_status">
+                        <select name="mtr_status" class="select mtr_status_<?=$i?>">
+                            <?=$g5['set_half_status_options']?>
+                        </select>
+                        <button type="button" mtr_barcode="<?=$row['mtr_barcode']?>" class="btn btn_01 btn_status">변경</button>
+                        <script>$('.mtr_status_<?=$i?>').val('<?=$row['mtr_status']?>');</script>
                     </td>
                     <td class="t_btn">
-                        <button type="button" class="btn btn_01" id="btn_melt">투입</button>
+                        <button type="button" mtr_barcode="<?=$row['mtr_barcode']?>" class="btn btn_01 btn_search">검색</button>
                     </td>
                 </tr>
                 <?php 
                 }
                 if ($i == 0)
-                echo "<tr><td colspan='10' class=\"empty_table\">자료가 없습니다.</td></tr>";
+                echo "<tr><td colspan='9' class=\"empty_table\">자료가 없습니다.</td></tr>";
                 ?>
             </tbody>
         </table>
@@ -264,12 +324,21 @@ echo nl2br($sql);
 <form id="form" action="./index.php" method="POST">
 </form>
 <script>
-
-$('.btn_end').on('click',function(){
-    var tr_obj = $(this).parent().parent();
-    
-    form_end($(this),'<?=$g5['setting']['set_api_token']?>');
-    
+//라벨재출력 버튼
+$('.btn_reoutput').on('click',function(){   
+    form_status('<?=$g5['setting']['set_api_token']?>','reoutput',$(this)); 
+});
+//용융투입 버튼
+$('.btn_melt').on('click',function(){   
+    form_status('<?=$g5['setting']['set_api_token']?>','melt',$(this)); 
+});
+//상태변경 버튼
+$('.btn_status').on('click',function(){   
+    form_status('<?=$g5['setting']['set_api_token']?>','status',$(this)); 
+});
+//검색 버튼
+$('.btn_search').on('click',function(){   
+    form_status('<?=$g5['setting']['set_api_token']?>','search',$(this)); 
 });
 
 // 숫자만 입력
@@ -285,19 +354,89 @@ function pad(n, width) {
     return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
 }
 
-// 바코드 등록 함수
-function form_end(obj,token){
-    var info = {
-        'test' : 1
-        ,'token' : token
-        ,'oop_idx' : obj.attr('oop_idx')
-    };
+// 재출력 함수
+function form_status(token,type,btn){
+    if(!token) {
+        alert('토큰값이 없습니다.');
+        return false;
+    }
+
+    var info = {'test' : 1, 'token' : token, 'type' : type};
+    
+    if(type == 'reoutput') {
+        var mtr_idx = btn.attr('mtr_idx');
+        var wt = btn.siblings('input').val();
+        if(!wt){
+            alert('무게데이터가 없습니다.');
+            return false;
+        }
+
+        if(!mtr_idx) {
+            alert('mtr_idx 데이터가 없습니다.');
+            return false;
+        }
+
+        info['mtr_idx'] = mtr_idx;
+        info['mtr_weight'] = wt;
+    }
+    else if(type == 'melt') {
+        var mtr_barcode = btn.attr('mtr_barcode');
+        var trm_idx_location = btn.siblings('.select').val();
+        if(!mtr_barcode) {
+            alert('바코드정보가 없습니다.');
+            return false;
+        }
+
+        if(!trm_idx_location) {
+            alert('라인정보가 없습니다.');
+            return false;
+        }
+
+        info['mtr_barcode'] = mtr_barcode;
+        info['trm_idx_location'] = trm_idx_location;
+    }
+    else if(type == 'status') {
+        var mtr_barcode = btn.attr('mtr_barcode');
+        var mtr_status = btn.siblings('.select').val();
+        if(!mtr_barcode) {
+            alert('바코드정보가 없습니다.');
+            return false;
+        }
+
+        if(!mtr_status) {
+            alert('상태정보가 없습니다.');
+            return false;
+        }
+
+        info['mtr_barcode'] = mtr_barcode;
+        info['mtr_status'] = mtr_status;
+    }
+    else if(type == 'search') {
+        var mtr_barcode = btn.attr('mtr_barcode');
+        if(!mtr_barcode) {
+            alert('바코드정보가 없습니다.');
+            return false;
+        }
+
+        info['mtr_barcode'] = mtr_barcode;
+    }
+    else {
+        alert('작업유형값이 없습니다.');
+        return false;
+    }
+    //#form안을 텅비운다.
+    $('#form').empty();
     for(key in info){
         // console.log(key+':'+info[key]);
         $('<input type="hidden" name="'+key+'" value="'+info[key]+'">').appendTo('#form');
     }
+
+    // alert(JSON.stringify(info));
+    
     $('#form').submit();
 }
+
+
 </script>
 <?php
 include_once(G5_PATH.'/tail.sub.php');

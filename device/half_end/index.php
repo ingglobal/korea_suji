@@ -2,6 +2,12 @@
 header('Content-Type: application/json; charset=UTF-8');
 include_once('./_common.php');
 
+//환경변수 저장할 컬럼이 없으면 생성
+if(!isset($config['cf_current_oop_idx'])) {
+    sql_query(" ALTER TABLE `{$g5['config_table']}`
+                    ADD `cf_current_oop_idx` int(11) NOT NULL DEFAULT '0' AFTER `cf_recaptcha_secret_key` ,
+                    ADD `cf_current_mtr_idx` int(11) NOT NULL DEFAULT '0' AFTER `cf_current_oop_idx` ", true);
+}
 
 $rawBody = file_get_contents("php://input"); // 본문을 불러옴
 $getData = array(json_decode($rawBody,true)); // 데이터를 변수에 넣고
@@ -19,14 +25,14 @@ if(!check_token1($getData[0]['token'])) {
 }
 else if($getData[0]['oop_idx']) {
     $sql = " UPDATE {$g5['order_out_practice_table']} AS oop SET
-                oop_mtr_weight = ( SELECT SUM(mtr_weight) FROM {$g5['material_table']} WHERE oop_idx = '{$getData[0]['oop_idx']}' ) 
+                oop_mtr_weight = ( SELECT SUM(mtr_weight) FROM {$g5['material_table']} WHERE oop_idx = '{$getData[0]['oop_idx']}' )
             WHERE oop.oop_idx = '{$getData[0]['oop_idx']}'
     ";
     sql_query($sql,1);
     $result_arr['code'] = 200;
     $result_arr['message'] = 'Updated OK!';
     $result_arr['oop_idx'] = $getData[0]['oop_idx'];
-} 
+}
 else {
     $result_arr = array("code"=>599,"message"=>"error");
 }

@@ -2,20 +2,12 @@
 header('Content-Type: application/json; charset=UTF-8');
 include_once('./_common.php');
 
-/*
-if(!isset($config['cf_line1_bom_idx'])) {
-    sql_query(" ALTER TABLE `{$g5['config_table']}`
-                    ADD `cf_line1_bom_idx` VARCHAR(255) NOT NULL AFTER `cf_recaptcha_secret_key`,
-                    ADD `cf_line2_bom_idx` VARCHAR(255) NOT NULL AFTER `cf_line1_bom_idx`,
-                    ADD `cf_line3_bom_idx` VARCHAR(255) NOT NULL AFTER `cf_line2_bom_idx`,
-                    ADD `cf_line4_bom_idx` VARCHAR(255) NOT NULL AFTER `cf_line3_bom_idx` ", true);
-}
+//환경변수 저장할 컬럼이 없으면 생성
 if(!isset($config['cf_current_oop_idx'])) {
     sql_query(" ALTER TABLE `{$g5['config_table']}`
-                    ADD `cf_current_oop_idx` VARCHAR(255) NOT NULL AFTER `cf_recaptcha_secret_key`, true);
+                    ADD `cf_current_oop_idx` int(11) NOT NULL DEFAULT '0' AFTER `cf_recaptcha_secret_key` ,
+                    ADD `cf_current_mtr_idx` int(11) NOT NULL DEFAULT '0' AFTER `cf_current_oop_idx` ", true);
 }
-$g5['setting']['set_api_token']
-*/
 
 $rawBody = file_get_contents("php://input"); // 본문을 불러옴
 $getData = array(json_decode($rawBody,true)); // 데이터를 변수에 넣고
@@ -49,6 +41,7 @@ else if($getData[0]['bom_part_no']) {
                 , mtr_lot = '{$mtr_lot}'
                 , mtr_price = '{$bom['bom_price']}'
                 , trm_idx_location = '{$arr['trm_idx_location']}'
+				, mtr_history = 'finish|".G5_TIME_YMD."|".G5_TIME_YMDHIS."'
                 , mtr_status = 'finish'
                 , mtr_input_date = '".G5_TIME_YMD."'
                 , mtr_reg_dt = '".G5_TIME_YMDHIS."'

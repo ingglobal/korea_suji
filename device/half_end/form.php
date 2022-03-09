@@ -135,7 +135,7 @@ echo nl2br($sql);
             <caption>생산계획 최근 15개 목록</caption>
             <thead>
                 <tr>
-                    <th scope="col">ID<br><span>(oop_idx)</span></th>
+                    <th scope="col">출생계ID<br><span>(oop_idx)</span></th>
                     <th scope="col">
                         품명<br><span>(bom_idx)</span><br>
                         <span>(bom_part_no)</span>
@@ -217,7 +217,7 @@ echo nl2br($sql);
                     <th scope="col">ID<br><span>mtr_idx</span></th>
                     <th scope="col">BOMid<br><span>bom_idx</span></th>
                     <th scope="col">BOMPa<br><span>bom_idx_parent</span></th>
-                    <th scope="col">출하생계<br><span>oop_idx</span></th>
+                    <th scope="col">출생계<br><span>oop_idx</span></th>
                     <th scope="col">P/NO<br><span>bom_part_no</span></th>
                     <th scope="col">품명<br><span>mtr_name</span></th>
                     <th scope="col">유형<br><span>mtr_type</span></th>
