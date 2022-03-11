@@ -120,6 +120,7 @@ $data_str = "
 ";
 echo nl2br($data_str);
 ?>
+<div style="color:yellow;">반제품 바코드 리딩시 완제품iMP의 출하생산계획목록에서 해당 제품목록이 포커싱 되어야 함</div>
 </p>
 </div>
 <div id="lst_div">
