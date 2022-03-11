@@ -54,10 +54,6 @@ $result = sql_query($sql,1);
 ?>
 <style>
 body{background:#333;color:#fff;padding:20px;}
-ul{list-style:none;padding:0;margin:0;}
-#nav{background:#555;padding:10px;}
-#nav:after{display:block;visibility:hidden;clear:both;content:'';}
-#nav li{float:left;padding-right:20px;}
 #snd_div{padding-bottom:20px;}
 #snd_div h5{margin-top:10px;margin-bottom:0px;}
 #snd_div p{line-height:1.5em;}
@@ -103,14 +99,7 @@ button{cursor:pointer;}
     <a href="<?=G5_USER_ADMIN_URL?>" class="home"><i class="fa fa-home" aria-hidden="true"></i></a>
     <?=$g5['title']?>
 </h3>
-<ul id="nav">
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_output/form.php" class="tnb_sql">반제품출력</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_end/form.php" class="tnb_sql">반제품종료</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_status/form.php" class="tnb_sql">반제품상태</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_output/form.php" class="tnb_sql">완제품출력</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_end/form.php" class="tnb_sql">완제품종료</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_status/form.php" class="tnb_sql">완제품상태</a></li>
-</ul>
+<?php include('../half_item_menu.php'); ?>
 <div id="snd_div">
 <h5>[출력버튼 클릭시 API에 넘겨줄 데이터]</h5>
 <p>
@@ -314,7 +303,7 @@ function form_output(obj,ipt,token){
     dt = dt.replaceAll("-","").substring(2);
     var cnt = Number(obj.attr('mtr_cnt')) + 1;
     cnt = pad(cnt,3);
-    var ab = 'A';
+    var ab = 'B';
     var wt = ipt;
     var part_no = obj.attr('bom_part_no');
     var barcode = dt+cnt+ab+wt+part_no;

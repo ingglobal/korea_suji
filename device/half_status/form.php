@@ -53,11 +53,6 @@ $result = sql_query($sql,1);
 ?>
 <style>
 body{background:#333;color:#fff;padding:20px;}
-ul{list-style:none;padding:0;margin:0;}
-#nav{background:#555;padding:10px;}
-#nav:after{display:block;visibility:hidden;clear:both;content:'';}
-#nav li{float:left;padding-right:20px;}
-
 #tbl_des{display:table;border-collapse:collapse;border-spacing:0px;border:1px solid #777;width:100%;}
 #tbl_des th{width:25%;}
 #tbl_des th,#tbl_des td{border:1px solid #777;}
@@ -111,14 +106,7 @@ input.weight{background:#333;color:#fff;padding:0 5px;height:20px;line-height:20
     <a href="<?=G5_USER_ADMIN_URL?>" class="home"><i class="fa fa-home" aria-hidden="true"></i></a>
     <?=$g5['title']?>
 </h3>
-<ul id="nav">
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_output/form.php" class="tnb_sql">반제품출력</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_end/form.php" class="tnb_sql">반제품종료</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_status/form.php" class="tnb_sql">반제품상태</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_output/form.php" class="tnb_sql">완제품출력</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_end/form.php" class="tnb_sql">완제품종료</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_status/form.php" class="tnb_sql">완제품상태</a></li>
-</ul>
+<?php include('../half_item_menu.php'); ?>
 <div id="snd_div">
 <h5>[각 기능별 버튼 클릭시 API에 넘겨줄 데이터]</h5>
 <table id="tbl_des">
@@ -180,7 +168,7 @@ input.weight{background:#333;color:#fff;padding:0 5px;height:20px;line-height:20
 <?php
 echo nl2br($sql);
 ?>
-</p>   
+</p>
 </div>
 <div id="tbl_box">
     <div class="tbl_head02 tbl_wrap">
@@ -254,7 +242,7 @@ echo nl2br($sql);
             </tbody>
         </table>
     </div><!--//.tbl_head02-->
-    <?php if($oop_idx || $mtr_idx){ 
+    <?php if($oop_idx || $mtr_idx){
         $sql = " SELECT * FROM {$g5['material_table']} WHERE oop_idx = '{$oop_idx}' AND mtr_type = 'half' ORDER BY mtr_idx DESC ";
         $result = sql_query($sql,1);
 
@@ -311,7 +299,7 @@ echo nl2br($sql);
                         <button type="button" mtr_barcode="<?=$row['mtr_barcode']?>" class="btn btn_01 btn_search">검색</button>
                     </td>
                 </tr>
-                <?php 
+                <?php
                 }
                 if ($i == 0)
                 echo "<tr><td colspan='9' class=\"empty_table\">자료가 없습니다.</td></tr>";
@@ -325,20 +313,20 @@ echo nl2br($sql);
 </form>
 <script>
 //라벨재출력 버튼
-$('.btn_reoutput').on('click',function(){   
-    form_status('<?=$g5['setting']['set_api_token']?>','reoutput',$(this)); 
+$('.btn_reoutput').on('click',function(){
+    form_status('<?=$g5['setting']['set_api_token']?>','reoutput',$(this));
 });
 //용융투입 버튼
-$('.btn_melt').on('click',function(){   
-    form_status('<?=$g5['setting']['set_api_token']?>','melt',$(this)); 
+$('.btn_melt').on('click',function(){
+    form_status('<?=$g5['setting']['set_api_token']?>','melt',$(this));
 });
 //상태변경 버튼
-$('.btn_status').on('click',function(){   
-    form_status('<?=$g5['setting']['set_api_token']?>','status',$(this)); 
+$('.btn_status').on('click',function(){
+    form_status('<?=$g5['setting']['set_api_token']?>','status',$(this));
 });
 //검색 버튼
-$('.btn_search').on('click',function(){   
-    form_status('<?=$g5['setting']['set_api_token']?>','search',$(this)); 
+$('.btn_search').on('click',function(){
+    form_status('<?=$g5['setting']['set_api_token']?>','search',$(this));
 });
 
 // 숫자만 입력
@@ -362,7 +350,7 @@ function form_status(token,type,btn){
     }
 
     var info = {'test' : 1, 'token' : token, 'type' : type};
-    
+
     if(type == 'reoutput') {
         var mtr_idx = btn.attr('mtr_idx');
         var wt = btn.siblings('input').val();
@@ -432,7 +420,7 @@ function form_status(token,type,btn){
     }
 
     // alert(JSON.stringify(info));
-    
+
     $('#form').submit();
 }
 

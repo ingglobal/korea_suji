@@ -54,10 +54,6 @@ $result = sql_query($sql,1);
 ?>
 <style>
 body{background:#333;color:#fff;padding:20px;}
-ul{list-style:none;padding:0;margin:0;}
-#nav{background:#555;padding:10px;}
-#nav:after{display:block;visibility:hidden;clear:both;content:'';}
-#nav li{float:left;padding-right:20px;}
 #snd_div{padding-bottom:20px;}
 #snd_div h5{margin-top:10px;margin-bottom:0px;}
 #snd_div p{line-height:1.5em;}
@@ -94,6 +90,8 @@ caption{text-align:left;}
 .td_oop_status{text-align:right;overflow:hidden;width:70px;}
 .td_mtr_total{text-align:right;width:50px;}
 .td_mtr_weight{text-align:right;width:50px;}
+.td_itm_weight{text-align:right;width:50px;}
+.td_loss{text-align:right;width:50px;}
 button{cursor:pointer;}
 .btn_end{}
 </style>
@@ -101,14 +99,7 @@ button{cursor:pointer;}
     <a href="<?=G5_USER_ADMIN_URL?>" class="home"><i class="fa fa-home" aria-hidden="true"></i></a>
     <?=$g5['title']?>
 </h3>
-<ul id="nav">
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_output/form.php" class="tnb_sql">반제품출력</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_end/form.php" class="tnb_sql">반제품종료</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/half_status/form.php" class="tnb_sql">반제품상태</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_output/form.php" class="tnb_sql">완제품출력</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_end/form.php" class="tnb_sql">완제품종료</a></li>
-    <li class="nav_li"><a href="<?php echo G5_DEVICE_URL ?>/item_status/form.php" class="tnb_sql">완제품상태</a></li>
-</ul>
+<?php include('../half_item_menu.php'); ?>
 <div id="snd_div">
 <h5>[종료버튼 클릭시 API에 넘겨줄 데이터]</h5>
 <p>
@@ -127,7 +118,7 @@ echo nl2br($data_str);
 <?php
 echo nl2br($sql);
 ?>
-</p>   
+</p>
 </div>
 <div id="tbl_box">
     <div class="tbl_head02 tbl_wrap">
@@ -144,13 +135,13 @@ echo nl2br($sql);
                     <th scope="col">계획ID<br><span>(orp_idx)</span></th>
                     <th scope="col">수주일<br><span>(ord_date)</span></th>
                     <th scope="col">설비<br><span>(trm_idx_line)</span></th>
-                    <th scope="col">시작일<br><span>(orp_start_date)</span></th>
-                    <th scope="col">종료일<br><span>(orp_done_date)</span></th>
-                    <th scope="col">출하량<br><span>(oro_cnt)</span></th>
-                    <th scope="col">지시량<br><span>(orp_cnt)</span></th>
+                    <th scope="col">시작일<br><span>(orp_start_date)</span><br>종료일<br><span>(orp_done_date)</span></th>
+                    <th scope="col">출하량<br><span>(oro_cnt)</span><br>지시량<br><span>(orp_cnt)</span></th>
                     <th scope="col">상태<br><span>(orp_status)</span></th>
                     <th scope="col">재고량<br><span>[mtr_total]</span></th>
-                    <th scope="col">종료무게<br><span>[oop_mtr_weight]</span></th>
+                    <th scope="col">반제품<br>종료무게<br><span>[oop_mtr_weight]</span></th>
+                    <th scope="col">완제품<br>종료무게<br><span>[oop_itm_weight]</span></th>
+					<th scope="col">손실량<br>(손실률)</th>
                     <th scope="col">종료</th>
                     <th scope="col">상세</th>
                 </tr>
@@ -164,7 +155,10 @@ echo nl2br($sql);
                 $bom2 = get_table_meta('bom','bom_idx',$bc_res['bom_idx_child']);
                 $tr_focus = ($row['oop_idx'] == $oop_idx) ? ' focus' : '';
                 // print_r2($bom2);
-                ?>
+                $loss_weight = ($row['oop_itm_weight']) ? $row['oop_mtr_weight'] - $row['oop_itm_weight'] : 0;
+				$loss_rate = ($row['oop_itm_weight']) ? (($row['oop_mtr_weight'] - $row['oop_itm_weight'])/$row['oop_itm_weight']) * 100 : 0;
+				$loss_rate = number_format($loss_rate,2,'.','');
+				?>
 
             <tr class="<?php echo $bg.$tr_focus; ?>" orp_idx="<?php echo $row['orp_idx'] ?>" bom_idx="<?=$row['bom_idx']?>">
                 <td class="td_oop_idx"><?=$row['oop_idx']?></td>
@@ -187,13 +181,13 @@ echo nl2br($sql);
                 <td class="td_orp_idx"><?=$row['orp_idx']?></td>
                 <td class="td_ord_date"><?=(($row['ord_date'])?substr($row['ord_date'],5,5):' - ')?></td>
                 <td class="td_trm_idx_line"><?=$g5['line_name'][$row['trm_idx_line']]?><br><?=$row['trm_idx_line']?></td>
-                <td class="td_start_date"><?=substr($row['orp_start_date'],5,5)?></td>
-                <td class="td_end_date"><?=substr($row['orp_done_date'],5,5)?></td>
-                <td class="td_oro_cnt"><?=number_format($row['oro_count'])?></td>
-                <td class="td_oop_cnt"><?=number_format($row['oop_count'])?></td>
+                <td class="td_start_date"><?=substr($row['orp_start_date'],5,5)?><br><?=substr($row['orp_done_date'],5,5)?></td>
+                <td class="td_oro_cnt"><?=number_format($row['oro_count'])?><br><?=number_format($row['oop_count'])?></td>
                 <td class="td_oop_status"><?php echo $g5['set_oop_status_value'][$row['oop_status']]?><br>(<?=$row['oop_status']?>)</td><!-- 상태 -->
                 <td class="td_mtr_total"><?=number_format($row['mtr_total'])?></td>
                 <td class="td_mtr_weight"><?=number_format($row['oop_mtr_weight'])?></td>
+                <td class="td_itm_weight"><?=number_format($row['oop_itm_weight'])?></td>
+				<td class="td_loss"><?=$loss_weight?><br>(<?=$loss_rate?>%)</td>
                 <td class="td_mtr_end"><button type="button" oop_idx="<?=$row['oop_idx']?>" class="btn btn_end">종료</button></td>
                 <td class="td_mtr_detail"><a href="./form.php?oop_idx=<?=$row['oop_idx']?>" class="btn btn_detail">상세</a></td>
             </tr>
@@ -205,7 +199,7 @@ echo nl2br($sql);
             </tbody>
         </table>
     </div><!--//.tbl_head02-->
-    <?php if($oop_idx){ 
+    <?php if($oop_idx){
         $sql = " SELECT * FROM {$g5['material_table']} WHERE oop_idx = '{$oop_idx}' AND mtr_type = 'half' ORDER BY mtr_idx DESC ";
         $result = sql_query($sql,1);
     ?>
@@ -259,9 +253,9 @@ echo nl2br($sql);
 
 $('.btn_end').on('click',function(){
     var tr_obj = $(this).parent().parent();
-    
+
     form_end($(this),'<?=$g5['setting']['set_api_token']?>');
-    
+
 });
 
 // 숫자만 입력
