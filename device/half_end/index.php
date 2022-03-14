@@ -26,7 +26,8 @@ if(!check_token1($getData[0]['token'])) {
 else if($getData[0]['oop_idx']) {
     $sql = " UPDATE {$g5['order_out_practice_table']} AS oop SET
                 oop_mtr_weight = ( SELECT SUM(mtr_weight) FROM {$g5['material_table']} WHERE oop_idx = '{$getData[0]['oop_idx']}' )
-            WHERE oop.oop_idx = '{$getData[0]['oop_idx']}'
+				, oop_mtr_enddt = '".G5_TIME_YMDHIS."'
+			WHERE oop.oop_idx = '{$getData[0]['oop_idx']}'
     ";
     sql_query($sql,1);
     $result_arr['code'] = 200;

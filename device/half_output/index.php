@@ -25,34 +25,43 @@ if(!check_token1($getData[0]['token'])) {
 	$result_arr = array("code"=>499,"message"=>"token error");
 }
 else if($getData[0]['bom_part_no']) {
-    $bom = get_table_meta('bom','bom_idx',$getData[0]['bom_idx']);
-    $arr = $getData[0];
-    $mtr_lot = substr($arr['mtr_barcode'],0,6);
-    $sql = " INSERT INTO {$g5['material_table']} SET
-                com_idx = '{$_SESSION['ss_com_idx']}'
-                , bom_idx = '{$arr['bom_idx']}'
-                , bom_idx_parent = '{$arr['bom_idx_parent']}'
-                , oop_idx = '{$arr['oop_idx']}'
-                , bom_part_no = '{$arr['bom_part_no']}'
-                , mtr_name = '{$arr['mtr_name']}'
-                , mtr_barcode = '{$arr['mtr_barcode']}'
-                , mtr_type = 'half'
-                , mtr_weight = '{$arr['weight']}'
-                , mtr_lot = '{$mtr_lot}'
-                , mtr_price = '{$bom['bom_price']}'
-                , trm_idx_location = '{$arr['trm_idx_location']}'
-				, mtr_history = 'finish|".G5_TIME_YMD."|".G5_TIME_YMDHIS."'
-                , mtr_status = 'finish'
-                , mtr_input_date = '".G5_TIME_YMD."'
-                , mtr_reg_dt = '".G5_TIME_YMDHIS."'
-                , mtr_update_dt = '".G5_TIME_YMDHIS."'
-    ";
-    sql_query($sql,1);
-    $mtr_idx = sql_insert_id();
-    $result_arr['code'] = 200;
-    $result_arr['message'] = 'Inserted OK!';
-    $result_arr['mtr_idx'] = $mtr_idx;
-    $result_arr['mtr_status'] = 'finish';
+	$ims_arr = explode(',',$g5['line_key'][$getData[0]['trm_idx_location']]['trm_name2']);
+	$ims = array();
+	foreach($ims_arr as $imv){
+		$imv_arr = explode('=',$imv);
+		$ims[$imv_arr[0]] = $imv_arr[1];
+	}
+	// print_r2($ims);exit;
+	$bom = get_table_meta('bom','bom_idx',$getData[0]['bom_idx']);
+	$arr = $getData[0];
+	$mtr_lot = substr($arr['mtr_barcode'],0,6);
+	$sql = " INSERT INTO {$g5['material_table']} SET
+		com_idx = '{$_SESSION['ss_com_idx']}'
+		, imp_idx = '{$ims['imp_idx']}'
+		, mms_idx = '{$ims['mms_idx']}'
+		, bom_idx = '{$arr['bom_idx']}'
+		, bom_idx_parent = '{$arr['bom_idx_parent']}'
+		, oop_idx = '{$arr['oop_idx']}'
+		, bom_part_no = '{$arr['bom_part_no']}'
+		, mtr_name = '{$arr['mtr_name']}'
+		, mtr_barcode = '{$arr['mtr_barcode']}'
+		, mtr_type = 'half'
+		, mtr_weight = '{$arr['weight']}'
+		, mtr_lot = '{$mtr_lot}'
+		, mtr_price = '{$bom['bom_price']}'
+		, trm_idx_location = '{$arr['trm_idx_location']}'
+		, mtr_history = 'finish|".G5_TIME_YMD."|".G5_TIME_YMDHIS."'
+		, mtr_status = 'finish'
+		, mtr_input_date = '".G5_TIME_YMD."'
+		, mtr_reg_dt = '".G5_TIME_YMDHIS."'
+		, mtr_update_dt = '".G5_TIME_YMDHIS."'
+	";
+	sql_query($sql,1);
+	$mtr_idx = sql_insert_id();
+	$result_arr['code'] = 200;
+	$result_arr['message'] = 'Inserted OK!';
+	$result_arr['mtr_idx'] = $mtr_idx;
+	$result_arr['mtr_status'] = 'finish';
 }
 else{
     $result_arr = array("code"=>599,"message"=>"error");

@@ -26,11 +26,20 @@ if(!check_token1($getData[0]['token'])) {
 	$result_arr = array("code"=>499,"message"=>"token error");
 }
 else if($getData[0]['bom_part_no']) {
+    $ims_arr = explode(',',$g5['line_key'][$getData[0]['trm_idx_location']]['trm_content']);
+    $ims = array();
+    foreach($ims_arr as $imv){
+        $imv_arr = explode('=',$imv);
+        $ims[$imv_arr[0]] = $imv_arr[1];
+    }
+    // print_r2($ims);exit;
     $bom = get_table_meta('bom','bom_idx',$getData[0]['bom_idx']);
     $arr = $getData[0];
     $itm_lot = substr($arr['itm_barcode'],0,6);
     $sql = " INSERT INTO {$g5['item_table']} SET
                 com_idx = '{$_SESSION['ss_com_idx']}'
+                , imp_idx = '{$ims['imp_idx']}'
+                , mms_idx = '{$ims['mms_idx']}'
                 , bom_idx = '{$arr['bom_idx']}'
                 , oop_idx = '{$arr['oop_idx']}'
                 , bom_part_no = '{$arr['bom_part_no']}'
@@ -40,7 +49,7 @@ else if($getData[0]['bom_part_no']) {
                 , itm_lot = '{$itm_lot}'
                 , itm_price = '{$bom['bom_price']}'
                 , trm_idx_location = '{$arr['trm_idx_location']}'
-				, itm_history = 'finish|".G5_TIME_YMD."|".G5_TIME_YMDHIS."'
+                , itm_history = 'finish|".G5_TIME_YMD."|".G5_TIME_YMDHIS."'
                 , itm_status = 'finish'
                 , itm_date = '".G5_TIME_YMD."'
                 , itm_reg_dt = '".G5_TIME_YMDHIS."'

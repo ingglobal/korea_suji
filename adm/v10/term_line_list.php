@@ -99,7 +99,6 @@ $total_count = sql_num_rows($result);
     <?php echo $listall ?>
     <span class="btn_ov01"><span class="ov_txt">항목수 </span><span class="ov_num"> <?php echo number_format($total_count) ?>개 </span></span>
 </div>
-
 <form name="fcarlist" method="post" action="./term_list_update.php" autocomplete="off">
 <input type="hidden" name="taxonomy" value="<?php echo $taxonomy; ?>">
 <input type="hidden" name="file_name" value="<?php echo $g5['file_name']; ?>">
@@ -112,9 +111,9 @@ $total_count = sql_num_rows($result);
 <tr>
     <th scope="col" style="width:6%">단계설정</th>
     <th scope="col" style="width:15%">항목명</th>
-    <th scope="col" style="width:10%">항목명2</th>
+    <th scope="col" style="width:10%">mtr관련imp/mms</th>
     <th scope="col" style="width:7%"><a href="javascript:" id="sub_toggle">닫기</a></th>
-    <th scope="col" style="width:20%">설명</th>
+    <th scope="col" style="width:20%">itm관련imp/mms</th>
     <th scope="col" style="width:10%">위치이동</th>
     <th scope="col" style="width:5%;white-space:nowrap;">고유코드</th>
 	<th scope="col" style="width:6%;display:none;">숨김</th>
