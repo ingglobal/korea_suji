@@ -101,14 +101,12 @@ include_once ('./_head.php');
         </td>
     </tr>
     <tr>
-        <th>외부(고객처)라벨</th>
+        <th>무게(kg)</th>
         <td>
-            <input type="text" name="itm_com_barcode" value="<?=${$pre}['itm_com_barcode']?>" readonly class="frm_input readonly" style="width:200px;">
+            <input type="text" name="itm_weight" value="<?=${$pre}['itm_weight']?>" readonly class="frm_input readonly" style="width:60px;text-align:right;" onclick="javascript:chk_Number(this);"> kg
         </td>
-        <th>PLT번호</th>
-        <td>
-            <input type="text" name="plt_idx" value="<?=${$pre}['plt_idx']?>" readonly class="frm_input readonly" style="width:100px;" onclick="javascript:chk_Number(this);">
-        </td>
+        <th>생산라인</th>
+        <td><?=$g5['line_name'][${$pre}['trm_idx_location']]?></td>
     </tr>
     <tr>
         <th>생산시간대번호</th>
@@ -116,7 +114,7 @@ include_once ('./_head.php');
             <select name="itm_shift" id="itm_shift" class=""
             <?php if (!$is_admin) { ?>
                 onFocus='this.initialSelect=this.selectedIndex;' onChange='this.selectedIndex=this.initialSelect;'<?php } ?>>
-                <?=$g5['set_itm_shift2_value_options']?>
+                <?=$g5['set_itm_shift4_value_options']?>
             </select>
             <script>
             <?php

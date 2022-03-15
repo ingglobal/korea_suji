@@ -18,7 +18,7 @@ $sql_common = " FROM {$g5['item_table']} AS itm
 
 $where = array();
 // 디폴트 검색조건 (used 제외)
-$where[] = " itm.itm_status = 'finish' AND itm.com_idx = '".$_SESSION['ss_com_idx']."' ";
+$where[] = " itm.itm_status NOT IN ('delete','del','trash') AND itm.com_idx = '".$_SESSION['ss_com_idx']."' ";
 
 // 검색어 설정
 if ($stx != "") {
@@ -68,7 +68,11 @@ $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
-$sql = "SELECT *,COUNT(*) AS cnt
+$sql = "SELECT *
+              ,SUM(itm.itm_weight) AS sum
+              ,COUNT(*) AS cnt
+              ,( SELECT SUM(itm_weight) FROM {$g5['item_table']} WHERE oop_idx = itm.oop_idx AND itm_status = 'finish' ) AS sum2
+              ,( SELECT COUNT(itm_idx) FROM {$g5['item_table']} WHERE oop_idx = itm.oop_idx AND itm_status = 'finish' ) AS cnt2
         {$sql_common} {$sql_search} {$sql_group}  {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
@@ -174,9 +178,10 @@ $('.data_blank').on('click',function(e){
         <th scope="col">카테고리</th>
         <th scope="col"><?php echo subject_sort_link('itm_name') ?>품명</a></th>
         <th scope="col">파트넘버</th>
-        <th scope="col">외부라벨</th>
-        <th scope="col">상태</th>
-        <th scope="col">갯수</th>
+        <th scope="col">생산량(kg)</th>
+        <th scope="col">생산갯수(톤백)</th>
+        <th scope="col">재고량(kg)</th>
+        <th scope="col">재고갯수(톤백)</th>
     </tr>
     <tr>
     </tr>
@@ -226,14 +231,15 @@ $('.data_blank').on('click',function(e){
         </td><!-- 카테고리 -->
         <td class="td_itm_name"><?=$row['itm_name']?></td><!-- 품명 -->
         <td class="td_itm_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
-        <td class="td_itm_com_barcode"><?=$row['itm_com_barcode']?></td><!-- 외부라벨 -->
-        <td class="td_itm_status"><?=$g5['set_itm_status'][$row['itm_status']]?></td><!-- 외부라벨 -->
-        <td class="td_count"><?=$row['cnt']?></td><!-- 갯수 -->
+        <td class="td_itm_sum"><?=$row['sum']?></td><!-- 생산량 -->
+        <td class="td_itm_cnt"><?=$row['cnt']?></td><!-- 생산개수(톤백) -->
+        <td class="td_itm_sum2"><?=$row['sum2']?></td><!-- 재고량 -->
+        <td class="td_itm_cnt2"><?=$row['cnt2']?></td><!-- 재고개수(톤백) -->
     </tr>
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='7' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='8' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>

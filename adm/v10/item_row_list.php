@@ -132,8 +132,6 @@ echo $g5['container_sub_title'];
     <option value="">::라인선택::</option>
     <option value="1">1라인</option>
     <option value="2">2라인</option>
-    <option value="3">3라인</option>
-    <option value="4">4라인</option>
 </select>
 <select name="itm2_status" id="itm2_status">
     <option value="">::상태선택::</option>
@@ -224,8 +222,7 @@ $('.data_blank').on('click',function(e){
         <th scope="col">설비라인</th>
         <th scope="col">시간구간</th>
         <th scope="col">바코드</th>
-        <th scope="col">외부라벨</th>
-        <th scope="col">PLT</th>
+        <th scope="col">무게(kg)</th>
         <th scope="col">등록일시</th>
         <th scope="col">갱신일시</th>
         <th scope="col">출하여부</th>
@@ -276,9 +273,7 @@ $('.data_blank').on('click',function(e){
         <td class="td_itm_line"><?=$g5['line_name'][$row['trm_idx_line']]?></td><!-- 설비라인 -->
         <td class="td_itm_shift"><?=$row['itm_shift']?></td><!-- 작업구간 -->
         <td class="td_itm_barcode" style="text-align:left;"><?=$row['itm_barcode']?></td><!-- 바코드 -->
-        <td class="td_itm_com_barcode"><?=$row['itm_com_barcode']?></td><!-- 외부라벨 -->
-        <td class="td_itm_plt"><?=$row['itm_plt']?></td><!-- PLT -->
-        <!-- <td class="td_itm_history"><?php ;//implode("<br>",$row['itm_history_array'])?></td> -->
+        <td class="td_itm_weight" style="text-align:right;"><?=number_format($row['itm_weight'])?></td><!-- 무게 -->
         <td class="td_itm_reg_dt"><?=substr($row['itm_reg_dt'],0,19)?></td><!-- 등록일시 -->
         <td class="td_itm_update_dt"><?=substr($row['itm_update_dt'],0,19)?></td><!-- 등록일시 -->
         <td class="td_itm_delivery">
@@ -298,7 +293,7 @@ $('.data_blank').on('click',function(e){
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='10' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='14' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>

@@ -26,7 +26,8 @@ $_POST['com_idx'] = $_SESSION['ss_com_idx'];
 
 
 // 공통쿼리
-$skips = array($pre.'_idx','com_idx','bom_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt');
+//$skips = array($pre.'_idx','com_idx','bom_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt');
+$skips = array($pre.'_idx','com_idx','bom_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt',$pre.'_shift',$pre.'_date',$pre.'_defect',$pre.'_defect_type',$pre.'_delivery','oop_idx','itm_lot','trm_idx_location','imp_idx','mms_idx');
 for($i=0;$i<sizeof($fields);$i++) {
     if(in_array($fields[$i],$skips)) {continue;}
     $sql_commons[] = " ".$fields[$i]." = '".$_POST[$fields[$i]]."' ";
@@ -56,9 +57,15 @@ else if ($w == 'u') {
 	${$pre} = get_table_meta($table_name, $pre.'_idx', ${$pre."_idx"});
     if (!${$pre}[$pre.'_idx'])
 		alert('존재하지 않는 자료입니다.');
- 
+    
+
+    $error_search = (preg_match('/^error_/', ${$pre."_status"})) ? ", itm_defect = '1', itm_defect_type = '".$g5['set_itm_status_ng_reverse'][${$pre."_status"}]."' " : ", itm_defect = '0', itm_defect_type = '0' ";
+	$delivery_search = (${$pre."_status"} == 'delivery') ? ", itm_delivery = '1' " : ", itm_delivery = '0' ";
+		
     $sql = "UPDATE {$g5_table_name} SET 
                 {$sql_common}
+                {$error_search}
+                {$delivery_search}
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
             WHERE ".$pre."_idx = '".${$pre."_idx"}."' 
 	";
@@ -81,38 +88,7 @@ else
     alert('제대로 된 값이 넘어오지 않았습니다.');
 
 
-$sync_status = array('ing','finish','delivery','scrap','trash');
-if(preg_match("/^error_/",${$pre."_status"})){
-    // 연결된 자재의 모든 상태값을 변경
-    $sql = "UPDATE {$g5['material_table']} SET
-            mtr_status = 'error_product'
-            , mtr_history = CONCAT(mtr_history,'\nerror_product|".G5_TIME_YMDHIS."')
-            , mtr_update_dt = '".G5_TIME_YMDHIS."'
-        WHERE itm_idx = '".${$pre."_idx"}."'
-    ";
-    // echo $sql.'<br>';
-    sql_query($sql,1);
-}
-else {
-    if(in_array(${$pre."_status"},$sync_status)){
-        if(${$pre."_status"} == 'trash'){
-            $itm_history = " CONCAT(mtr_history,'\n삭제 by ".$member['mb_name'].", ".G5_TIME_YMDHIS."') ";
-        }
-        else{
-            $itm_history = " CONCAT(mtr_history,'\n".${$pre."_status"}."|".G5_TIME_YMDHIS."') ";
-        }
-        // 연결된 자재의 모든 상태값을 변경
-        $sql = "UPDATE {$g5['material_table']} SET
-                mtr_status = '".${$pre."_status"}."'
-                , mtr_history = ".$itm_history."
-                , mtr_update_dt = '".G5_TIME_YMDHIS."'
-            WHERE itm_idx = '".${$pre."_idx"}."'
-        ";
-        // echo $sql.'<br>';
-        sql_query($sql,1);
-    }
-}
-
+update_item_sum2(); //item 변경사항을 반영하기 위해 item_sum테이블 업데이트함
 
 //-- 체크박스 값이 안 넘어오는 현상 때문에 추가, 폼의 체크박스는 모두 배열로 선언해 주세요.
 $checkbox_array=array();
@@ -132,6 +108,6 @@ foreach($_REQUEST as $key => $value ) {
 }
 
 // exit;
-goto_url('./'.$fname.'_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
+goto_url('./item_row_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 // goto_url('./'.$fname.'_form.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 ?>
