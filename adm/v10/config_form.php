@@ -600,6 +600,14 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 				<input type="text" name="set_itm_shift" value="<?php echo $g5['setting']['set_itm_shift']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
+		</tr>
+            <tr>
+			<th scope="row">생산시간구간(한국수지)</th>
+			<td colspan="3">
+				<?php echo help('01=00:00:00-05:59:59,02=06:00:00-11:59:59,03=12:00:00-17:59:59,04=18:00:00-23:59:59'); ?>
+				<input type="text" name="set_itm_shift3" value="<?php echo $g5['setting']['set_itm_shift3']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
         </tbody>
 		</table>
 	</div>

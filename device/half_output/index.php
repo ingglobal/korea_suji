@@ -35,6 +35,7 @@ else if($getData[0]['bom_part_no']) {
 	$bom = get_table_meta('bom','bom_idx',$getData[0]['bom_idx']);
 	$arr = $getData[0];
 	$mtr_lot = substr($arr['mtr_barcode'],0,6);
+	$shift = item_shif_date_return2(G5_TIME_YMDHIS);
 	$sql = " INSERT INTO {$g5['material_table']} SET
 		com_idx = '{$_SESSION['ss_com_idx']}'
 		, imp_idx = '{$ims['imp_idx']}'
@@ -50,6 +51,7 @@ else if($getData[0]['bom_part_no']) {
 		, mtr_lot = '{$mtr_lot}'
 		, mtr_price = '{$bom['bom_price']}'
 		, trm_idx_location = '{$arr['trm_idx_location']}'
+		, mtr_shift = '{$shift}'
 		, mtr_history = 'finish|".G5_TIME_YMD."|".G5_TIME_YMDHIS."'
 		, mtr_status = 'finish'
 		, mtr_input_date = '".G5_TIME_YMD."'

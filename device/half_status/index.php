@@ -33,7 +33,7 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
     $result_arr['oop_idx'] = $sch_res['oop_idx'];
     $result_arr['mtr_idx'] = $sch_res['mtr_idx'];
     $result_arr['mtr_input_date'] = $sch_res['mtr_input_date'];
-    
+
     //재출력 모드 ###################################################################
     if($getData[0]['type'] == 'reoutput') {
         //무게데이터를 변경
@@ -48,7 +48,7 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
         sql_query(" UPDATE {$g5['config_table']} SET cf_current_oop_idx = '{$sch_res['oop_idx']}', cf_current_mtr_idx = '{$sch_res['mtr_idx']}' ",1);
 
         //해당 mtr_idx의 레코드의 mtr_status = melt로 변경
-        $sql = " UPDATE {$g5['material_table']} SET 
+        $sql = " UPDATE {$g5['material_table']} SET
                         mtr_history = CONCAT(mtr_history,'\n".$getData[0]['type']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')
                         , mtr_status = '{$getData[0]['type']}'
                         , mtr_update_dt = '".G5_TIME_YMDHIS."'
@@ -61,11 +61,13 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
     }
     //상태값변경 모드 ###################################################################
     else if($getData[0]['type'] == 'status') {
+		$error_search = (preg_match('/^error_/', $getData[0]['mtr_status'])) ? ", mtr_defect = '1', mtr_defect_type = '{$g5['set_half_status_ng_reverse'][$getData[0]['mtr_status']]}' " : ", mtr_defect = '0', mtr_defect_type = '0' ";
         //해당 mtr_idx의 레코드의 mtr_status = 해당상태값으로 변경
-        $sql = " UPDATE {$g5['material_table']} SET 
+        $sql = " UPDATE {$g5['material_table']} SET
                         mtr_history = CONCAT(mtr_history,'\n".$getData[0]['mtr_status']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')
                         , mtr_status = '{$getData[0]['mtr_status']}'
                         , mtr_update_dt = '".G5_TIME_YMDHIS."'
+						{$error_search}
                     WHERE {$mtr_sch} ";
         sql_query($sql,1);
         $result_arr['message'] = "Updated status to '{$getData[0]['mtr_status']}' OK!";
@@ -77,7 +79,7 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
         //그냥 조건부 상단에서 바코드에 해당하는 oop_idx 와 mtr_idx만을 반환하는게 목적이다.
         $result_arr['message'] = 'Updated search OK!';
     }
-} 
+}
 else {
     $result_arr = array("code"=>599,"message"=>"error");
 }

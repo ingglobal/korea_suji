@@ -33,7 +33,7 @@ else if(($getData[0]['type'] && $getData[0]['itm_idx']) || ($getData[0]['type'] 
     $result_arr['oop_idx'] = $sch_res['oop_idx'];
     $result_arr['itm_idx'] = $sch_res['itm_idx'];
     $result_arr['itm_date'] = $sch_res['itm_date'];
-    
+
     //재출력 모드 ###################################################################
     if($getData[0]['type'] == 'reoutput') {
         //무게데이터를 변경
@@ -44,11 +44,15 @@ else if(($getData[0]['type'] && $getData[0]['itm_idx']) || ($getData[0]['type'] 
     }
     //상태값변경 모드 ###################################################################
     else if($getData[0]['type'] == 'status') {
-        //해당 itm_idx의 레코드의 itm_status = 해당상태값으로 변경
-        $sql = " UPDATE {$g5['item_table']} SET 
+		$error_search = (preg_match('/^error_/', $getData[0]['itm_status'])) ? ", itm_defect = '1', itm_defect_type = '{$g5['set_itm_status_ng_reverse'][$getData[0]['itm_status']]}' " : ", itm_defect = '0', itm_defect_type = '0' ";
+		$delivery_search = ($getData[0]['itm_status'] == 'delivery') ? ", itm_delivery = '1' " : ", itm_delivery = '0' ";
+		//해당 itm_idx의 레코드의 itm_status = 해당상태값으로 변경
+        $sql = " UPDATE {$g5['item_table']} SET
                         itm_history = CONCAT(itm_history,'\n".$getData[0]['itm_status']."|".$sch_res['itm_date']."|".G5_TIME_YMDHIS."')
                         , itm_status = '{$getData[0]['itm_status']}'
                         , itm_update_dt = '".G5_TIME_YMDHIS."'
+						{$error_search}
+						{$delivery_search}
                     WHERE {$itm_sch} ";
         sql_query($sql,1);
         $result_arr['message'] = "Updated status to '{$getData[0]['itm_status']}' OK!";
@@ -59,7 +63,7 @@ else if(($getData[0]['type'] && $getData[0]['itm_idx']) || ($getData[0]['type'] 
         //그냥 조건부 상단에서 바코드에 해당하는 oop_idx 와 itm_idx만을 반환하는게 목적이다.
         $result_arr['message'] = 'Updated search OK!';
     }
-} 
+}
 else {
     $result_arr = array("code"=>599,"message"=>"error");
 }
