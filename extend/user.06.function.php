@@ -151,6 +151,46 @@ function update_item_sum($arr) {
 }
 }
 
+
+// 생산량 일간 합계 입력
+// itm_date, trm_idx_line, itm_shift, bom_idx, itm_status
+if(!function_exists('update_item_sum2')){
+function update_item_sum2() {
+    global $g5;
+
+    //item_sum 테이블 초기화
+    $truncate_sql = " TRUNCATE {$g5['item_sum_table']} ";
+    sql_query($truncate_sql,1);
+
+    $sqls = " INSERT INTO {$g5['item_sum_table']} (com_idx, imp_idx, mms_idx, mmg_idx, itm_date, trm_idx_line, bom_idx, bom_part_no, itm_price, itm_status, itm_count, itm_weight, itm_type)
+           
+           SELECT 
+                itm.com_idx AS com_idx,itm.imp_idx AS imp_idx,itm.mms_idx AS mms_idx,31,itm_date AS mt_date, trm_idx_line AS trm_idx_line, oop.bom_idx AS bom_idx, bom_part_no AS bom_part_no, itm_price AS mt_price, itm_status AS mt_status,COUNT(itm_idx) AS mt_count,SUM(itm_weight) AS mt_sum,'product'
+            FROM {$g5['item_table']} AS itm
+                LEFT JOIN {$g5['order_out_practice_table']} AS oop ON oop.oop_idx = itm.oop_idx
+                LEFT JOIN {$g5['order_practice_table']} AS orp ON orp.orp_idx = oop.orp_idx
+            WHERE itm_status NOT IN ('trash','delete')
+                AND itm_date != '0000-00-00'
+            GROUP BY itm_date, itm.mms_idx, trm_idx_line, itm_shift, bom_idx, itm_status
+
+            UNION
+
+            SELECT 
+                mtr.com_idx AS com_idx,mtr.imp_idx AS imp_idx,mtr.mms_idx AS mms_idx,31,mtr_input_date AS mt_date,trm_idx_location AS trm_idx_line,oop.bom_idx AS bom_idx,bom_part_no AS bom_part_no,mtr_price AS mt_price,mtr_status AS mt_status,COUNT(mtr_idx) AS mt_count,SUM(mtr_weight) AS mt_sum,'half'
+            FROM {$g5['material_table']} AS mtr
+                LEFT JOIN {$g5['order_out_practice_table']} AS oop ON oop.oop_idx = mtr.oop_idx
+                LEFT JOIN {$g5['order_practice_table']} AS orp ON orp.orp_idx = oop.orp_idx
+            WHERE mtr_status NOT IN ('trash','delete')
+                AND mtr_input_date != '0000-00-00'
+            GROUP BY mt_date, mms_idx, trm_idx_line, bom_idx, mt_status
+            ORDER BY mt_date ASC, trm_idx_line, bom_idx, mt_status 
+    ";
+    sql_query($sqls,1);
+}
+}
+
+
+
 // item 출하 처리 함수 (material도 함께 변경)
 if(!function_exists('update_itm_delivery')){
 function update_itm_delivery($arr) {

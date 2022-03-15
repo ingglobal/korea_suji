@@ -62,6 +62,7 @@ else if($getData[0]['bom_part_no']) {
 	$result_arr['message'] = 'Inserted OK!';
 	$result_arr['mtr_idx'] = $mtr_idx;
 	$result_arr['mtr_status'] = 'finish';
+	update_item_sum2(); //material 변경사항을 반영하기 위해 item_sum테이블 업데이트함
 }
 else{
     $result_arr = array("code"=>599,"message"=>"error");

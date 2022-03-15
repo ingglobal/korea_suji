@@ -40,6 +40,7 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
         $sql = " UPDATE {$g5['material_table']} SET mtr_weight = '{$getData[0]['mtr_weight']}' WHERE {$mtr_sch} ";
         sql_query($sql,1);
         $result_arr['message'] = 'Updated reoutput OK!';
+        update_item_sum2(); //material 변경사항을 반영하기 위해 item_sum테이블 업데이트함
     }
     //용융기투입 모드 #################################################################
     else if($getData[0]['type'] == 'melt') {
@@ -55,6 +56,8 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
         sql_query($sql,1);
 
         $result_arr['message'] = 'Updated melt OK!';
+
+        update_item_sum2(); //material 변경사항을 반영하기 위해 item_sum테이블 업데이트함
     }
     //상태값변경 모드 ###################################################################
     else if($getData[0]['type'] == 'status') {
@@ -66,6 +69,8 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
                     WHERE {$mtr_sch} ";
         sql_query($sql,1);
         $result_arr['message'] = "Updated status to '{$getData[0]['mtr_status']}' OK!";
+
+        update_item_sum2(); //material 변경사항을 반영하기 위해 item_sum테이블 업데이트함
     }
     //검색 모드 ########################################################################
     else if($getData[0]['type'] == 'search') {

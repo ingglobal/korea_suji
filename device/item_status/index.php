@@ -40,6 +40,7 @@ else if(($getData[0]['type'] && $getData[0]['itm_idx']) || ($getData[0]['type'] 
         $sql = " UPDATE {$g5['item_table']} SET itm_weight = '{$getData[0]['itm_weight']}' WHERE {$itm_sch} ";
         sql_query($sql,1);
         $result_arr['message'] = 'Updated reoutput OK!';
+        update_item_sum2(); //item 변경사항을 반영하기 위해 item_sum테이블 업데이트함
     }
     //상태값변경 모드 ###################################################################
     else if($getData[0]['type'] == 'status') {
@@ -51,6 +52,7 @@ else if(($getData[0]['type'] && $getData[0]['itm_idx']) || ($getData[0]['type'] 
                     WHERE {$itm_sch} ";
         sql_query($sql,1);
         $result_arr['message'] = "Updated status to '{$getData[0]['itm_status']}' OK!";
+        update_item_sum2(); //item 변경사항을 반영하기 위해 item_sum테이블 업데이트함
     }
     //검색 모드 ########################################################################
     else if($getData[0]['type'] == 'search') {
