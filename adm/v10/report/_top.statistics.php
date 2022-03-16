@@ -4,13 +4,14 @@ if (!defined('_GNUBOARD_')) exit;
 
 
 // 목표달성 & 불량
-$sql = "SELECT SUM( itm_count ) AS output_sum
+$sql = "SELECT SUM( itm_weight ) AS output_sum
             , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_ok
             , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_ng
         FROM {$g5['item_sum_table']}
         WHERE itm_date >= '".$st_date."'
             AND itm_date <= '".$en_date."'
             AND com_idx='".$com_idx."'
+            AND itm_type = 'product'
             {$sql_mmses}
 ";
 // echo $sql;
@@ -107,7 +108,7 @@ $sum_plan = number_format($plan['plan_cnt']);
 			<li>
 			   <span class="title">생산량</span>
                <span class="content" id="sum_target"><?=number_format($output1['output_sum'])?></span>
-				<span class="unit">개</span>
+				<span class="unit">kg</span>
 			</li>
 			<li>
 			   <span class="title">불량율</span>

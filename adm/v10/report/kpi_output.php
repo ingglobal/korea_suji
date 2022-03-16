@@ -66,12 +66,13 @@ include_once('./_top.kpi.php');
                                     , 'total' AS mmg_name
                                     , 0 AS depth
                                     , 0 AS mmg_left
-                                    , SUM( itm_count ) AS output_sum
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                    , SUM( itm_weight ) AS output_sum
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                 FROM {$g5['item_sum_table']}
                                 WHERE itm_date >= '".$st_date."'
                                     AND itm_date <= '".$en_date."'
                                     AND com_idx='".$com_idx."'
+                                    AND itm_type = 'product'
                                     {$sql_mmses}
                             
                                 )
@@ -116,12 +117,13 @@ include_once('./_top.kpi.php');
                                             (
                                             SELECT 
                                                 mmg_idx AS mmg_idx_group
-                                                , SUM( itm_count ) AS output_sum
-                                                , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                                , SUM( itm_weight ) AS output_sum
+                                                , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                             FROM {$g5['item_sum_table']}
                                             WHERE itm_date >= '".$st_date."'
                                                 AND itm_date <= '".$en_date."'
                                                 AND com_idx='".$com_idx."'
+                                                AND itm_type = 'product'
                                                 {$sql_mmses}
                                             GROUP BY mmg_idx
                                             ) AS db1
@@ -235,12 +237,13 @@ include_once('./_top.kpi.php');
                             (
                                 SELECT 
                                     mms_idx
-                                    , SUM(itm_count) AS output_total
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                    , SUM(itm_weight) AS output_total
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                 FROM {$g5['item_sum_table']}
                                 WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                     AND com_idx='".$com_idx."'
+                                    AND itm_type = 'product'
                                     {$sql_mmses}
                                 GROUP BY mms_idx
                                 ORDER BY mms_idx
@@ -407,12 +410,13 @@ include_once('./_top.kpi.php');
                                 SELECT
                                     mms_idx
                                     , itm_shift
-                                    , SUM(itm_count) AS output_total
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                    , SUM(itm_weight) AS output_total
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                 FROM {$g5['item_sum_table']}
                                 WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                     AND com_idx='".$com_idx."'
+                                    AND itm_type = 'product'
                                     {$sql_mmses}
                                 GROUP BY mms_idx, itm_shift
                                 ORDER BY mms_idx, itm_shift
@@ -600,12 +604,13 @@ include_once('./_top.kpi.php');
                                 SELECT
                                     mms_idx
                                     , bom_part_no
-                                    , SUM(itm_count) AS output_total
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                    , SUM(itm_weight) AS output_total
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                    , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                 FROM {$g5['item_sum_table']}
                                 WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                     AND com_idx='".$com_idx."'
+                                    AND itm_type = 'product'
                                     {$sql_mmses}
                                 GROUP BY mms_idx, bom_part_no
                                 ORDER BY mms_idx, bom_part_no
@@ -780,12 +785,13 @@ include_once('./_top.kpi.php');
                                     (
                                     SELECT 
                                         itm_date AS ymd_date
-                                        , SUM(itm_count) AS output_total
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                        , SUM(itm_weight) AS output_total
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                         FROM {$g5['item_sum_table']}
                                     WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                         AND com_idx='".$com_idx."'
+                                        AND itm_type = 'product'
                                         {$sql_mmses}
                                     GROUP BY ymd_date
                                     ORDER BY ymd_date
@@ -949,12 +955,13 @@ include_once('./_top.kpi.php');
                                     (
                                     SELECT 
                                         YEARWEEK(itm_date,4) AS ymd_week
-                                        , SUM(itm_count) AS output_total
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                        , SUM(itm_weight) AS output_total
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                     FROM {$g5['item_sum_table']}
                                     WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                         AND com_idx='".$com_idx."'
+                                        AND itm_type = 'product'
                                         {$sql_mmses}
                                     GROUP BY ymd_week
                                     ORDER BY ymd_week
@@ -1128,12 +1135,13 @@ include_once('./_top.kpi.php');
                                     (
                                     SELECT 
                                         substring( CAST(itm_date AS CHAR),1,7) AS ymd_month
-                                        , SUM(itm_count) AS output_total
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                        , SUM(itm_weight) AS output_total
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                     FROM {$g5['item_sum_table']}
                                     WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                         AND com_idx='".$com_idx."'
+                                        AND itm_type = 'product'
                                         {$sql_mmses}
                                     GROUP BY ymd_month
                                     ORDER BY ymd_month
@@ -1285,12 +1293,13 @@ include_once('./_top.kpi.php');
                                     (
                                     SELECT 
                                         substring( CAST(itm_date AS CHAR),1,4) AS ymd_year
-                                        , SUM(itm_count) AS output_total
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_count ELSE 0 END ) AS output_good
-                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_count ELSE 0 END ) AS output_defect
+                                        , SUM(itm_weight) AS output_total
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ok_array'])."') THEN itm_weight ELSE 0 END ) AS output_good
+                                        , SUM( CASE WHEN itm_status IN ('".implode("','",$g5['set_itm_status_ng_array'])."') THEN itm_weight ELSE 0 END ) AS output_defect
                                     FROM {$g5['item_sum_table']}
                                     WHERE itm_date >= '".$st_date."' AND itm_date <= '".$en_date."'
                                         AND com_idx='".$com_idx."'
+                                        AND itm_type = 'product'
                                         {$sql_mmses}
                                     GROUP BY ymd_year
                                     ORDER BY ymd_year

@@ -22,6 +22,7 @@ $tomorrow = date("Y-m-d",G5_SERVER_TIME+86400);
 // st_date, en_date
 $st_date = $st_date ?: date($st_ymd);
 $en_date = $en_date ?: date("Y-m-d");
+$en_date = date("Y-m-t", strtotime($en_date)); //매월말일 날짜로 재정의
 $en_date2 = ($st_date==$en_date) ? '' : ' ~ '.$en_date; // wave(~) mark before en_date.
 
 $member['com_idx'] = $_SESSION['ss_com_idx'] ?: $member['com_idx'];
@@ -268,7 +269,7 @@ function group_loading(com_idx, up_idx) {
 		url:g5_user_admin_ajax_url+'/mms.group.php',
 		data:{"aj":"grp","com_idx":com_idx,"up_idx":up_idx},
 		dataType:'json', timeout:15000, beforeSend:function(){}, success:function(res){
-			console.log(res);
+			// console.log(res);
 			//var prop1; for(prop1 in res.rows) { console.log( prop1 +': '+ res.rows[prop1] ); }
 			if(res.result == true) {
 				if(res.list.length) {

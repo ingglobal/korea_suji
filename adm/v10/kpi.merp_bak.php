@@ -119,7 +119,6 @@ $sql = "SELECT bom_idx, trm_idx_line, orp_done_date, oop_count, oop_1, oop_2, oo
 ";
 // echo $sql.'<br>';
 $rs = sql_query($sql,1);
-// print_r2($rs);
 for($j=0;$row=sql_fetch_array($rs);$j++){
     // print_r2($row);
     $date1 = preg_replace("/[ :-]/","",substr($row['orp_done_date'],0,10));   // 날짜중에서 일자 추출하여 배열키값으로!
