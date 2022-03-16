@@ -61,7 +61,7 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
     }
     //상태값변경 모드 ###################################################################
     else if($getData[0]['type'] == 'status') {
-		$error_search = (preg_match('/^error_/', $getData[0]['mtr_status'])) ? ", mtr_defect = '1', mtr_defect_type = '{$g5['set_half_status_ng_reverse'][$getData[0]['mtr_status']]}' " : ", mtr_defect = '0', mtr_defect_type = '0' ";
+		$error_search = (preg_match('/^error_/', $getData[0]['mtr_status'])) ? ", mtr_defect = '1', mtr_defect_type = '{$g5['set_half_status_ng2_reverse'][$getData[0]['mtr_status']]}' " : ", mtr_defect = '0', mtr_defect_type = '0' ";
         //해당 mtr_idx의 레코드의 mtr_status = 해당상태값으로 변경
         $sql = " UPDATE {$g5['material_table']} SET
                         mtr_history = CONCAT(mtr_history,'\n".$getData[0]['mtr_status']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')

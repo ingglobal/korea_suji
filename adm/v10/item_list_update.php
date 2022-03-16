@@ -24,7 +24,7 @@ if ($_POST['act_button'] == "선택수정") {
             $history = " CONCAT(itm_history,'\n".$_POST['itm_status'][$itm_idx_v]."|".G5_TIME_YMDHIS."') ";
         }
 
-        $error_search = (preg_match('/^error_/', $_POST['itm_status'][$itm_idx_v])) ? ", itm_defect = '1', itm_defect_type = '".$g5['set_itm_status_ng_reverse'][$_POST['itm_status'][$itm_idx_v]]."' " : ", itm_defect = '0', itm_defect_type = '0' ";
+        $error_search = (preg_match('/^error_/', $_POST['itm_status'][$itm_idx_v])) ? ", itm_defect = '1', itm_defect_type = '".$g5['set_itm_status_ng2_reverse'][$_POST['itm_status'][$itm_idx_v]]."' " : ", itm_defect = '0', itm_defect_type = '0' ";
 	    $delivery_search = ($_POST['itm_status'][$itm_idx_v] == 'delivery') ? ", itm_delivery = '1' " : ", itm_delivery = '0' ";
 
         $sql = " UPDATE {$g5['item_table']} SET

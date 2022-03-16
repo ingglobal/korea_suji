@@ -1,11 +1,11 @@
 <?php
-$sub_menu = "945115";
+$sub_menu = "945113";
 include_once("./_common.php");
 
 auth_check($auth[$sub_menu], 'w');
 
 // 변수 설정, 필드 구조 및 prefix 추출
-$table_name = 'item';
+$table_name = 'material';
 $g5_table_name = $g5[$table_name.'_table'];
 $fields = sql_field_names($g5_table_name);
 $pre = substr($fields[0],0,strpos($fields[0],'_'));
@@ -17,7 +17,7 @@ for($i=0;$i<sizeof($fields);$i++) {
     // 공백 제거
     $_POST[$fields[$i]] = trim($_POST[$fields[$i]]);
     // 천단위 제거
-    if(preg_match("/_price$/",$fields[$i]) || $fields[$i]=='itm_moq' || $fields[$i]=='itm_lead_time')
+    if(preg_match("/_price$/",$fields[$i]) || $fields[$i]=='mtr_moq' || $fields[$i]=='mtr_lead_time')
         $_POST[$fields[$i]] = preg_replace("/,/","",$_POST[$fields[$i]]);
 }
 
@@ -27,7 +27,7 @@ $_POST['com_idx'] = $_SESSION['ss_com_idx'];
 
 // 공통쿼리
 //$skips = array($pre.'_idx','com_idx','bom_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt');
-$skips = array($pre.'_idx','com_idx','bom_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt',$pre.'_shift',$pre.'_date',$pre.'_defect',$pre.'_defect_type',$pre.'_delivery','oop_idx','itm_lot','trm_idx_location','imp_idx','mms_idx');
+$skips = array($pre.'_idx','com_idx','bom_idx',$pre.'_history',$pre.'_reg_dt',$pre.'_update_dt',$pre.'_shift',$pre.'_input_date',$pre.'_defect',$pre.'_defect_type','oop_idx','itm_lot','trm_idx_location','imp_idx','mms_idx');
 for($i=0;$i<sizeof($fields);$i++) {
     if(in_array($fields[$i],$skips)) {continue;}
     $sql_commons[] = " ".$fields[$i]." = '".$_POST[$fields[$i]]."' ";
@@ -42,37 +42,35 @@ $sql_common = (is_array($sql_commons)) ? implode(",",$sql_commons) : '';
 
 
 if ($w == '') {
-
-    $sql = "INSERT INTO {$g5_table_name} SET
-               {$sql_common}
+    
+    $sql = "INSERT INTO {$g5_table_name} SET 
+               {$sql_common} 
                 , ".$pre."_reg_dt = '".G5_TIME_YMDHIS."'
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
 	";
     sql_query($sql,1);
 	${$pre."_idx"} = sql_insert_id();
-
+    
 }
 else if ($w == 'u') {
 
 	${$pre} = get_table_meta($table_name, $pre.'_idx', ${$pre."_idx"});
     if (!${$pre}[$pre.'_idx'])
 		alert('존재하지 않는 자료입니다.');
+    
 
-
-    $error_search = (preg_match('/^error_/', ${$pre."_status"})) ? ", itm_defect = '1', itm_defect_type = '".$g5['set_itm_status_ng2_reverse'][${$pre."_status"}]."' " : ", itm_defect = '0', itm_defect_type = '0' ";
-	$delivery_search = (${$pre."_status"} == 'delivery') ? ", itm_delivery = '1' " : ", itm_delivery = '0' ";
-
-    $sql = "UPDATE {$g5_table_name} SET
+    $error_search = (preg_match('/^error_/', ${$pre."_status"})) ? ", mtr_defect = '1', mtr_defect_type = '".$g5['set_half_status_ng2_reverse'][${$pre."_status"}]."' " : ", mtr_defect = '0', mtr_defect_type = '0' ";
+		
+    $sql = "UPDATE {$g5_table_name} SET 
                 {$sql_common}
                 {$error_search}
-                {$delivery_search}
                 , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
             WHERE ".$pre."_idx = '".${$pre."_idx"}."'
 	";
     // echo $sql.'<br>';
     // exit;
     sql_query($sql,1);
-
+        
 }
 else if ($w == 'd') {
 
@@ -82,7 +80,7 @@ else if ($w == 'd') {
     ";
     sql_query($sql,1);
     goto_url('./'.$fname.'_list.php?'.$qstr, false);
-
+    
 }
 else
     alert('제대로 된 값이 넘어오지 않았습니다.');
@@ -98,7 +96,7 @@ for ($i=0;$i<sizeof($checkbox_array);$i++) {
 }
 
 //-- 메타 입력 (디비에 있는 설정된 값은 입력하지 않는다.) --//
-$fields[] = "itm_start_date";	// 건너뛸 변수명은 배열로 추가해 준다.
+$fields[] = "mtr_start_date";	// 건너뛸 변수명은 배열로 추가해 준다.
 foreach($_REQUEST as $key => $value ) {
 	//-- 해당 테이블에 있는 필드 제외하고 테이블 prefix 로 시작하는 변수들만 업데이트 --//
 	if(!in_array($key,$fields) && substr($key,0,3)==$pre) {
@@ -108,6 +106,6 @@ foreach($_REQUEST as $key => $value ) {
 }
 
 // exit;
-goto_url('./item_row_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
+goto_url('./half_row_list.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 // goto_url('./'.$fname.'_form.php?'.$qstr.'&w=u&'.$pre.'_idx='.${$pre."_idx"}, false);
 ?>

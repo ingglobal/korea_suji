@@ -537,6 +537,13 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 			</td>
 		</tr>
 		<tr>
+			<th scope="row">반제품상태중 불량품상태2</th>
+			<td colspan="3">
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) 1=error_inhomogeneity,2=error_foreign,3=error_etc'); ?>
+				<input type="text" name="set_half_status_ng2" value="<?php echo $g5['setting']['set_half_status_ng2']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
 			<th scope="row">완제품생산시간대</th>
 			<td colspan="3">
 				<?php echo help('1=시간1,2=시간2,3=시간3,4=시간4,5=시간5,6=시간6,7=시간7,8=시간8,9=시간9,10=시간10'); ?>
@@ -569,6 +576,13 @@ yearly,1,10 = 연도별,1년단위,10년치,sum(합계)'); ?>
 			<td colspan="3">
 				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) error_color,error_properties,error_etc'); ?>
 				<input type="text" name="set_itm_status_ng" value="<?php echo $g5['setting']['set_itm_status_ng']; ?>" class="frm_input" style="width:70%;">
+			</td>
+		</tr>
+		<tr>
+			<th scope="row">완제품상태중 불량품상태2</th>
+			<td colspan="3">
+				<?php echo help('영문상태값만 쉽표로 구분해서 입력하세요. 예) 1=error_color,2=error_properties,3=error_etc'); ?>
+				<input type="text" name="set_itm_status_ng2" value="<?php echo $g5['setting']['set_itm_status_ng2']; ?>" class="frm_input" style="width:70%;">
 			</td>
 		</tr>
 		<tr>

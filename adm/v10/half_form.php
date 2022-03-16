@@ -1,11 +1,11 @@
 <?php
-$sub_menu = "945115";
+$sub_menu = "945113";
 include_once('./_common.php');
 
 auth_check($auth[$sub_menu],'w');
 
 // 변수 설정, 필드 구조 및 prefix 추출
-$table_name = 'item';
+$table_name = 'material';
 $g5_table_name = $g5[$table_name.'_table'];
 $fields = sql_field_names($g5_table_name);
 $pre = substr($fields[0],0,strpos($fields[0],'_'));
@@ -38,8 +38,8 @@ for ($i=0;$i<sizeof($check_array);$i++) {
 	${$check_array[$i].'_'.${$pre}[$check_array[$i]]} = ' checked';
 }
 
-$html_title = ($w=='')?'추가':'수정';
-$g5['title'] = '완제품재고 '.$html_title;
+$html_title = ($w=='')?'추가':'수정'; 
+$g5['title'] = '반제품재고 '.$html_title;
 include_once ('./_head.php');
 ?>
 <style>
@@ -78,7 +78,7 @@ include_once ('./_head.php');
             <th>품명</th>
             <td>
                 <input type="hidden" name="bom_idx" value="<?=${$pre}['bom_idx']?>">
-                <input type="text" name="itm_name" value="<?=${$pre}['itm_name']?>" required readonly class="frm_input required readonly" style="width:200px;">
+                <input type="text" name="mtr_name" value="<?=${$pre}['mtr_name']?>" required readonly class="frm_input required readonly" style="width:200px;">
                 <?php if($w == ''){ ?>
                 <a href="javascript:" link="./bom_select3.php?file_name=<?=$g5['file_name']?>" id="btn_bom" class="btn btn_01">상품선택</a>
                 <?php } ?>
@@ -86,7 +86,7 @@ include_once ('./_head.php');
             <th>단가</th>
             <td>
                 <?php echo help("단가수정은 BOM관리에서 해 주셔야 합니다.") ?>
-                <input type="text" name="itm_price" readonly class="frm_input readonly" value="<?=number_format(${$pre}['itm_price'])?>" style="width:80px;text-align:right;"> 원
+                <input type="text" name="mtr_price" readonly class="frm_input readonly" value="<?=number_format(${$pre}['mtr_price'])?>" style="width:80px;text-align:right;"> 원
             </td>
         </tr>
     </tr>
@@ -97,13 +97,13 @@ include_once ('./_head.php');
         </td>
         <th>상품바코드</th>
         <td>
-            <input type="text" name="itm_barcode" value="<?=${$pre}['itm_barcode']?>" required readonly class="frm_input required readonly" style="width:350px;">
+            <input type="text" name="mtr_barcode" value="<?=${$pre}['mtr_barcode']?>" required readonly class="frm_input required readonly" style="width:350px;">
         </td>
     </tr>
     <tr>
         <th>무게(kg)</th>
         <td>
-            <input type="text" name="itm_weight" value="<?=${$pre}['itm_weight']?>" readonly class="frm_input readonly" style="width:60px;text-align:right;" onclick="javascript:chk_Number(this);"> kg
+            <input type="text" name="mtr_weight" value="<?=${$pre}['mtr_weight']?>" readonly class="frm_input readonly" style="width:60px;text-align:right;" onclick="javascript:chk_Number(this);"> kg
         </td>
         <th>생산라인</th>
         <td><?=$g5['line_name'][${$pre}['trm_idx_location']]?></td>
@@ -111,16 +111,16 @@ include_once ('./_head.php');
     <tr>
         <th>생산시간대번호</th>
         <td>
-            <select name="itm_shift" id="itm_shift" class=""
+            <select name="mtr_shift" id="mtr_shift" class=""
             <?php if (!$is_admin) { ?>
                 onFocus='this.initialSelect=this.selectedIndex;' onChange='this.selectedIndex=this.initialSelect;'<?php } ?>>
                 <?=$g5['set_itm_shift4_value_options']?>
             </select>
             <script>
             <?php
-            $itm_shift = ($w == '') ? 1 : ${$pre}['itm_shift'];
+            $mtr_shift = ($w == '') ? 1 : ${$pre}['mtr_shift'];
             ?>
-            $('#itm_shift').val('<?=$itm_shift?>');
+            $('#mtr_shift').val('<?=$mtr_shift?>');
             </script>
         </td>
         <th scope="row">상태</th>
@@ -128,7 +128,7 @@ include_once ('./_head.php');
             <select name="<?=$pre?>_status" id="<?=$pre?>_status" required class="required"
             <?php if (auth_check($auth[$sub_menu],"w",1)) { ?>
                 onFocus='this.initialSelect=this.selectedIndex;' onChange='this.selectedIndex=this.initialSelect;'<?php } ?>>
-                <?=$g5['set_itm_status_options']?>
+                <?=$g5['set_half_status_options']?>
                 <?php if($is_admin){ ?>
                 <option value="trash">삭제</option>
                 <?php } ?>
@@ -139,7 +139,7 @@ include_once ('./_head.php');
     <tr>
         <th>메모</th>
         <td colspan="3">
-            <textarea name="itm_memo" class="frm_input" rows="7"><?=${$pre}['itm_memo']?></textarea>
+            <textarea name="mtr_memo" class="frm_input" rows="7"><?=${$pre}['mtr_memo']?></textarea>
         </td>
     </tr>
     <tr>
@@ -163,12 +163,12 @@ $(function() {
     $("input[name$=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
 
     // 불량타입 숨김,보임
-	$("input[name=itm_defect]").click(function(e) {
+	$("input[name=mtr_defect]").click(function(e) {
         if( $(this).val() == 1 ) {
-            $('#itm_defect_type').show();
+            $('#mtr_defect_type').show();
         }
         else
-           $('#itm_defect_type').hide();
+           $('#mtr_defect_type').hide();
 	});
 
     // 가격 입력 쉼표 처리
@@ -197,9 +197,9 @@ function chk_Number(object){
 }
 
 function form01_submit(f) {
-    if(!f.itm_name.value) {
+    if(!f.mtr_name.value) {
         alert('상품을 선태해 주세요.');
-        f.itm_name.focus();
+        f.mtr_name.focus();
         return false;
     }
 
@@ -209,15 +209,15 @@ function form01_submit(f) {
         return false;
     }
 
-    if(!f.itm_shift.value) {
+    if(!f.mtr_shift.value) {
         alert('작업구간을 입력해 주세요.');
-        f.itm_shift.focus();
+        f.mtr_shift.focus();
         return false;
     }
 
-    if(!f.itm_status.value) {
+    if(!f.mtr_status.value) {
         alert('상태값을 입력해 주세요.');
-        f.itm_status.focus();
+        f.mtr_status.focus();
         return false;
     }
 

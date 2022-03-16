@@ -60,9 +60,10 @@ else if($w == 'm') {
     $truncate_sql = " TRUNCATE {$g5['item_sum_table']} ";
     sql_query($truncate_sql,1);
 
-    $sql = " INSERT INTO {$g5['item_sum_table']} (com_idx, mms_idx, mmg_idx, itm_date, itm_shift, trm_idx_line, bom_idx, bom_part_no, itm_price, itm_status, itm_count)
+    $sql = " INSERT INTO {$g5['item_sum_table']} (com_idx, mms_idx, mmg_idx, itm_date, itm_shift, trm_idx_line, bom_idx, bom_part_no, itm_price, itm_status, itm_count, itm_weight)
             SELECT itm.com_idx, itm.mms_idx, 14, itm_date, itm_shift, trm_idx_line, oop.bom_idx, bom_part_no, itm_price, itm_status
-            , COUNT(itm_idx) AS itm_count
+            , COUNT(itm_idx) AS itm_cnt
+            , SUM(itm_weight) AS itm_weight
             FROM {$g5['item_table']} AS itm
                 LEFT JOIN {$g5['order_out_practice_table']} AS oop ON oop.oop_idx = itm.oop_idx
                 LEFT JOIN {$g5['order_practice_table']} AS orp ON orp.orp_idx = oop.orp_idx
