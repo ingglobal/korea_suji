@@ -25,11 +25,17 @@ if(!check_token1($getData[0]['token'])) {
 }
 else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] && $getData[0]['mtr_barcode'])) {
     $mtr_sch = ($getData[0]['type'] == 'reoutput') ? " mtr_idx = '{$getData[0]['mtr_idx']}' " : " mtr_barcode = '{$getData[0]['mtr_barcode']}' ";
-    $mtr_sql = " SELECT oop_idx, mtr_idx, mtr_input_date FROM {$g5['material_table']} WHERE {$mtr_sch} ";
+    $mtr_sql = " SELECT
+						mtr.oop_idx
+						, ( SELECT orp_idx FROM {$g5['order_out_practice_table']} WHERE oop_idx = mtr.oop_idx ) AS orp_idx
+						, mtr_idx
+						, mtr_input_date
+					FROM {$g5['material_table']} AS mtr WHERE {$mtr_sch} ";
     // echo $mtr_sql;exit;
     $sch_res = sql_fetch($mtr_sql);
 
     $result_arr['code'] = 200;
+    $result_arr['orp_idx'] = $sch_res['orp_idx'];
     $result_arr['oop_idx'] = $sch_res['oop_idx'];
     $result_arr['mtr_idx'] = $sch_res['mtr_idx'];
     $result_arr['mtr_input_date'] = $sch_res['mtr_input_date'];
@@ -49,11 +55,17 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
 
         //해당 mtr_idx의 레코드의 mtr_status = melt로 변경
         $sql = " UPDATE {$g5['material_table']} SET
-                        mtr_history = CONCAT(mtr_history,'\n".$getData[0]['type']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')
+						trm_idx_location = '{$getData[0]['trm_idx_location']}'
+                        , mtr_history = CONCAT(mtr_history,'\n".$getData[0]['type']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')
                         , mtr_status = '{$getData[0]['type']}'
                         , mtr_update_dt = '".G5_TIME_YMDHIS."'
                     WHERE {$mtr_sch} ";
         sql_query($sql,1);
+
+		$orp_sql = " UPDATE {$g5['order_practice_table']} SET 
+							trm_idx_line = '{$getData[0]['trm_idx_location']}'
+						WHERE orp_idx = '{$sch_res['orp_idx']}' ";
+		sql_query($orp_sql,1);
 
         $result_arr['message'] = 'Updated melt OK!';
 

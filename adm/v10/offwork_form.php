@@ -83,6 +83,7 @@ $items1 = array(
 <input type="hidden" name="page" value="<?php echo $page ?>">
 <input type="hidden" name="token" value="">
 <input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
+<input type="hidden" name="com_idx" value="<?php echo $_SESSION['ss_com_idx'] ?>">
 <input type="hidden" name="ser_mms_idx" value="<?php echo $ser_mms_idx ?>">
 
 <div class="local_desc01 local_desc" style="display:no ne;">
@@ -99,139 +100,7 @@ $items1 = array(
 		<col style="width:35%;">
 	</colgroup>
 	<tbody>
-    <tr><!-- 첫줄은 무조건 출력 -->
-    <?php
-    // 폼 생성 (폼형태에 따른 다른 구조)
-    $skips = array($pre.'_idx',$pre.'_reg_dt',$pre.'_update_dt');
-    foreach($items1 as $k1 => $v1) {
-        if(in_array($k1,$skips)) {continue;}
-//        echo $k1.'<br>';
-//        print_r2($items1[$k1]).'<br>';
-        // 폭
-        $form_width = ($items1[$k1][2]) ? 'width:'.$items1[$k1][2].'px' : '';
-        // 단위
-        $form_unit = ($items1[$k1][3]) ? ' '.$items1[$k1][3] : '';
-        // 설명
-        $form_help = ($items1[$k1][4]) ? ' '.help($items1[$k1][4]) : '';
-        // tr 숨김
-        $form_none = ($items1[$k1][5]) ? 'display:'.$items1[$k1][5] : '';
-        // 한줄 두항목
-        $form_span = (!$items1[$k1][6]) ? ' colspan="3"' : '';
 
-        $item_name = $items1[$k1][0];
-        // 기본적인 폼 구조 먼저 정의
-        $item_form = '<input type="text" name="'.$k1.'" value="'.${$pre}[$k1].'" '.$items1[$k1][1].'
-                        class="frm_input '.$items1[$k1][1].'" style="'.$form_width.'">'.$form_unit;
-
-        // 폼이 다른 구조를 가질 때 재정의
-        if(preg_match("/_price$/",$k1)) {
-            $item_form = '<input type="text" name="'.$k1.'" value="'.number_format(${$pre}[$k1]).'" '.$items1[$k1][1].'
-                        class="frm_input '.$items1[$k1][1].'" style="'.$form_width.'"> '.$form_unit;
-        }
-        else if(preg_match("/_memo$/",$k1)) {
-            $item_form = '<textarea name="'.$k1.'" id="'.$k1.'">'.${$pre}[$k1].'</textarea>';
-        }
-        else if(preg_match("/_date$/",$k1)) {
-
-        }
-        else if(preg_match("/_dt$/",$k1)) {
-
-        }
-        // 설비번호인 경우는 전체적용과 개별설비로 나눔
-        else if($k1=='mms_idx') {
-            if($off['mms_idx']) {
-                $mms_idx_1 = ' checked';
-                $mms_idx_type = 'text';
-            }
-            else {
-                ${'mms_idx_'.$off['mms_idx']} = ' checked';
-                $mms_idx_type = 'hidden';
-            }
-            $item_form = '<input type="'.$mms_idx_type.'" name="'.$k1.'" value="'.${$pre}[$k1].'" '.$items1[$k1][1].'
-                    class="frm_input '.$items1[$k1][1].'" style="'.$form_width.'">';
-            $item_form .= ' <label id="'.$k1.'_1"><input type="radio" name="'.$k1.'_radio" id="'.$k1.'_1" value="1" '.$mms_idx_1.'> 설비선택</label>';
-            $item_form .= ' <label id="'.$k1.'_0"><input type="radio" name="'.$k1.'_radio" id="'.$k1.'_0" value="0" '.$mms_idx_0.'> 전체설비</label>';
-        }
-        // 적용기간인 경우는 전체기간과 기간선택으로 나눔
-        else if($k1=='off_period_type') {
-            // 전체기간
-            if($off['off_period_type']) {
-                $off_period_1 = ' checked';
-            }
-            else {
-                $off_period_0 = ' checked';
-            }
-            $item_form = ' <label id="'.$k1.'_0"><input type="radio" name="'.$k1.'" id="'.$k1.'_0" value="0" '.$off_period_0.'> 기간선택</label>';
-            $item_form .= ' <label id="'.$k1.'_1"><input type="radio" name="'.$k1.'" id="'.$k1.'_1" value="1" '.$off_period_1.'> 전체기간</label>';
-        }
-        // 시작시간
-        else if($k1=='off_start_time') {
-            // 전체기간
-            if($off['off_period_type']) {
-                $off_period_type = 'hidden';
-                $off_span_display = 'display:none;';
-            }
-            else {
-                $off_period_type = 'text';
-                $off_span_display = 'display:;';
-                ${$pre}['off_start_his'] = date("H:i:s",${$pre}['off_start_time']);
-            }
-            $item_form = '<input type="'.$off_period_type.'" name="off_start_date" value="'.${$pre}['off_start_date'].'"
-                    class="frm_input frm_date">';
-            $item_form .= ' <input type="text" name="off_start_his" value="'.${$pre}['off_start_his'].'"
-                    class="frm_input" style="'.$form_width.'" placeholder="HH:MM:SS">';
-        }
-        // 종료시간
-        else if($k1=='off_end_time') {
-            // 전체기간
-            if($off['off_period_type']) {
-                $off_period_type = 'hidden';
-                $off_span_display = 'display:none;';
-            }
-            else {
-                $off_period_type = 'text';
-                $off_span_display = 'display:;';
-                ${$pre}['off_end_his'] = date("H:i:s",${$pre}['off_end_time']);
-            }
-            $item_form = '<input type="'.$off_period_type.'" name="off_end_date" value="'.${$pre}['off_end_date'].'"
-                    class="frm_input frm_date">';
-            $item_form .= ' <input type="text" name="off_end_his" value="'.${$pre}['off_end_his'].'"
-                    class="frm_input" style="'.$form_width.'" placeholder="HH:MM:SS">';
-        }
-
-        // 이전(두줄 항목)값이 2인 경우 <tr>열지 않고 td 바로 연결
-        if($span_old<=1) {
-            echo '<tr style="'.$form_none.'">';
-        }
-        ?>
-            <th scope="row"><?=$item_name?></th>
-            <td <?=$form_span?>>
-                <?=$form_help?>
-                <?=$item_form?>
-            </td>
-            <?php
-            // 현재(두줄 항목)값이 2가 아닌 경우만 </tr>닫기
-            if($items1[$k1][6]<=1) {
-                echo '</tr>'.PHP_EOL;
-            }
-            ?>
-        <?php
-        // 이전값 저장 (2=한줄에 두개 항목을 넣는다는 의미다.)
-        $span_old = $items1[$k1][6];
-    }
-    ?>
-    </tr>
-	<tr style="display:<?=(!$member['mb_manager_yn'])?'none':''?>;">
-		<th scope="row"><label for="com_status">상태</label></th>
-		<td colspan="3">
-			<?php echo help("상태값은 관리자만 수정할 수 있습니다."); ?>
-			<select name="<?=$pre?>_status" id="<?=$pre?>_status"
-				<?php if (auth_check($auth[$sub_menu],"d",1)) { ?>onFocus='this.initialSelect=this.selectedIndex;' onChange='this.selectedIndex=this.initialSelect;'<?php } ?>>
-				<?=$g5['set_status_options']?>
-			</select>
-			<script>$('select[name="<?=$pre?>_status"]').val('<?=${$pre}[$pre.'_status']?>');</script>
-		</td>
-	</tr>
 	</tbody>
 	</table>
 </div>
