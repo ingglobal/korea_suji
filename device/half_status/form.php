@@ -137,6 +137,8 @@ input.weight{background:#333;color:#fff;padding:0 5px;height:20px;line-height:20
                     <dt>mtr_barcode</dt><dd>: 리딩한 바코드정보</dd>
                     <dt>trm_idx_location</dt><dd>: 71=1라인, 72=2라인</dd>
                     <p style="color:yellow;">투입직전에도 갑자기 라인변경의 가능성이 있을것 같음</p>
+                    <p style="color:yellow;">투입직전에 바코드라벨과 라인바코드를 찍어서 상태값 변경</p>
+                    <p style="color:yellow;">현장에 [71=1라인, 72=2라인] 상태 바코드가 필요함</p>
                 </dl>
             </td>
             <td>
