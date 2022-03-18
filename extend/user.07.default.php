@@ -560,6 +560,16 @@ foreach ($set_values as $set_value) {
 }
 unset($set_values);unset($set_value);
 
+$mms_options_sql = " SELECT mms_idx,mms_name FROM {$g5['mms_table']} WHERE com_idx = '{$_SESSION['ss_com_idx']}' AND mms_status = 'ok' ORDER BY mms_idx ";
+$mms_options_res = sql_query($mms_options_sql,1);
+$g5['set_mms_options'] = '';
+if($mms_options_res->num_rows){
+    $g5['set_mms_options'] = '<option value="0">::설비선택::</option>';
+    for($mmsi = 0; $mms_row=sql_fetch_array($mms_options_res); $mmsi++){
+        $g5['set_mms_options'] .= '<option value="'.$mms_row['mms_idx'].'">'.$mms_row['mms_name'].'</option>';
+    }
+}
+
 // 단위별(분,시,일,주,월,년) 초변환수
 // 첫번째 변수 = 단위별 초단위 전환값
 // 두번째 변수 = 종료일(or시작일)계산시 선택단위, 0이면 기존 선택된 단위값, 아니면 해당숫자 
