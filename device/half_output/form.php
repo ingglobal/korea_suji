@@ -28,7 +28,7 @@ if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
 if (!$sst) {
-    $sst = "orp.orp_idx";
+    $sst = "orp.orp_start_date";
     $sod = "desc";
 }
 if (!$sst2) {
@@ -49,7 +49,7 @@ $sql = " SELECT *
     {$sql_common} {$sql_search} {$sql_group} {$sql_order}
     LIMIT 15
 ";
-
+// echo $sql;
 $result = sql_query($sql,1);
 ?>
 <style>

@@ -27,7 +27,7 @@ if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
 if (!$sst) {
-    $sst = "orp.orp_idx";
+    $sst = "orp.orp_start_date";
     $sod = "desc";
 }
 if (!$sst2) {

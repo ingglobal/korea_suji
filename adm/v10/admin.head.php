@@ -145,6 +145,7 @@ function imageview(id, w, h)
                     <li class="tnb_li"><a href="<?php echo G5_DEVICE_URL ?>/item_output/form.php" class="tnb_sql">완제품출력API</a></li>
                     <li class="tnb_li"><a href="<?php echo G5_DEVICE_URL ?>/item_end/form.php" class="tnb_sql">완제품종료API</a></li>
                     <li class="tnb_li"><a href="<?php echo G5_DEVICE_URL ?>/item_status/form.php" class="tnb_sql">완제품상태API</a></li>
+                    <li class="tnb_li"><a href="<?php echo G5_DEVICE_URL ?>/monitor/" class="tnb_sql">현황모니터</a></li>
                     <li class="tnb_li"><a href="<?php echo G5_USER_ADMIN_TEST_URL ?>" class="tnb_sql">TEST</a></li>
                     <li class="tnb_li"><a href="<?php echo G5_USER_ADMIN_SQL_URL ?>" class="tnb_sql">SQL</a></li>
                     <!--li class="tnb_li"><a href="<?php //echo G5_USER_ADMIN_URL ?>/?device=mobile" class="tnb_mobile">Mobile</a></li-->

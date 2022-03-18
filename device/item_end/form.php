@@ -28,7 +28,7 @@ if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
 if (!$sst) {
-    $sst = "orp.orp_idx";
+    $sst = "orp.orp_start_date";
     $sod = "desc";
 }
 if (!$sst2) {
@@ -118,7 +118,7 @@ echo nl2br($data_str);
 <?php
 echo nl2br($sql);
 ?>
-</p>   
+</p>
 </div>
 <div id="tbl_box">
     <div class="tbl_head02 tbl_wrap">
@@ -199,7 +199,7 @@ echo nl2br($sql);
             </tbody>
         </table>
     </div><!--//.tbl_head02-->
-    <?php if($oop_idx){ 
+    <?php if($oop_idx){
         $sql = " SELECT * FROM {$g5['item_table']} WHERE oop_idx = '{$oop_idx}' ORDER BY itm_idx DESC ";
         $result = sql_query($sql,1);
     ?>
@@ -251,9 +251,9 @@ echo nl2br($sql);
 
 $('.btn_end').on('click',function(){
     var tr_obj = $(this).parent().parent();
-    
+
     form_end($(this),'<?=$g5['setting']['set_api_token']?>');
-    
+
 });
 
 // 숫자만 입력
