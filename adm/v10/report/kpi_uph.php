@@ -34,14 +34,27 @@ for ($i=0; $row2=sql_fetch_array($result2); $i++) {
     $mms[$row2['mms_idx']] = $row2['mms_name'];
 }
 
-// 쪼개서 검색
+
+// 기존 쿼리 수정해서 문제발생시 주석 해제해라
+/*
 $sql = "SELECT table_name, table_rows, auto_increment
             , SUBSTRING_INDEX (SUBSTRING_INDEX(table_name,'_',-3), '_', 1) AS mms_idx
             , SUBSTRING_INDEX (SUBSTRING_INDEX(table_name,'_',-2), '_', 1) AS dta_type
             , SUBSTRING_INDEX (SUBSTRING_INDEX(table_name,'_',-1), '_', 1) AS dta_no
         FROM Information_schema.tables
         WHERE TABLE_SCHEMA = '".G5_MYSQL_DB."'
-            AND TABLE_NAME REGEXP 'g5_1_data_output_[0-9]{1,4}$'
+            AND TABLE_NAME REGEXP 'g5_1_data_measure_[0-9]{1,4}'
+        ORDER BY convert(mms_idx, decimal), convert(dta_type, decimal), convert(dta_no, decimal)
+";
+*/
+//g5_1_data_measure_디비 시리즈에서 테이블명 끝에 54번으로 시작하는 것만 추출
+$sql = "SELECT table_name, table_rows, auto_increment
+            , SUBSTRING_INDEX (SUBSTRING_INDEX(table_name,'_',-3), '_', 1) AS mms_idx
+            , SUBSTRING_INDEX (SUBSTRING_INDEX(table_name,'_',-2), '_', 1) AS dta_type
+            , SUBSTRING_INDEX (SUBSTRING_INDEX(table_name,'_',-1), '_', 1) AS dta_no
+        FROM Information_schema.tables
+        WHERE TABLE_SCHEMA = '".G5_MYSQL_DB."'
+            AND TABLE_NAME LIKE 'g5_1_data_measure_54%'
         ORDER BY convert(mms_idx, decimal), convert(dta_type, decimal), convert(dta_no, decimal)
 ";
 // echo $sql.'<br>';
@@ -86,7 +99,9 @@ for($i=0;$row=sql_fetch_array($rs);$i++) {
 
 // 공제 get offwork time
 // 전체기간 설정이 있는 경우는 마지막 부분에서 돌면서 없는 날짜 목표를 채워줍니다.
-$sql = "SELECT mms_idx, off_idx, off_period_type
+$sql = "SELECT mms_idx
+        , off_idx
+        , off_period_type
         , off_start_time AS db_off_start_time
         , off_end_time AS db_off_end_time
         , FROM_UNIXTIME(off_start_time,'%Y-%m-%d %H:%i:%s') AS db_off_start_ymdhis
@@ -192,9 +207,20 @@ if ($en_date) {
 if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
-
+//기존 쿼리를 수정해서 문제발생시 아래주석을 해제
+/*
 $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
             , COUNT(itm_idx) AS output_sum
+            , MIN(itm_reg_dt) AS itm_ymdhis_min
+            , MAX(itm_reg_dt) AS itm_ymdhis_max
+		{$sql_common}
+		{$sql_search}
+        GROUP BY itm_date
+        ORDER BY itm_date DESC
+";
+*/
+$sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
+            , SUM(itm_weight) AS output_sum
             , MIN(itm_reg_dt) AS itm_ymdhis_min
             , MAX(itm_reg_dt) AS itm_ymdhis_max
 		{$sql_common}
@@ -222,7 +248,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
     // Get all the mms_idx values to make them optionf for selection.
     $sql2 = "SELECT mms_idx, mms_name
             FROM {$g5['mms_table']}
-            WHERE com_idx = '".$_SESSION['ss_com_idx']."'
+            WHERE com_idx = '".$_SESSION['ss_com_idx']."' AND mms_status = 'ok' AND mms_idx = '54'
             ORDER BY mms_idx
     ";
     // echo $sql2.'<br>';
@@ -573,7 +599,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         <td><?=$row['workrealmin']?> (<?=$row['workhour']?>)</td><!-- 실작업시간(시) -->
         <td style="display:none;"><?=$row['downtimemin']?> (<?=$row['downtimehour']?>)</td><!-- 비가동시간(시) -->
         <td style="display:none;"><?=round($row['output_sum']/$row['workhour'],2)?></td><!-- SPH(비가동포함) -->
-        <td><?=round($row['output_sum']/($row['workhour']-$row['downtimehour']),2)?></td><!-- SPH(비가동제외) -->
+        <td><?=number_format(round($row['output_sum']/($row['workhour']-$row['downtimehour']),2))?></td><!-- SPH(비가동제외) -->
     </tr>
     <?php
     }
