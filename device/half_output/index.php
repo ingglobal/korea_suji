@@ -37,7 +37,7 @@ else if($getData[0]['bom_part_no']) {
 	$mtr_lot = substr($arr['mtr_barcode'],0,6);
 	$shift = item_shif_date_return2(G5_TIME_YMDHIS);
 	$sql = " INSERT INTO {$g5['material_table']} SET
-		com_idx = '{$_SESSION['ss_com_idx']}'
+		com_idx = '{$bom['com_idx']}'
 		, imp_idx = '{$ims['imp_idx']}'
 		, mms_idx = '{$ims['mms_idx']}'
 		, bom_idx = '{$arr['bom_idx']}'
