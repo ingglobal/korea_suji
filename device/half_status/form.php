@@ -148,7 +148,7 @@ input.weight{background:#333;color:#fff;padding:0 5px;height:20px;line-height:20
                     <dt>mtr_barcode</dt><dd>: 리딩한 바코드정보</dd>
                     <dt>mtr_status</dt><dd>: pending=대기,finish=생산완료,melt=용융기투입,compounding=컴파운딩,merge=병합,scrap=폐기,trash=삭제,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량</dd>
                     <p style="color:yellow;">실제로 현장에서 필요한 상태값은 아래정도의 상태값들만 있으면 된다</p>
-                    <p style="color:yellow;">finish=생산완료,melt=용융기투입,compounding=컴파운딩,merge=병합,scrap=폐기,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량,search=검색</p>
+                    <p style="color:yellow;">finish=생산완료,melt=용융기투입,compounding=컴파운딩,merge=병합,scrap=폐기,error_inhomogeneity=이질불량,error_foreign=이물질불량,error_etc=기타불량</p>
                 </dl>
             </td>
             <td>
