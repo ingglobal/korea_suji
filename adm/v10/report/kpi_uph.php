@@ -219,9 +219,16 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
         ORDER BY itm_date DESC
 ";
 */
+/*
+☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★ 중요 ☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★☆ ★
+완제품생산간격이 초단위이면 "MIN(itm_reg_dt) AS itm_ymdhis_min"를 사용하고 사용시에는 itm_ymdhis_min2를 itm_ymdhis_min로 변경
+생산간격이 시간단위이면 "( SELECT MIN(mtr_reg_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) AS itm_ymdhis_min"를 사용하고
+사용시에는 itm_ymdhis_min2를 itm_ymdhis_min로 변경
+*/
 $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
             , SUM(itm_weight) AS output_sum
-            , MIN(itm_reg_dt) AS itm_ymdhis_min
+            , MIN(itm_reg_dt) AS itm_ymdhis_min2
+            , ( SELECT MIN(mtr_reg_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) AS itm_ymdhis_min
             , MAX(itm_reg_dt) AS itm_ymdhis_max
 		{$sql_common}
 		{$sql_search}
@@ -343,7 +350,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         // 공제시간 및 비가동시간 디폴트
         $row['offwork'][$i] = 0;
         $row['downtime'][$i] = 0;
-        for($j=0;$j<sizeof($offwork);$j++){
+        for($j=0;$j<@sizeof($offwork);$j++){
             // print_r2($offwork[$j]);
             // echo $i.'-'.$j.'<br>';
             // echo $offwork[$j]['start'].'~'.$offwork[$j]['end'].' 원본<br>';
