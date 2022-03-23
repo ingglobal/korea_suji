@@ -22,7 +22,7 @@ font-family: 'Noto Sans KR', sans-serif;
 }
 ::-webkit-scrollbar-thumb:window-inactive{background:#888888;}
 
-body {font-family: 'Noto Sans KR', sans-serif;background: #060D1B !important;font-size:0.82em;color:#e1e1e1;}
+body {font-family: 'Noto Sans KR', sans-serif;background: #060D1B !important;font-size:1em;color:#e1e1e1;}
 h1, h2, h3, h4, h5, h6 {font-family: 'Noto Sans KR', sans-serif;}
 input, button {font-family: 'Noto Sans KR', sans-serif;}
 textarea, select {font-family: 'Noto Sans KR', sans-serif;}
