@@ -169,7 +169,22 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
                 <option value="">선택하세요</option>
                 <?=$g5['set_bom_type_options']?>
             </select>
-            <script>$('select[name="<?=$pre?>_type"]').val('<?=${$pre}[$pre.'_type']?>');</script>
+            <script>
+                <?php if(preg_match('/korsuji/i',$config['cf_title']) || preg_match('/한국수지/',$config['cf_title']) || preg_match('/korea\ssuji/i',$config['cf_title'])){ ?>
+                    <?php if($w == ''){ ?>
+                        $('#bom_type').find('option').each(function(){
+                            if($(this).attr('value') != '' && $(this).attr('value') != 'product') {
+                                $(this).remove();
+                            }
+                        });
+                        $('#bom_type').val('product');
+                    <?php } else { ?>
+                        $('select[name="<?=$pre?>_type"]').val('<?=${$pre}[$pre.'_type']?>');
+                    <?php } ?>
+                <?php } else { ?>
+                    $('select[name="<?=$pre?>_type"]').val('<?=${$pre}[$pre.'_type']?>');
+                <?php } ?>
+            </script>
 		</td>
     </tr>
 	<tr>
@@ -286,7 +301,7 @@ input[type="file"]::after{display:block;content:'파일선택\A(드래그앤드�
         $ar['id'] = 'bom_start_date';
         $ar['name'] = '적용시작일';
         $ar['type'] = 'input';
-        $ar['width'] = '80px';
+        $ar['width'] = '90px';
         $ar['value'] = ${$pre}[$ar['id']];
         echo create_td_input($ar);
         unset($ar);

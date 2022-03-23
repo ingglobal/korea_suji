@@ -137,7 +137,7 @@ else{
         $oop_chk = sql_fetch($oop_chk_sql);
         //있으면 해당 orp_idx의 ori_idx의 정보를 수정하게 하고 팅겨내라
         if($oop_chk['oop_idx']){
-            alert("선택하신 설비라인에 이미 동일한 상품(생산계회상품ID:".$oop_chk['oop_idx'].")이 존재합니다.");
+            alert("선택하신 설비라인에 이미 동일한 생산계회상품ID:".$oop_chk['oop_idx']."이 존재합니다.");
         }
         //없으면 나의 oop_idx의 orp_idx를 새로운 orp_idx로 바꿔치기하고 (수량/메모/상태) 수정해라
         else {

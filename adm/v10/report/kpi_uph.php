@@ -388,7 +388,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
             $row['period']['dta_start_his2'] = '000000';
             // echo $row['period']['dta_start_his2'].'~'.$row['itm_end_his2'].' 2차 기간<br>';
             // echo 'one more time ++++++++++++++++++++++ <br>';
-            for($j=0;$j<sizeof($offwork);$j++){
+            for($j=0;$j<@sizeof($offwork);$j++){
                 // echo $offwork[$j]['start'].'~'.$offwork[$j]['end'].' 원본<br>';
                 // 완전 포함인 경우는 무조건 공제시간에 포함됨
                 if( $row['period']['dta_start_his2'] <= $offwork[$j]['start'] && $row['itm_end_his2'] >= $offwork[$j]['end'] ) {
@@ -503,7 +503,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         // echo '<br>==================================================================<br>';
         // print_r2($row['downtime1'][$i]);
         if(is_array($row['downtime1'][$i])) {
-            for ($j=0; $j<sizeof($row['downtime1'][$i]); $j++) {
+            for ($j=0; $j<@sizeof($row['downtime1'][$i]); $j++) {
                 // echo $row['downtime1'][$i][$j].'<br>';
                 $row['downtime'][$i] += $row['downtime1'][$i][$j];
             }
@@ -538,7 +538,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
             // echo $sql2.'<br>';
             $rs2 = sql_query($sql2,1);
             for ($j=0; $row2=sql_fetch_array($rs2); $j++) {
-                print_r2($row2);
+                // print_r2($row2);
     
                 // 비가동 시간(초), 일단 추출해 놓고 공제시간 돌면서 해당 사항 있으면 공제
                 $row['downtime2'][$i][$j] = $row2['dta_end_dt'] - $row2['dta_start_dt'];

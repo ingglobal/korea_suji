@@ -42,7 +42,14 @@ if ($_POST['act_button'] == "선택수정") {
         $ar['bom_price'] = $_POST['bom_price'][$k];
         bom_price_history($ar);
         unset($ar);   
-    
+        
+        $hsql = " UPDATE {$g5['bom_table']} SET
+                    bom_name = '".sql_real_escape_string($_POST['bom_name'][$k])."_half'
+                    , bom_update_dt = '".G5_TIME_YMDHIS."'
+                WHERE bom_part_no = 'H_".$_POST['bom_part_no'][$k]."'    
+        ";
+        sql_query($hsql,1);
+
     }
 
 } else if ($_POST['act_button'] == "선택삭제") {
@@ -55,7 +62,7 @@ if ($_POST['act_button'] == "선택수정") {
         $sql = "UPDATE {$g5['bom_table']} SET
                     bom_status = 'trash'
                     , bom_memo = CONCAT(bom_memo,'\n삭제 by ".$member['mb_name'].", ".G5_TIME_YMDHIS."')
-                WHERE bom_idx = '".$_POST['bom_idx'][$k]."'
+                WHERE bom_idx = '".$_POST['bom_idx'][$k]."' OR bom_part_no = 'H_".$_POST['bom_part_no'][$k]."' 
         ";
         sql_query($sql,1);
     }

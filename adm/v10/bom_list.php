@@ -234,7 +234,10 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
             <label for="name_<?php echo $i; ?>" class="sound_only">품명</label>
             <input type="text" name="bom_name[<?php echo $i; ?>]" value="<?php echo htmlspecialchars2(cut_str($row['bom_name'],250, "")); ?>" required class="tbl_input required" style="width:250px;">
         </td>
-        <td class="td_bom_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
+        <td class="td_bom_part_no">
+            <input type="hidden" name="bom_part_no[<?php echo $i ?>]" value="<?php echo $row['bom_part_no'] ?>">
+            <?=$row['bom_part_no']?>
+        </td><!-- 파트넘버 -->
         <td class="td_com_name"><?=$com_c['com_name']?></td><!-- 고객처/공급처 -->
         <td class="td_bom_maker"><?=$com_p['com_name']?></td><!-- 메이커 -->
         <td class="td_bct_name"><?=$row['bct_name_tree']?></td><!-- 카테고리 -->
@@ -260,7 +263,7 @@ $qstr .= '&sca='.$sca.'&ser_bom_type='.$ser_bom_type; // 추가로 확장해서 
         -->
         <td class="td_bom_type"><?=$g5['set_bom_type_value'][$row['bom_type']]?></td><!-- 타입 -->
         <td class="td_mng">
-            <?=($row['bom_type']!='material')?$s_bom:''?><!-- 자재가 아닌 경우만 BOM 버튼 -->
+            <?php ;//($row['bom_type']!='material')?$s_bom:''; ?><!-- 자재가 아닌 경우만 BOM 버튼 -->
 			<?=$s_mod?>
 		</td>
     </tr>
