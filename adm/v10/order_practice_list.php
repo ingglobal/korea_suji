@@ -53,11 +53,16 @@ if ($where)
     $sql_search = ' WHERE '.implode(' AND ', $where);
 
 if (!$sst) {
-    $sst = "orp.orp_idx";
+    $sst = "orp.orp_start_date";
     $sod = "desc";
 }
 
-$sql_order = " ORDER BY {$sst} {$sod} ";
+if (!$sst2) {
+    $sst2 = ", orp.trm_idx_line";
+    $sod2 = "";
+}
+
+$sql_order = " ORDER BY {$sst} {$sod} {$sst2} {$sod2} ";
 $sql_group = ""; //" GROUP BY orp.orp_idx ";
 $sql = " select count(*) as cnt {$sql_common} {$sql_search} ";
 $row = sql_fetch($sql);
@@ -186,6 +191,8 @@ $('.data_blank').on('click',function(e){
 <form name="form01" id="form01" action="./order_practice_list_update.php" onsubmit="return form01_submit(this);" method="post">
 <input type="hidden" name="sst" value="<?php echo $sst ?>">
 <input type="hidden" name="sod" value="<?php echo $sod ?>">
+<input type="hidden" name="sst2" value="<?php echo $sst2 ?>">
+<input type="hidden" name="sod2" value="<?php echo $sod2 ?>">
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">

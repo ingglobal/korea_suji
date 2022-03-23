@@ -1699,7 +1699,7 @@ function get_dayAddDate($dateInfo,$dayNum){//임채완이 재정의 한 함수(�
 	$year_ = $dtArr[0];
 	$month_ = $dtArr[1];
 	$day_ = $dtArr[2];
-	$dt = mktime(0,0,0,$month_,$day_+$dayNum,$year_);
+	$dt = @mktime(0,0,0,$month_,$day_+$dayNum,$year_);
 	return date("Y-m-d",$dt);
 } 
 } 

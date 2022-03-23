@@ -7,6 +7,7 @@ auth_check($auth[$sub_menu], 'w');
 
 
 $orp_end_date = $orp_start_date;
+$orp_end_date = ($g5['setting']['set_orp_done_date_cnt'])?get_dayAddDate($orp_start_date,$g5['setting']['set_orp_done_date_cnt']):get_dayAddDate($orp_start_date,5);
 $first_flag = ($orp_order_no && $trm_idx_line && $mb_id && $orp_start_date && $orp_end_date) ? true : false;
 //$first_flag = ($orp_order_no && $trm_idx_line && $mb_id && $orp_start_date && $orp_end_date) ? true : false;
 
@@ -73,7 +74,7 @@ else if(!$first_flag && !$oop_idx && $orp_idx && $bom_idx){
     ");
     // 동일제품이 있으면 튕겨내라
     if($oop['cnt']){
-        alert("선택하신 설비라인에 이미 동일한 상품(생산계회상품ID:".$oop['oop_idx'].")이 존재합니다.\n해당 상품에서 내용을 변경해 주세요.");
+        alert("선택하신 설비라인에 이미 동일한 상품이 이미 존재합니다.",'./order_out_practice_list.php?'.$qstr);
     }
     // 동일제품이 없으면 등록해라
     else {
