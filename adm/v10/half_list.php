@@ -124,7 +124,7 @@ $mtr_input_date = ($mtr_input_date) ? $mtr_input_date : G5_TIME_YMD;
 ?>
 <label for="mtr_input_date" class="slt_label"><strong class="sound_only">통계일 필수</strong>
 <i class="fa fa-times" aria-hidden="true"></i>
-<input type="text" name="mtr_input_date" value="<?php echo $mtr_input_date ?>" placeholder="통계일" id="mtr_input_date" readonly class="frm_input readonly" style="width:80px;">
+<input type="text" name="mtr_input_date" value="<?php echo $mtr_input_date ?>" placeholder="통계일" id="mtr_input_date" readonly class="frm_input readonly" style="width:95px;">
 </label>
 <script>
 <?php

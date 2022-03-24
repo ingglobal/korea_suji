@@ -225,16 +225,33 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
 생산간격이 시간단위이면 "( SELECT MIN(mtr_reg_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) AS itm_ymdhis_min"를 사용하고
 사용시에는 itm_ymdhis_min2를 itm_ymdhis_min로 변경
 */
+
 $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
             , SUM(itm_weight) AS output_sum
-            , MIN(itm_reg_dt) AS itm_ymdhis_min2
-            , ( SELECT MIN(mtr_reg_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) AS itm_ymdhis_min
+            , CASE WHEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) <> NULL
+                        AND ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) != '0000-00-00 00:00:00' 
+                        THEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date )
+                    ELSE MIN(itm_reg_dt)
+                END
+             AS itm_ymdhis_min
             , MAX(itm_reg_dt) AS itm_ymdhis_max
 		{$sql_common}
 		{$sql_search}
         GROUP BY itm_date
         ORDER BY itm_date DESC
 ";
+
+/*
+$sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
+    , SUM(itm_weight) AS output_sum
+    , MIN(itm_reg_dt) AS itm_ymdhis_min
+    , MAX(itm_reg_dt) AS itm_ymdhis_max
+    {$sql_common}
+    {$sql_search}
+GROUP BY itm_date
+ORDER BY itm_date DESC
+";
+*/
 // echo $sql;
 $result = sql_query($sql,1);
 

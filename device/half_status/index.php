@@ -58,6 +58,7 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
 						trm_idx_location = '{$getData[0]['trm_idx_location']}'
                         , mtr_history = CONCAT(mtr_history,'\n".$getData[0]['type']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')
                         , mtr_status = '{$getData[0]['type']}'
+                        , mtr_melt_dt = '".G5_TIME_YMDHIS."'
                         , mtr_update_dt = '".G5_TIME_YMDHIS."'
                     WHERE {$mtr_sch} ";
         sql_query($sql,1);
