@@ -66,7 +66,6 @@ if ($_POST['act_button'] == "선택수정") {
         ";
         sql_query($sql,1);
     }
-
 }
 
 if ($msg)
