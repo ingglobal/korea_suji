@@ -225,7 +225,22 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
 생산간격이 시간단위이면 "( SELECT MIN(mtr_reg_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) AS itm_ymdhis_min"를 사용하고
 사용시에는 itm_ymdhis_min2를 itm_ymdhis_min로 변경
 */
-
+/*
+$sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
+            , SUM(itm_weight) AS output_sum
+            , CASE WHEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date AND mtr_type = 'half' AND mtr_status = 'melt'  ) != NULL
+                        THEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date )
+                    ELSE MIN(itm_reg_dt)
+                END
+             AS itm_ymdhis_min
+            , MAX(itm_reg_dt) AS itm_ymdhis_max
+		{$sql_common}
+		{$sql_search}
+        GROUP BY itm_date
+        ORDER BY itm_date DESC
+";
+*/
+/*
 $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
             , SUM(itm_weight) AS output_sum
             , CASE WHEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) <> NULL
@@ -240,9 +255,10 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
         GROUP BY itm_date
         ORDER BY itm_date DESC
 ";
+*/
 
-/*
-$sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
+
+$sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date, oop_idx
     , SUM(itm_weight) AS output_sum
     , MIN(itm_reg_dt) AS itm_ymdhis_min
     , MAX(itm_reg_dt) AS itm_ymdhis_max
@@ -251,7 +267,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
 GROUP BY itm_date
 ORDER BY itm_date DESC
 ";
-*/
+
 // echo $sql;
 $result = sql_query($sql,1);
 
@@ -342,6 +358,18 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         // ";
         // $row2 = sql_fetch($sql2,1);
         // $row['period'] = $row2;
+        $msql = " SELECT MIN(mtr_melt_dt) AS min_melt_dt FROM {$g5['material_table']} 
+                WHERE oop_idx = '{$row['oop_idx']}' 
+                    AND mtr_input_date = '{$row['itm_date']}'
+                    AND mtr_type = 'half'
+                    AND mtr_status = 'melt'
+        ";
+        // echo $msql."<br>";
+        $met = sql_fetch($msql);
+        if($met['min_melt_dt']){
+            $row['itm_ymdhis_min'] = $met['min_melt_dt'];
+        }
+
         $row['itm_start_his'] = preg_replace("/:/","",substr($row['itm_ymdhis_min'],11));
         $row['itm_end_his'] = preg_replace("/:/","",substr($row['itm_ymdhis_max'],11));
         $row['itm_ymdhis_max_display'] = $row['itm_ymdhis_max'];    // 목록에 종료시간 표시(24기간 경계 때문에 중간에 값이 바뀔 수 있어서 따로 정의함)

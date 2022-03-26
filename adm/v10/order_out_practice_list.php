@@ -244,7 +244,8 @@ $('.data_blank').on('click',function(e){
 
         $s_mod = '<a href="./order_out_practice_form.php?'.$qstr.'&amp;w=u&amp;oop_idx='.$row['oop_idx'].'" class="btn btn_03">수정</a>';
         //$s_copy = '<a href="./order_out_practice_form.php?'.$qstr.'&w=c&oop_idx='.$row['oop_idx'].'" class="btn btn_03" style="margin-right:5px;">복제</a>';
-        $decrease_rate = ($row['mtr_sum'] && $row['itm_sum']) ? (($row['mtr_sum'] - $row['itm_sum']) / $row['mtr_sum']) * 100 : '-';
+        // $decrease_rate = ($row['mtr_sum'] && $row['itm_sum']) ? (($row['mtr_sum'] - $row['itm_sum']) / $row['mtr_sum']) * 100 : '-';
+        $decrease_rate = ($row['oop_mtr_weight'] && $row['oop_itm_weight']) ? (($row['oop_mtr_weight'] - $row['oop_itm_weight']) / $row['oop_mtr_weight']) * 100 : '-';
         $decrease_rate = ($decrease_rate == '-') ? '-' : number_format($decrease_rate,1,'.','').'%';
         $bg = 'bg'.($i%2);
 
@@ -302,8 +303,8 @@ $('.data_blank').on('click',function(e){
             <input type="hidden" name="oop_status[<?php echo $row['oop_idx'] ?>]" class="oop_status_<?php echo $row['oop_idx'] ?>" value="<?php echo $row['oop_status']?>">
             <input type="text" value="<?php echo $g5['set_oop_status_value'][$row['oop_status']]?>" readonly class="tbl_input readonly oop_status_name_<?php echo $row['oop_idx'] ?>" style="width:60px;text-align:center;">
         </td><!-- 상태 -->
-        <td class="td_mtr_tweight"><?=(($row['mtr_sum'])?$row['mtr_sum']:'-')?></td>
-        <td class="td_itm_tweight"><?=(($row['itm_sum'])?$row['itm_sum']:'-')?></td>
+        <td class="td_mtr_tweight"><?=(($row['oop_mtr_weight'])?$row['oop_mtr_weight']:'-')?></td>
+        <td class="td_itm_tweight"><?=(($row['oop_itm_weight'])?$row['oop_itm_weight']:'-')?></td>
         <td class="td_decrease_rate"><?=$decrease_rate?></td>
         <td class="td_mng">
 			<?php ;//$s_copy?>
