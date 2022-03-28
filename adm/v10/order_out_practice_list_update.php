@@ -24,6 +24,8 @@ if ($_POST['act_button'] == "선택수정") {
                     oop_count = '".sql_real_escape_string($_POST['oop_count'][$oop_idx_v])."'
                     ,oop_status = '".$_POST['oop_status'][$oop_idx_v]."'
                     ,oop_update_dt = '".G5_TIME_YMDHIS."'
+                    ,oop_mtr_weight = '".$_POST['oop_mtr_weight'][$oop_idx_v]."'
+                    ,oop_itm_weight = '".$_POST['oop_itm_weight'][$oop_idx_v]."'
                     ,oop_1 = '".$_POST['oop_1'][$oop_idx_v]."'
                     ,oop_2 = '".$_POST['oop_2'][$oop_idx_v]."'
                     ,oop_3 = '".$_POST['oop_3'][$oop_idx_v]."'

@@ -293,18 +293,32 @@ $('.data_blank').on('click',function(e){
             <span class="oro_count_<?=$row['oop_idx']?>"><?=$row['oro_count']?></span>
         </td>
         <td class="td_oop_cnt">
-            <input type="text" name="oop_count[<?=$row['oop_idx']?>]" oop_idx="<?=$row['oop_idx']?>" value="<?=number_format($row['oop_count'])?>" readonly class="readonly tbl_input sit_mat oop_count_<?=$row['oop_idx']?>" style="width:50px;background:#000 !important;text-align:right;">
+            <input type="text" name="oop_count[<?=$row['oop_idx']?>]" oop_idx="<?=$row['oop_idx']?>" value="<?=number_format($row['oop_count'])?>" readonly class="readonly tbl_input sit_mat oop_count_<?=$row['oop_idx']?>" style="width:60px;background:#000 !important;text-align:right;">
         </td>
-        <td class="td_oop_1"><input type="text" oop="1" oop_idx="<?=$row['oop_idx']?>" name="oop_1[<?=$row['oop_idx']?>]" value="<?=$row['oop_1']?>" class="tbl_input shf_one oop_1_<?=$row['oro_idx']?>" style="width:50px;text-align:right;"></td>
-        <td class="td_oop_2"><input type="text" oop="2" oop_idx="<?=$row['oop_idx']?>" name="oop_2[<?=$row['oop_idx']?>]" value="<?=$row['oop_2']?>" class="tbl_input shf_one oop_2_<?=$row['oro_idx']?>" style="width:50px;text-align:right;"></td>
-        <td class="td_oop_3"><input type="text" oop="3" oop_idx="<?=$row['oop_idx']?>" name="oop_3[<?=$row['oop_idx']?>]" value="<?=$row['oop_3']?>" class="tbl_input shf_one oop_3_<?=$row['oro_idx']?>" style="width:50px;text-align:right;"></td>
-        <td class="td_oop_4"><input type="text" oop="4" oop_idx="<?=$row['oop_idx']?>" name="oop_4[<?=$row['oop_idx']?>]" value="<?=$row['oop_4']?>" class="tbl_input shf_one oop_4_<?=$row['oro_idx']?>" style="width:50px;text-align:right;"></td>
+        <td class="td_oop_1"><input type="text" oop="1" oop_idx="<?=$row['oop_idx']?>" name="oop_1[<?=$row['oop_idx']?>]" value="<?=$row['oop_1']?>" class="tbl_input shf_one oop_1_<?=$row['oro_idx']?>" style="width:60px;text-align:right;"></td>
+        <td class="td_oop_2"><input type="text" oop="2" oop_idx="<?=$row['oop_idx']?>" name="oop_2[<?=$row['oop_idx']?>]" value="<?=$row['oop_2']?>" class="tbl_input shf_one oop_2_<?=$row['oro_idx']?>" style="width:60px;text-align:right;"></td>
+        <td class="td_oop_3"><input type="text" oop="3" oop_idx="<?=$row['oop_idx']?>" name="oop_3[<?=$row['oop_idx']?>]" value="<?=$row['oop_3']?>" class="tbl_input shf_one oop_3_<?=$row['oro_idx']?>" style="width:60px;text-align:right;"></td>
+        <td class="td_oop_4"><input type="text" oop="4" oop_idx="<?=$row['oop_idx']?>" name="oop_4[<?=$row['oop_idx']?>]" value="<?=$row['oop_4']?>" class="tbl_input shf_one oop_4_<?=$row['oro_idx']?>" style="width:60px;text-align:right;"></td>
         <td class="td_orp_status td_oop_status_<?=$row['oop_idx']?>"">
             <input type="hidden" name="oop_status[<?php echo $row['oop_idx'] ?>]" class="oop_status_<?php echo $row['oop_idx'] ?>" value="<?php echo $row['oop_status']?>">
             <input type="text" value="<?php echo $g5['set_oop_status_value'][$row['oop_status']]?>" readonly class="tbl_input readonly oop_status_name_<?php echo $row['oop_idx'] ?>" style="width:60px;text-align:center;">
         </td><!-- 상태 -->
-        <td class="td_mtr_tweight"><?=(($row['oop_mtr_weight'])?$row['oop_mtr_weight']:'-')?></td>
-        <td class="td_itm_tweight"><?=(($row['oop_itm_weight'])?$row['oop_itm_weight']:'-')?></td>
+        <td class="td_mtr_tweight">
+            <?php if($is_admin){ ?>
+                <input type="text" name="oop_mtr_weight[<?=$row['oop_idx']?>]" value="<?=$row['oop_mtr_weight']?>" class="tbl_input" style="width:60px;text-align:right;">
+            <?php } else { ?>
+                <?=(($row['oop_mtr_weight'])?$row['oop_mtr_weight']:'-')?>
+                <input type="hidden" name="oop_mtr_weight[<?=$row['oop_idx']?>]" value="<?=$row['oop_mtr_weight']?>">
+            <?php } ?>
+        </td>
+        <td class="td_itm_tweight">
+            <?php if($is_admin){ ?>
+                <input type="text" name="oop_itm_weight[<?=$row['oop_idx']?>]" value="<?=$row['oop_itm_weight']?>" class="tbl_input" style="width:60px;text-align:right;">
+            <?php } else { ?>
+                <?=(($row['oop_itm_weight'])?$row['oop_itm_weight']:'-')?>
+                <input type="hidden" name="oop_itm_weight[<?=$row['oop_idx']?>]" value="<?=$row['oop_itm_weight']?>">
+            <?php } ?>
+        </td>
         <td class="td_decrease_rate"><?=$decrease_rate?></td>
         <td class="td_mng">
 			<?php ;//$s_copy?>

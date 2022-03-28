@@ -233,7 +233,7 @@ $('.data_blank').on('click',function(e){
         <td class="td_itm_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
         <td class="td_itm_sum"><?=$row['sum']?></td><!-- 생산량 -->
         <td class="td_itm_cnt"><?=$row['cnt']?></td><!-- 생산개수(톤백) -->
-        <td class="td_itm_sum2"><?=$row['sum2']?></td><!-- 재고량 -->
+        <td class="td_itm_sum2"><?=(($row['sum2'])?$row['sum2']:0)?></td><!-- 재고량 -->
         <td class="td_itm_cnt2"><?=$row['cnt2']?></td><!-- 재고개수(톤백) -->
     </tr>
     <?php
@@ -254,7 +254,7 @@ $('.data_blank').on('click',function(e){
        <a href="<?=G5_URL?>/device/plt_delivery/form.php" target="_blank" class="btn btn_02" style="margin-right:200px;">출하</a>
     <?php } ?>
     <?php ;//if (!auth_check($auth[$sub_menu],'w')) { ?>
-    <?php if($is_admin){ ?>
+    <?php if(false){//($is_admin){ ?>
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
     <a href="./item_form.php" id="member_add" class="btn btn_01">추가하기</a>

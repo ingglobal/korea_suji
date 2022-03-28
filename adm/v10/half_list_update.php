@@ -30,6 +30,9 @@ if ($_POST['act_button'] == "선택수정") {
                     mtr_status = '".$_POST['mtr_status'][$mtr_idx_v]."'
                     {$error_search}
                     ,mtr_history = ".$history."
+                    ,mtr_weight = '".$_POST['mtr_weight'][$mtr_idx_v]."'
+                    ,mtr_melt_dt = '".$_POST['mtr_melt_dt'][$mtr_idx_v]."'
+                    ,mtr_reg_dt = '".$_POST['mtr_reg_dt'][$mtr_idx_v]."'
                     ,mtr_update_dt = '".G5_TIME_YMDHIS."'
                 WHERE mtr_idx = '".$mtr_idx_v."' AND mtr_type = 'half'
         ";

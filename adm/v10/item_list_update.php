@@ -32,6 +32,8 @@ if ($_POST['act_button'] == "선택수정") {
                     {$error_search}
                     {$delivery_search}
                     ,itm_history = ".$history."
+                    ,itm_weight = '".$_POST['itm_weight'][$itm_idx_v]."'
+                    ,itm_reg_dt = '".$_POST['itm_reg_dt'][$itm_idx_v]."'
                     ,itm_update_dt = '".G5_TIME_YMDHIS."'
                 WHERE itm_idx = '".$itm_idx_v."'
         ";

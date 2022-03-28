@@ -71,12 +71,13 @@ $row = sql_fetch($sql,1);
 $total_count = $row['cnt'];
 // echo $total_count.'<br>';
 
-$rows = $config['cf_page_rows'];
+$rows = 50;//$config['cf_page_rows'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
 $sql = "SELECT *
+        , ROW_NUMBER() OVER (PARTITION BY itm_date, itm.bom_part_no ORDER BY itm_reg_dt) AS itm_num
         {$sql_common} {$sql_search} {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
@@ -147,7 +148,7 @@ $itm_static_date = ($itm_static_date) ? $itm_static_date : G5_TIME_YMD;
 ?>
 <label for="itm_static_date"><strong class="sound_only">입고일 필수</strong>
 <i class="fa fa-times" aria-hidden="true"></i>
-<input type="text" name="itm_static_date" value="<?php echo $itm_static_date ?>" placeholder="통계일" id="itm_static_date" readonly class="frm_input readonly" style="width:80px;">
+<input type="text" name="itm_static_date" value="<?php echo $itm_static_date ?>" placeholder="통계일" id="itm_static_date" readonly class="frm_input readonly" style="width:95px;">
 </label>
 <script>
 <?php
@@ -222,9 +223,9 @@ $('.data_blank').on('click',function(e){
         <th scope="col">설비라인</th>
         <th scope="col">시간구간</th>
         <th scope="col">바코드</th>
+        <th scope="col">품별순서</th>
         <th scope="col">무게(kg)</th>
         <th scope="col">등록일시</th>
-        <th scope="col">갱신일시</th>
         <th scope="col">출하여부</th>
         <th scope="col">상태</th>
         <th scope="col">관리</th>
@@ -273,9 +274,23 @@ $('.data_blank').on('click',function(e){
         <td class="td_itm_line"><?=$g5['line_name'][$row['trm_idx_line']]?></td><!-- 설비라인 -->
         <td class="td_itm_shift"><?=$row['itm_shift']?></td><!-- 작업구간 -->
         <td class="td_itm_barcode" style="text-align:left;"><?=$row['itm_barcode']?></td><!-- 바코드 -->
-        <td class="td_itm_weight" style="text-align:right;"><?=number_format($row['itm_weight'])?></td><!-- 무게 -->
-        <td class="td_itm_reg_dt"><?=substr($row['itm_reg_dt'],0,19)?></td><!-- 등록일시 -->
-        <td class="td_itm_update_dt"><?=substr($row['itm_update_dt'],0,19)?></td><!-- 등록일시 -->
+        <td class="td_itm_num" style="text-align:right;"><?=$row['itm_num']?></td><!-- 품별순서 -->
+        <td class="td_itm_weight" style="text-align:right;">
+            <?php if($is_admin){ ?>
+                <input type="text" name="itm_weight[<?=$row['itm_idx']?>]" value="<?=$row['itm_weight']?>" class="frm_input" style="width:70px;text-align:right;">
+            <?php } else { ?>
+                <input type="hidden" name="itm_weight[<?=$row['itm_idx']?>]" value="<?=$row['itm_weight']?>">
+                <?=$row['itm_weight']?>
+            <?php } ?>
+        </td><!-- 무게 -->
+        <td class="td_itm_reg_dt">
+            <?php if($is_admin){ ?>
+                <input type="text" name="itm_reg_dt[<?=$row['itm_idx']?>]" value="<?=$row['itm_reg_dt']?>" class="frm_input" style="width:160px;text-align:center;">
+            <?php } else { ?>
+                <input type="hidden" name="itm_reg_dt[<?=$row['itm_idx']?>]" value="<?=$row['itm_reg_dt']?>">
+                <?=substr($row['itm_reg_dt'],0,19)?>
+            <?php } ?>
+        </td><!-- 등록일시 -->
         <td class="td_itm_delivery">
             <?php
                 echo ($row['itm_delivery']) ? '<span style="color:skyblue;">출하</span>' : '';

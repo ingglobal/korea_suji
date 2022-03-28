@@ -68,12 +68,13 @@ $row = sql_fetch($sql,1);
 $total_count = $row['cnt'];
 // echo $total_count.'<br>';
 
-$rows = $config['cf_page_rows'];
+$rows = 50;//$config['cf_page_rows'];
 $total_page  = ceil($total_count / $rows);  // 전체 페이지 계산
 if ($page < 1) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
 $sql = "SELECT *
+        , ROW_NUMBER() OVER (PARTITION BY mtr_input_date, itm.bom_part_no ORDER BY mtr_reg_dt) AS mtr_num
         {$sql_common} {$sql_search} {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
@@ -214,9 +215,10 @@ $('.data_blank').on('click',function(e){
         <th scope="col">설비라인</th>
         <th scope="col">시간구간</th>
         <th scope="col">바코드</th>
+        <th scope="col">품별순서</th>
         <th scope="col">무게(kg)</th>
+        <th scope="col">용융기투입일시</th>
         <th scope="col">등록일시</th>
-        <th scope="col">갱신일시</th>
         <th scope="col">상태</th>
         <th scope="col">관리</th>
     </tr>
@@ -264,9 +266,31 @@ $('.data_blank').on('click',function(e){
         <td class="td_mtr_line"><?=$g5['line_name'][$row['trm_idx_location']]?></td><!-- 설비라인 -->
         <td class="td_mtr_shift"><?=$row['mtr_shift']?></td><!-- 작업구간 -->
         <td class="td_mtr_barcode" style="text-align:left;"><?=$row['mtr_barcode']?></td><!-- 바코드 -->
-        <td class="td_mtr_weight" style="text-align:right;"><?=number_format($row['mtr_weight'])?></td><!-- 무게 -->
-        <td class="td_mtr_reg_dt"><?=substr($row['mtr_reg_dt'],0,19)?></td><!-- 등록일시 -->
-        <td class="td_mtr_update_dt"><?=substr($row['mtr_update_dt'],0,19)?></td><!-- 등록일시 -->
+        <td class="td_mtr_num" style="text-align:right;"><?=$row['mtr_num']?></td><!-- 품별순서 -->
+        <td class="td_mtr_weight" style="text-align:right;">
+            <?php if($is_admin){ ?>
+                <input type="text" name="mtr_weight[<?=$row['mtr_idx']?>]" value="<?=$row['mtr_weight']?>" class="frm_input" style="width:70px;text-align:right;">
+            <?php } else { ?>
+                <input type="hidden" name="mtr_weight[<?=$row['mtr_idx']?>]" value="<?=$row['mtr_weight']?>">
+                <?=$row['mtr_weight']?>
+            <?php } ?>
+        </td><!-- 무게 -->
+        <td class="td_mtr_melt_dt">
+            <?php if($is_admin){ ?>
+                <input type="text" name="mtr_melt_dt[<?=$row['mtr_idx']?>]" value="<?=$row['mtr_melt_dt']?>" class="frm_input" style="width:160px;text-align:center;">
+            <?php } else { ?>
+                <input type="hidden" name="mtr_melt_dt[<?=$row['mtr_idx']?>]" value="<?=$row['mtr_melt_dt']?>">
+                <?=(($row['mtr_melt_dt']!='0000-00-00 00:00:00')?substr($row['mtr_melt_dt'],0,19):'-')?>
+            <?php } ?>
+        </td><!-- 용융기투입일시 -->
+        <td class="td_mtr_reg_dt">
+            <?php if($is_admin){ ?>
+                <input type="text" name="mtr_reg_dt[<?=$row['mtr_idx']?>]" value="<?=$row['mtr_reg_dt']?>" class="frm_input" style="width:160px;text-align:center;">
+            <?php } else { ?>
+                <input type="hidden" name="mtr_reg_dt[<?=$row['mtr_idx']?>]" value="<?=$row['mtr_reg_dt']?>">
+                <?=substr($row['mtr_reg_dt'],0,19)?>
+            <?php } ?>
+        </td><!-- 등록일시 -->
         <td class="td_mtr_status td_mtr_status_<?=$row['mtr_idx']?>">
             <input type="hidden" name="mtr_status[<?php echo $row['mtr_idx'] ?>]" class="mtr_status_<?php echo $row['mtr_idx'] ?>" value="<?php echo $row['mtr_status']?>">
             <input type="text" value="<?php echo $g5['set_half_status'][$row['mtr_status']]?>" readonly class="tbl_input readonly mtr_status_name_<?php echo $row['mtr_idx'] ?>" style="width:170px;text-align:center;">
@@ -279,7 +303,7 @@ $('.data_blank').on('click',function(e){
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='13' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='14' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>
