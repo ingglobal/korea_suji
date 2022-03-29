@@ -650,7 +650,12 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         <td><?=$row['offworkmin']?></td><!-- 공제(분) -->
         <td><?=$row['workrealmin']?> (<?=$row['workhour']?>)</td><!-- 실작업시간(시) -->
         <td style="display:none;"><?=$row['downtimemin']?> (<?=$row['downtimehour']?>)</td><!-- 비가동시간(시) -->
-        <td style="display:none;"><?=round($row['output_sum']/$row['workhour'],2)?></td><!-- SPH(비가동포함) -->
+        <td style="display:none;">
+            <?php
+                $workdata = ($row['workhour'] <= 0) ? 0 : round($row['output_sum']/$row['workhour'],2);
+            ?>
+            <?=$workdata?>
+        </td><!-- SPH(비가동포함) -->
         <td>
             <?php
                 $realdata = ($row['workhour']-$row['downtimehour'] <= 0) ? 0 : round($row['output_sum']/($row['workhour']-$row['downtimehour']),2);

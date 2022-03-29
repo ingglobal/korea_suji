@@ -80,7 +80,7 @@ $row = sql_fetch($sql);
 $total_count = $row['cnt'];
 //한 페이지 목록수를 100개를 넘길수 없도록 해라 로딩속도 때문에
 if($schrows){
-    $rows = ($schrows > 60) ? 60 : $schrows;
+    $rows = ($schrows > 200) ? 200 : $schrows;
 }
 else{
     $rows = 30;
@@ -184,7 +184,7 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
 <div class="local_desc01 local_desc" style="display:no ne;">
     <p>부분적으로 <span style="color:pink">복수선택</span>을 할 경우에는 첫번째 항목을 <span style="color:skyblue">[Check]</span>하고, 마지막 항목을 <span style="color:skyblue">[Shft+Click]</span> 하세요.
     <p style="display:none;">부분적으로 <span style="color:pink">복수선택해제</span>를 할 경우에는 첫번째 항목을 <span style="color:skyblue">[Check]</span>하고, 마지막 항목을 <span style="color:skyblue">[Alt+Click]</span> 하세요.
-    <p style="display:no ne;">표시갯수는 한 페이지에 보여지는 목록의 갯수를 의미합니다.<span style="color:red;"> 최대 60개까지</span> 설정이 가능합니다.(로딩속도에 영향을 주므로 되도록 50이하의 수치로 설정해 주세요.)</p>
+    <p style="display:no ne;">표시갯수는 한 페이지에 보여지는 목록의 갯수를 의미합니다.<span style="color:red;"> 최대 200개까지</span> 설정이 가능합니다.(로딩속도에 영향을 주므로 되도록 50이하의 수치로 설정해 주세요.)</p>
 </div>
 
 <div class="select_input">
@@ -192,11 +192,11 @@ $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 
     <p style="padding:30px 0 20px">
         <label for="" class="slt_label">
             <span>출하예정일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-            <input type="text" id="o_date_plan" value="" class="tbl_input o_date_plan" style="width:95px;" autocomplete="off">
+            <input type="text" id="o_date_plan" value="" class="tbl_input o_date_plan" style="width:80px;" autocomplete="off">
         </label>
         <label for="" class="slt_label">
             <span>출하일<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
-            <input type="text" id="o_date" value="" class="tbl_input o_date_plan" style="width:95px;" autocomplete="off">
+            <input type="text" id="o_date" value="" class="tbl_input o_date_plan" style="width:80px;" autocomplete="off">
         </label>
         <label for="" class="slt_label">
             <span>출하처<i class="fa fa-times data_blank" aria-hidden="true"></i></span>
@@ -262,6 +262,9 @@ $('.data_blank').on('click',function(e){
         <th scope="col">주간<br>15:00</th>
         <th scope="col">야간<br>17:00</th>
         <th scope="col">야간<br>19:00</th>
+        <th scope="col">D+1<br>07:00</th>
+        <th scope="col">D+1<br>08:00</th>
+        <th scope="col">D+1<br>09:00</th>
         <th scope="col">설비라인<br><span style="color:orange;">생산계획ID</span><br>생산일</th>
         <th scope="col">수주일</th>
         <th scope="col">출하예정일</th>
@@ -355,6 +358,9 @@ $('.data_blank').on('click',function(e){
         <td class="td_oro_3"><input type="text" oro="3" oro_idx="<?=$row['oro_idx']?>" name="oro_3[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_3']?>" class="tbl_input shf_one oro_3_<?=$row['oro_idx']?>" style="width:75px;text-align:right;"></td><!--//납품시간3-->
         <td class="td_oro_4"><input type="text" oro="4" oro_idx="<?=$row['oro_idx']?>" name="oro_4[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_4']?>" class="tbl_input shf_one oro_4_<?=$row['oro_idx']?>" style="width:75px;text-align:right;"></td><!--//납품시간4-->
         <td class="td_oro_5"><input type="text" oro="5" oro_idx="<?=$row['oro_idx']?>" name="oro_5[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_5']?>" class="tbl_input shf_one oro_5_<?=$row['oro_idx']?>" style="width:75px;text-align:right;"></td><!--//납품시간5-->
+        <td class="td_oro_6"><input type="text" oro="6" oro_idx="<?=$row['oro_idx']?>" name="oro_6[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_6']?>" class="tbl_input shf_one oro_6_<?=$row['oro_idx']?>" style="width:75px;text-align:right;"></td><!--//납품시간6-->
+        <td class="td_oro_7"><input type="text" oro="7" oro_idx="<?=$row['oro_idx']?>" name="oro_7[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_7']?>" class="tbl_input shf_one oro_7_<?=$row['oro_idx']?>" style="width:75px;text-align:right;"></td><!--//납품시간7-->
+        <td class="td_oro_8"><input type="text" oro="8" oro_idx="<?=$row['oro_idx']?>" name="oro_8[<?php echo $row['oro_idx'] ?>]" value="<?=$row['oro_8']?>" class="tbl_input shf_one oro_8_<?=$row['oro_idx']?>" style="width:75px;text-align:right;"></td><!--//납품시간8-->
         <td class="td_orp_idx">
             <input type="hidden" name="orp_cnt[<?php echo $row['oro_idx'] ?>]" value="<?php echo $row['orp_cnt'] ?>" class="orp_cnt_<?php echo $row['oro_idx'] ?>">
             <?=$row['orp_count']?>
@@ -364,10 +370,10 @@ $('.data_blank').on('click',function(e){
             <?=substr($row['ord_date'],2,8)?>
         </td><!-- 수주일 -->
         <td class="td_oro_date_plan td_oro_date_plan_<?=$row['oro_idx']?>">
-            <input type="text" name="oro_date_plan[<?php echo $row['oro_idx'] ?>]" value="<?=(($row['oro_date_plan'] == '0000-00-00')?'':$row['oro_date_plan'])?>" readonly class="tbl_input readonly oro_date_plan_<?php echo $row['oro_idx'] ?>" style="width:95px;text-align:center;">
+            <input type="text" name="oro_date_plan[<?php echo $row['oro_idx'] ?>]" value="<?=(($row['oro_date_plan'] == '0000-00-00')?'':$row['oro_date_plan'])?>" readonly class="tbl_input readonly oro_date_plan_<?php echo $row['oro_idx'] ?>" style="width:80px;text-align:center;">
         </td><!-- 출하예정일 -->
         <td class="td_oro_date td_oro_date_<?=$row['oro_idx']?>">
-            <input type="text" name="oro_date[<?php echo $row['oro_idx'] ?>]" value="<?=(($row['oro_date'] == '0000-00-00')?'':$row['oro_date'])?>" readonly class="tbl_input readonly oro_date_<?php echo $row['oro_idx'] ?>" style="width:95px;text-align:center;">
+            <input type="text" name="oro_date[<?php echo $row['oro_idx'] ?>]" value="<?=(($row['oro_date'] == '0000-00-00')?'':$row['oro_date'])?>" readonly class="tbl_input readonly oro_date_<?php echo $row['oro_idx'] ?>" style="width:80px;text-align:center;">
         </td><!-- 출하일 -->
         <td class="td_com_shipto td_com_shipto_<?=$row['oro_idx']?>">
             <input type="hidden" name="com_idx_shipto[<?php echo $row['oro_idx'] ?>]" class="com_idx_shipto_<?php echo $row['oro_idx'] ?>" value="<?php echo (($row['com_idx_shipto'])?$row['com_idx_shipto']:'')?>">
@@ -592,7 +598,10 @@ function calsum(ori_idx){
     var oro3 = ($('input[name="oro_3['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_3['+ori_idx+']"]').val()) : 0;
     var oro4 = ($('input[name="oro_4['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_4['+ori_idx+']"]').val()) : 0;
     var oro5 = ($('input[name="oro_5['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_5['+ori_idx+']"]').val()) : 0;
-    var orot = oro1 + oro2 + oro3 + oro4 + oro5;
+    var oro6 = ($('input[name="oro_6['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_6['+ori_idx+']"]').val()) : 0;
+    var oro7 = ($('input[name="oro_7['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_7['+ori_idx+']"]').val()) : 0;
+    var oro8 = ($('input[name="oro_8['+ori_idx+']"]').val() != '') ? Number($('input[name="oro_8['+ori_idx+']"]').val()) : 0;
+    var orot = oro1 + oro2 + oro3 + oro4 + oro5 + oro6 + oro7 + oro8;
     var oro_input = $('input[name="oro_count['+ori_idx+']"]');
     if(!isNaN(oro_input.val().replace(/,/g,'')))
         oro_input.val(thousand_comma(orot));
