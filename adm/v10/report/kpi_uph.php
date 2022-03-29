@@ -169,7 +169,7 @@ for($j=0;$j<@sizeof($offwork);$j++){
 $sql_common = " FROM g5_1_item ";
 
 $where = array();
-$where[] = " mms_idx = '".$ser_mms_idx."' AND itm_status IN ('ing','finish') ";
+$where[] = " mms_idx = '".$ser_mms_idx."' AND itm_status NOT IN ('delete','del','trash') ";
 
 if ($stx && $sfl) {
     switch ($sfl) {
@@ -651,7 +651,12 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         <td><?=$row['workrealmin']?> (<?=$row['workhour']?>)</td><!-- 실작업시간(시) -->
         <td style="display:none;"><?=$row['downtimemin']?> (<?=$row['downtimehour']?>)</td><!-- 비가동시간(시) -->
         <td style="display:none;"><?=round($row['output_sum']/$row['workhour'],2)?></td><!-- SPH(비가동포함) -->
-        <td><?=number_format(round($row['output_sum']/($row['workhour']-$row['downtimehour']),2))?></td><!-- SPH(비가동제외) -->
+        <td>
+            <?php
+                $realdata = ($row['workhour']-$row['downtimehour'] <= 0) ? 0 : round($row['output_sum']/($row['workhour']-$row['downtimehour']),2);
+            ?>
+            <?=number_format($realdata)?>
+        </td><!-- SPH(비가동제외) -->
     </tr>
     <?php
     }

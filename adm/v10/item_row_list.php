@@ -86,6 +86,8 @@ $result = sql_query($sql,1);
 
 $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목록</a>';
 $qstr .= '&sca='.$sca.'&ser_cod_type='.$ser_cod_type; // 추가로 확장해서 넘겨야 할 변수들
+
+// print_r2($g5);
 ?>
 <style>
 .tbl_head01 thead tr th{position:sticky;top:100px;z-index:100;}
