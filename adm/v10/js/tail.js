@@ -6,3 +6,7 @@ setTimeout(function(){
         });
     }
 },2000);
+$(function(){
+    var ft_p = $('#ft p');
+    $('<strong style="color:#fff;"><span style="color:yellow;">한국수지</span> EPCS(MES) 시스템</strong>').appendTo(ft_p);
+});
