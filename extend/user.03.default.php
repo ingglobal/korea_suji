@@ -639,6 +639,7 @@ if(defined('G5_IS_ADMIN')){
 		echo 'var g5_user_admin_mobile_url = "'.G5_USER_ADMIN_MOBILE_URL.'";'.PHP_EOL;
 		echo 'var g5_print_version = "'.$print_version.'";'.PHP_EOL;
 		echo 'var get_device_change_url = "'.get_device_change_url().'"'.PHP_EOL;
+		echo 'var cf_company_title = "'.$config['cf_title'].'"'.PHP_EOL;
 		echo '</script>'.PHP_EOL;
 
 		if(G5_IS_MOBILE) {
