@@ -71,8 +71,8 @@ $from_record = ($page - 1) * $rows; // 시작 열을 구함
 $sql = "SELECT *
               ,SUM(itm.itm_weight) AS sum
               ,COUNT(*) AS cnt
-              ,( SELECT SUM(itm_weight) FROM {$g5['item_table']} WHERE oop_idx = itm.oop_idx AND itm_status = 'finish' ) AS sum2
-              ,( SELECT COUNT(itm_idx) FROM {$g5['item_table']} WHERE oop_idx = itm.oop_idx AND itm_status = 'finish' ) AS cnt2
+              ,( SELECT SUM(itm_weight) FROM {$g5['item_table']} WHERE bom_idx = itm.bom_idx AND itm_status = 'finish' ) AS sum2
+              ,( SELECT COUNT(itm_idx) FROM {$g5['item_table']} WHERE bom_idx = itm.bom_idx AND itm_status = 'finish' ) AS cnt2
         {$sql_common} {$sql_search} {$sql_group}  {$sql_order}
         LIMIT {$from_record}, {$rows}
 ";
