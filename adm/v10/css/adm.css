@@ -32,7 +32,7 @@ input[type="text"],input[type="url"],input[type="password"],input[type="email"],
 a{color:#aaa;}
 a:link,a:visited{color:#bbb;}
 a:hover{color:#fff;}
-input[type="checkbox"]{-webkit-font-smoothing: antialiased;text-rendering: optimizeSpeed;position: relative;}
+input[type="checkbox"]{-webkit-font-smoothing: antialiased;text-rendering: optimizeSpeed;position: relative;height:15px;line-height:15px;}
 input[type="checkbox"]:before{content: "";position: absolute;width:100%;height:100%;left:0;top:0;-webkit-box-shadow: inset 0 1px 1px #555555, 0 1px 0 #555555;-moz-box-shadow: inset 0 1px 1px #555555, 0 1px 0 #555555;box-shadow: inset 0 1px 1px #555555, 0 1px 0 #555555;background: #555555;}
 input[type="checkbox"]:checked:before{-webkit-box-shadow: inset 0 1px 1px #1f4fa8, 0 1px 0 #1f4fa8;-moz-box-shadow: inset 0 1px 1px #1f4fa8, 0 1px 0 #1f4fa8;box-shadow: inset 0 1px 1px #1f4fa8, 0 1px 0 #1f4fa8;background:#1f4fa8;}
 input[type="checkbox"]:checked:after{font-family:FontAwesome;position:absolute;content:'\f00c';color:#fff;width:100%;height:100%;}
@@ -53,6 +53,7 @@ input[type="checkbox"]:checked:after{font-family:FontAwesome;position:absolute;c
 /* 배경 컬러 */
 #hd_top {background:#060d1b;border-bottom: solid 1px #142546;}
 #logo {background: #020710;width:230px;padding:15px 0 15px 60px;}
+#logo a img{display:none;}
 #btn_gnb {background-color:#0b1838;width:60px;}
 #gnb .gnb_oparea {background: #162c52;}
 #btn_gnb.btn_gnb_open {
@@ -176,7 +177,7 @@ input[type="checkbox"]:checked:after{font-family:FontAwesome;position:absolute;c
 
 /*버튼관련*/
 .btn{height: 26px;line-height: 26px;}
-a.btn{border-radius:0;font-weight:normal;height: 26px;line-height: 26px;}
+a.btn{border-radius:0;font-weight:normal;height: 26px;line-height: 26px;font-size:0.9em;}
 .btn_01, a.btn_01{background:#0891D1 !important;color:efefef !important;}
 a.btn_01:link, a.btn_01:link,a.btn_01:visited, a.btn_01:visited{color:#fff !important;}
 .btn_01:hover, a.btn_01:hover {background:#0891D1;}
@@ -269,7 +270,7 @@ td.td_grpset{border-left:1px solid #4b5465;}
 .pg_current {display:inline-block;background:#1f2738;color:#fff;font-weight:normal}
 
 /*팝업윈도 win*/
-.new_win h1{background:#020710;border-bottom:1px solid #142546;}
+.new_win h1{background:#020710;border-bottom:1px solid #142546;font-size:0.9em;}
 .new_win_con{background:#060D1B;}
 #scp_list_find{background:#060D1B;border:1px solid #142546;}
 #scp_list_find .btn_frmline{height:35px;line-height:35px;}

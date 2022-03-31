@@ -111,11 +111,11 @@ else {
 <div id="graph_wrapper">
 <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
     <input type="hidden" name="dta_minsec" value="<?=$dta_minsec?>" id="dta_minsec" class="frm_input" style="width:20px;">
-    <input type="text" name="st_date" value="<?=$st_date?>" id="st_date" class="frm_input" autocomplete="off" style="width:80px;" >
-    <input type="text" name="st_time" value="<?=$st_time?>" id="st_time" class="frm_input" autocomplete="off" style="width:65px;display:<?=($dta_minsec)?'inline-block':'none'?>;">
+    <input type="text" name="st_date" value="<?=$st_date?>" id="st_date" class="frm_input" autocomplete="off" style="width:95px;" >
+    <input type="text" name="st_time" value="<?=$st_time?>" id="st_time" class="frm_input" autocomplete="off" style="width:75px;display:<?=($dta_minsec)?'inline-block':'none'?>;">
     ~
-    <input type="text" name="en_date" value="<?=$en_date?>" id="en_date" class="frm_input" autocomplete="off" style="width:80px;">
-    <input type="text" name="en_time" value="<?=$en_time?>" id="en_time" class="frm_input" autocomplete="off" style="width:65px;display:<?=($dta_minsec)?'inline-block':'none'?>;">
+    <input type="text" name="en_date" value="<?=$en_date?>" id="en_date" class="frm_input" autocomplete="off" style="width:95px;">
+    <input type="text" name="en_time" value="<?=$en_time?>" id="en_time" class="frm_input" autocomplete="off" style="width:75px;display:<?=($dta_minsec)?'inline-block':'none'?>;">
 
     <label for="dta_item" class="sound_only">검색대상</label>
     <select name="dta_item" id="dta_item">
@@ -957,7 +957,7 @@ $(function(e) {
     if(!$mbd_idx) {
     ?>
         $.ajax({
-            url:'//bogwang.epcs.co.kr/device/json/output.default.php',
+            url:'//korsuji.epcs.co.kr/device/json/output.default.php',
             data:{"token":"1099de5drf09","mms_idx":"<?=$mms_idx?>"},
             dataType:'json', timeout:10000, beforeSend:function(){}, success:function(res){
                 // console.log(res);

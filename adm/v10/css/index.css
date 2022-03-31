@@ -83,7 +83,7 @@ min-width:1160px;
 .mms_image img{width:100%;cursor:pointer;}
 
 .data_mms_table td {padding:4px;background:#3E4B64;color:#efefef;}
-.data_mms_table td:first-child {width:72px;}
+.data_mms_table td:first-child {width:87px;}
 
 .no_mms_list {width:100% !important;height:168px;line-height:168px;text-align:center;}
 
