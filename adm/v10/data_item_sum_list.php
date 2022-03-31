@@ -93,6 +93,18 @@ $items1 = array(
     ,"bom_part_no"=>array("파트번호",0,0,0)
     ,"mms_idx"=>array("MMS_idx",0,0,0)
     ,"trm_idx_line"=>array("라인",0,0,0)
+    ,"itm_price"=>array("단가",0,0,0)
+    ,"itm_status"=>array("상태",0,0,0)
+    ,"itm_count"=>array("생산량",0,0,0)
+    ,"itm_date"=>array("날짜",0,0,1)
+);
+/*
+$items1 = array(
+    "itm_idx"=>array("번호",0,0,1)
+    ,"bom_idx"=>array("품명",0,0,0)
+    ,"bom_part_no"=>array("파트번호",0,0,0)
+    ,"mms_idx"=>array("MMS_idx",0,0,0)
+    ,"trm_idx_line"=>array("라인",0,0,0)
     ,"itm_shift"=>array("구간",0,0,0)
     ,"itm_price"=>array("단가",0,0,0)
     ,"itm_status"=>array("상태",0,0,0)
@@ -100,6 +112,7 @@ $items1 = array(
     ,"itm_count_sum"=>array("비교",0,0,0)
     ,"itm_date"=>array("날짜",0,0,1)
 );
+*/
 ?>
 
 <div class="local_ov01 local_ov">
@@ -209,6 +222,7 @@ function sch_submit(f){
 	</thead>
 	<tbody>
     <?php
+    $g5['set_itm_mtr_status'] = array_merge($g5['set_itm_status'],$g5['set_half_status']);
     for ($i=0; $row=sql_fetch_array($result); $i++) {
         // print_r2($row);
         
@@ -260,7 +274,7 @@ function sch_submit(f){
                     $list[$k1] = $line_name[$row['trm_idx_line']];
                 }
                 else if($k1=='itm_status') {
-                    $list[$k1] = $g5['set_itm_status'][$row['itm_status']];
+                    $list[$k1] = $g5['set_itm_mtr_status'][$row['itm_status']];
                 }
                 else if($k1=='itm_count') {
                     $list[$k1] = number_format($row[$k1]);

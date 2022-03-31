@@ -103,7 +103,7 @@ $result = sql_query($sql);
 .div_item .span_bom_price{}
 .div_item .span_bom_price b{display:inline-block;width:45px;text-align:right;}
 .div_item .span_ori_count{}
-.div_item .span_ori_count b{display:inline-block;width:30px;text-align:right;}
+.div_item .span_ori_count b{display:inline-block;width:58px;text-align:right;}
 .sch_label{position:relative;}
 .sch_label span{position:absolute;top:-23px;left:5px;z-index:2;}
 .sch_label .date_blank{position:absolute;top:-21px;right:5px;z-index:2;font-size:1.1em;cursor:pointer;}

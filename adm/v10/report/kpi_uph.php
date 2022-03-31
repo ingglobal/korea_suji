@@ -260,7 +260,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
 
 $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date, oop_idx
     , SUM(itm_weight) AS output_sum
-    , MIN(itm_reg_dt) AS itm_ymdhis_min
+    , DATE_SUB(MIN(itm_reg_dt), INTERVAL 2 HOUR) AS itm_ymdhis_min
     , MAX(itm_reg_dt) AS itm_ymdhis_max
     {$sql_common}
     {$sql_search}
