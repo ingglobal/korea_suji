@@ -106,7 +106,7 @@ $result = sql_query($sql);
 .div_item .span_ori_count b{display:inline-block;width:58px;text-align:right;}
 .sch_label{position:relative;}
 .sch_label span{position:absolute;top:-23px;left:5px;z-index:2;}
-.sch_label .date_blank{position:absolute;top:-21px;right:5px;z-index:2;font-size:1.1em;cursor:pointer;}
+.sch_label .date_blank{position:absolute;top:-21px;right:0px;z-index:2;font-size:1.1em;cursor:pointer;}
 .slt_label{position:relative;}
 .slt_label span{position:absolute;top:-23px;left:5px;z-index:2;}
 
@@ -195,7 +195,7 @@ $('.date_blank').on('click',function(e){
         $row['com_name_customer'] = $csql['com_name'];
 
         // 출하 건수
-        $sql2 = " SELECT COUNT(oro_idx) AS cnt FROM {$g5['order_out_table']} WHERE ord_idx = '".$row['ord_idx']."' ";
+        $sql2 = " SELECT COUNT(oro_idx) AS cnt FROM {$g5['order_out_table']} WHERE ord_idx = '".$row['ord_idx']."' AND oro_status NOT IN('delete','del','trash') ";
         $row['oro'] = sql_fetch($sql2,1);
         //print_r2($row['ord_date']);
         // 제품목록

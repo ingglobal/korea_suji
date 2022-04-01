@@ -67,16 +67,16 @@ if($w == ''){
         ,'ord_idx' => array('type'=>'hidden','value'=>$$pre['ord_idx'])
         ,'ori_idx' => array('type'=>'hidden','value'=>$$pre['ori_idx'])
         ,'oro_idx' => array('type'=>'hidden','value'=>$$pre['oro_idx'])
-        ,'bom_idx' => array('type'=>'text','ttl'=>'제품선택','value'=>$$pre['bom_idx'],'required'=>true,'readonly'=>true,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>200)
-        ,'orp_idx' => array('type'=>'text','value'=>$$pre['orp_idx'],'ttl'=>'생산계획ID','required'=>true,'readonly'=>true,'tr_s'=>true,'th'=>true,'td'=>true)
-        ,'oop_count' => array('type'=>'text','ttl'=>'지시수량','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
+        ,'bom_idx' => array('type'=>'text','ttl'=>'제품선택','value'=>$$pre['bom_idx'],'required'=>true,'readonly'=>true,'tr_s'=>true,'th'=>true,'td'=>true,'width'=>200)
+        ,'orp_idx' => array('type'=>'text','ttl'=>'생산계획ID','value'=>$$pre['orp_idx'],'required'=>true,'readonly'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
+        ,'oop_count' => array('type'=>'text','ttl'=>'지시수량','value'=>$$pre['oop_count'],'required'=>true,'readonly'=>true,'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true,'width'=>80,'class'=>'align_right','id'=>'oop_count')
         ,'oop_1' => array('type'=>'text','ttl'=>'시간별수량','value'=>$$pre['oop_1'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_2' => array('type'=>'none','value'=>$$pre['oop_2'])
         ,'oop_3' => array('type'=>'none','value'=>$$pre['oop_3'])
         ,'oop_4' => array('type'=>'none','value'=>$$pre['oop_4'])
         ,'oop_memo' => array('type'=>'textarea','ttl'=>'메모','value'=>$$pre['oop_memo'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
         ,'oop_history' => array('type'=>'text','ttl'=>'로그내용','value'=>$$pre['oop_history'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
-        ,'oop_status' => array('type'=>'select','ttl'=>'상태','value'=>$$pre['oop_status'],'width'=>'auto','select'=>$g5['set_oop_status_value'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
+        ,'oop_status' => array('type'=>'select','ttl'=>'상태','value'=>$$pre['oop_status'],'required'=>true,'width'=>'auto','select'=>$g5['set_oop_status_value'],'colspan'=>3,'tr_s'=>true,'tr_e'=>true,'th'=>true,'td'=>true)
     );
 }
 else if($w == 'u' || $w == 'c'){
@@ -139,7 +139,54 @@ foreach($f1 as $hk=>$hv){
     <p>각종 고유번호(설비번호, IMP번호..)들은 내부적으로 다른 데이타베이스 연동을 통해서 정보를 가지고 오게 됩니다.</p>
 	<p class="txt_redblink" style="display:no ne;">설비idx=0 인 경우는 전체설비(설비 비선택 추가해라!!!)<br>설비idx 가 있으면 특정설비의 작업구간</p>
 </div>
-
+<?php if($w == ''){ ?>
+<div class="tbl_frm01 tbl_wrap">
+    <table>
+    <caption>생산계획정보</caption>
+	<colgroup>
+		<col class="grid_4" style="width:7%;">
+		<col style="width:43%;">
+		<col class="grid_4" style="width:7%;">
+		<col style="width:43%;">
+	</colgroup>
+    <tbody>
+        <tr>
+            <th>작업지시번호</th>
+            <td>
+                <?php
+                $tdcode = preg_replace('/[ :-]*/','',G5_TIME_YMDHIS);
+                $orp_order_no = "ORP-".$tdcode;
+                ?>
+                <input type="text" name="orp_order_no" id="orp_order_no" value="<?=$orp_order_no?>" readonly class="frm_input readonly" style="width:160px;">
+            </td>
+            <th>설비선택</th>
+            <td>
+                <select name="trm_idx_line" id="trm_idx_line">
+                    <option value="">라인선택</option>
+                    <?=$line_form_options?>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>생산담당자</th>
+            <td>
+                <input type="hidden" name="mb_id" id="mb_id" value="">
+                <input type="text" name="mb_name" id="mb_name" value="" id="mb_name" readonly class="frm_input readonly" style="width:100px;">
+                <a href="./member_select.php?file_name=<?php echo $g5['file_name']?>" class="btn btn_02" id="btn_member">찾기</a>
+            </td>
+            <th>생산시작일</th>
+            <td>
+                <input type="text" name="orp_start_date" id="orp_start_date" readonly class="frm_input readonly" style="width:100px;">
+                <!--
+                &nbsp;&nbsp;~&nbsp;&nbsp;
+                <input type="text" name="orp_end_date" id="orp_end_date" readonly class="frm_input readonly" style="width:100px;">
+                -->
+            </td>
+        </tr>
+    </tbody>
+    </table>
+</div>
+<?php } ?>
 <div class="tbl_frm01 tbl_wrap">
 	<table>
 	<caption><?php echo $g5['title']; ?></caption>
@@ -188,10 +235,7 @@ foreach($f1 as $hk=>$hv){
                 $ln_sql = sql_fetch(" SELECT trm_idx_line FROM {$g5['order_practice_table']} WHERE orp_idx = '{$fv['value']}' ");
                 $line_idx = $ln_sql['trm_idx_line'];
                 $line_name = ($line_idx) ? $fv['value'].'-('.$g5['line_name'][$line_idx].')' : '';
-                if($w == ''){
-                    $fctag .= '<p style="color:skyblue;padding-bottom:5px;">원하는 날짜의 라인항목이 없으면 반드시 수주관리 - 출하관리 등록을 먼저 진행해 주세요.</p>'.PHP_EOL;
-                }
-                $fctag .= '<p style="color:orange;padding-bottom:5px;">기존에 존재하는 생산계획에 추가/변경하고자 할 때 설정해 주세요.</p>'.PHP_EOL;
+                $fctag .= '<p style="color:orange;padding-bottom:5px;">기존에 존재하는 생산계획에 추가/변경하고자 할 때만 설정해 주세요.</p>'.PHP_EOL;
                 $fctag .= '<input type="hidden" name="'.$fk.'" value="'.$fv['value'].'"'.$required.$readonly.' class="frm_input'.$required.$readonly.'">'.PHP_EOL;
                 $fctag .= '<input type="text" name="line_name" id="line_name" value="'.$line_name.'"'.$required.$readonly.' class="frm_input'.$required.$readonly.'">'.PHP_EOL;
                 $fctag .= '<a href="./order_practice_select.php?frm=form01&file_name='.$g5['file_name'].'&w='.$w.'&orp_idx='.$fv['value'].'" class="btn btn_02" id="btn_orp">생산계획ID(라인설비별)찾기</a>'.PHP_EOL;
@@ -302,18 +346,49 @@ function only_Number(object){
 }
 
 function form01_submit(f){
-    
+    if(!f.orp_idx.value){
+        //설비선택이 없으면 안됨
+        if(!f.trm_idx_line.value){
+            alert('설비선택을 해 주세요.');
+            f.trm_idx_line.focus();
+            return false;
+        }
+
+        //생산자 선택이 없으면 안됨
+        if(!f.mb_id.value){
+            alert('생산담당자를 선택해 주세요.');
+            f.mb_name.focus();
+            return false;
+        }
+        
+        //생산시작일을 입력해 주세요
+        if(!f.orp_start_date.value){
+            alert('생산시작일을 입력해 주세요.');
+            f.orp_start_date.focus();
+            return false;
+        }
+        
+        //생산종료일을 입력해 주세요
+        /*
+        if(!f.orp_end_date.value){
+            alert('생산종료일을 입력해 주세요.');
+            f.orp_end_date.focus();
+            return false;
+        }
+        */
+    }
+    else{
+        //생산계획ID값이 없으면 안됨
+        if(!f.orp_idx.value){
+            alert("생산계획ID를 선택해 주세요.");
+            f.line_name.focus();
+            return false;
+        }
+    }
     //생산할 상품을 선택하세요
     if(!f.bom_idx.value){
         alert('생산할 상품을 선택해 주세요.');
         f.bom_name.focus();
-        return false;
-    }
-    
-    //생산계획ID값이 없으면 안됨
-    if(!f.orp_idx.value){
-        alert("반드시 생산계획ID를 선택해 주세요.");
-        f.line_name.focus();
         return false;
     }
 
