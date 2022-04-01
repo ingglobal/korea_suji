@@ -98,7 +98,8 @@ $items2 = array(
 $items = array_merge($items1,$items2);
 ?>
 <style>
-.td_mms_image {width:120px;}
+.td_mms_image {width:120px;position:relative;}
+.no_img{position:relative;width:100px;height:80px;line-height:80px;background:#444;display:inline-block;color:#777;font-weight:700;}
 </style>
 
 <div class="local_ov01 local_ov">
@@ -273,7 +274,11 @@ $items = array_merge($items1,$items2);
                 // print_r2($v1);
                 // 변수 재설정
                 if($k1=='mms_image') {
-                    $row[$k1] = '<a href="./mms_view.popup.php?&mms_idx='.$row['mms_idx'].'" class="btn_image">'.$row['img']['thumbnail_img'].'</a>';
+                    if($row['img']['thumbnail_img']){
+                        $row[$k1] = '<a href="./mms_view.popup.php?&mms_idx='.$row['mms_idx'].'" class="btn_image">'.$row['img']['thumbnail_img'].'</a>';
+                    } else {
+                        $row[$k1] = '<div class="no_img">NO IMAGE</div>';
+                    }
                 }
                 else if($k1=='mms_reg_dt') {
                     $row[$k1] = substr($row[$k1],0,10);

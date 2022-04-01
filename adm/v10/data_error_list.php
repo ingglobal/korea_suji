@@ -99,6 +99,17 @@ $items1 = array(
     "dta_idx"=>array("번호",0,0,1)
     ,"mms_idx"=>array("설비명",0,0,0)
     ,"imp_idx"=>array("iMP",0,0,0)
+    ,"dta_group"=>array("GROUP",0,0,0)
+    ,"dta_code"=>array("에러코드",0,0,0)
+    ,"dta_message"=>array("메시지",0,0,0)
+    ,"dta_dt"=>array("에러일시",0,0,0)
+    ,"dta_reg_dt"=>array("등록일",0,0,0)
+);
+/*
+$items1 = array(
+    "dta_idx"=>array("번호",0,0,1)
+    ,"mms_idx"=>array("설비명",0,0,0)
+    ,"imp_idx"=>array("iMP",0,0,0)
     ,"dta_shf_no"=>array("교대",0,0,0)
     ,"dta_group"=>array("GROUP",0,0,0)
     ,"dta_code"=>array("에러코드",0,0,0)
@@ -108,6 +119,7 @@ $items1 = array(
     ,"com_idx"=>array("업체번호",0,0,0)
     ,"dta_reg_dt"=>array("등록일",0,0,0)
 );
+*/
 
 add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker/jquery.timepicker.css">', 0);
 ?>

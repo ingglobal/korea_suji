@@ -98,6 +98,19 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 $items1 = array(
     "itm_idx"=>array("번호",0,0,1)
     ,"itm_name"=>array("품명",0,0,0)
+    ,"bom_part_no"=>array("파트넘버",0,0,0)
+    ,"trm_idx_line"=>array("라인",0,0,0)
+    ,"orp_idx"=>array("실행계획",0,0,0)
+    ,"itm_weight"=>array("무게(kg)",0,0,0)
+    ,"itm_barcode"=>array("바코드",0,0,0)
+    ,"itm_status"=>array("상태",0,0,0)
+    ,"itm_date"=>array("통계일",0,0,0)
+    ,"itm_reg_dt"=>array("등록일",0,0,0)
+);
+/*
+$items1 = array(
+    "itm_idx"=>array("번호",0,0,1)
+    ,"itm_name"=>array("품명",0,0,0)
     ,"bom_part_no"=>array("파트넘버/바코드",0,0,0)
     ,"trm_idx_line"=>array("라인",0,0,0)
     ,"itm_shift"=>array("구간",0,0,0)
@@ -109,12 +122,14 @@ $items1 = array(
     ,"itm_status"=>array("상태",0,0,0)
     ,"itm_reg_dt"=>array("등록일",0,0,0)
 );
+*/
 
 add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker/jquery.timepicker.css">', 0);
 ?>
 <style>
     .td_bom_part_no {width:200px;}
     .td_trm_idx_line {width:48px;}
+    .td_trm_idx_line{width:80px;}
 </style>
 <script type="text/javascript" src="<?=G5_USER_ADMIN_URL?>/js/timepicker/jquery.timepicker.js"></script>
 
@@ -195,7 +210,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
 			<input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
 		</th>
         <?php
-        $skips = array('itm_barcode');
+        $skips = array();
         if(is_array($items1)) {
             foreach($items1 as $k1 => $v1) {
                 if(in_array($k1,$skips)) {continue;}
@@ -232,7 +247,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
             <input type="checkbox" name="chk[]" value="<?php echo $i ?>" id="chk_<?php echo $i ?>">
         </td>
         <?php
-        $skips = array('itm_barcode');
+        $skips = array();
         if(is_array($items1)) {
 //            print_r2($items1);
             foreach($items1 as $k1 => $v1) {
@@ -257,9 +272,6 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
                 }
                 else if($k1=='itm_status') {
                     $list[$k1] = $g5['set_itm_status'][$row['itm_status']];
-                }
-                else if($k1=='bom_part_no') {
-                    $list[$k1] = $row[$k1].'<br>'.preg_replace("/".$row[$k1]."/","...",$row['itm_barcode']);
                 }
 
                 $row['colspan'] = ($v1[1]>1) ? ' colspan="'.$v1[1].'"' : '';   // colspan 설정

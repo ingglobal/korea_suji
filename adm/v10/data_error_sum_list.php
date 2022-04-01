@@ -87,6 +87,16 @@ $items1 = array(
     "dta_idx"=>array("번호",0,0,1)
     ,"mms_idx"=>array("설비번호",0,0,0)
     ,"imp_idx"=>array("IMP",0,0,0)
+    ,"dta_code"=>array("CODE",0,0,0)
+    ,"dta_value"=>array("값(db)",0,0,0)
+    ,"dta_value_sum"=>array("합산",0,0,0)
+    ,"dta_date"=>array("날짜",0,0,1)
+);
+/*
+$items1 = array(
+    "dta_idx"=>array("번호",0,0,1)
+    ,"mms_idx"=>array("설비번호",0,0,0)
+    ,"imp_idx"=>array("IMP",0,0,0)
     ,"dta_shf_no"=>array("교대",0,0,0)
     ,"dta_code"=>array("CODE",0,0,0)
     ,"trm_idx_category"=>array("분류",0,0,0)
@@ -94,6 +104,7 @@ $items1 = array(
     ,"dta_value_sum"=>array("합산",0,0,0)
     ,"dta_date"=>array("날짜",0,0,1)
 );
+*/
 ?>
 
 <div class="local_ov01 local_ov">

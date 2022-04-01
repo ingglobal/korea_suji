@@ -120,11 +120,6 @@ include_once('./_top.kpi.php');
             </div><!-- .div_info_body -->
 
         
-            
-
-
-        </div><!-- .div_left -->
-        <div class="div_right">
             <!-- ========================================================================================= -->
             <div class="div_title_02"><i class="fa fa-check" aria-hidden="true">정비 이력</i>
                 <a href="<?=G5_BBS_URL?>/board.php?bo_table=maintain" target="_parent" class="more">더보기</a>
@@ -186,7 +181,62 @@ include_once('./_top.kpi.php');
                 $('#sum_maintain').closest('li').find('.unit').text('<?=$maintain_price[1]?>');
                 </script>
             </div><!-- .div_info_body -->
-        </div><!-- .div_right -->
+
+
+        </div><!-- .div_left -->
+        <div class="div_right">
+
+            <!-- ========================================================================================= -->
+            <div class="div_title_02"><i class="fa fa-check" aria-hidden="true">설비별 재고</i>
+                <a href="<?=G5_BBS_URL?>/board.php?bo_table=parts" target="_parent" class="more">더보기</a>
+            </div>
+            <div class="div_info_body">
+                <?php 
+                // latest에서 불러오면 cache때문에 시차가 생김
+                // echo latest10('theme/kpi20', 'parts', 10, 23,0);
+                ?>
+                <table class="table01">
+                    <thead class="tbl_head">
+                    <tr>
+                        <th scope="col" style="width:30%">구분</th>
+                        <th scope="col">부품명</th>
+                        <th scope="col" style="width:20%">수량</th>
+                    </tr>
+                    </thead>
+                    <tbody class="tbl_body">
+                    <?php
+                    $sql = "SELECT *
+                            FROM g5_write_parts
+                            WHERE wr_is_comment = 0
+                                AND wr_1 = '".$com['com_idx']."'
+                                {$sql_mmses2}
+                            ORDER BY wr_num
+                            LIMIT 5
+                    ";
+                    // echo $sql.'<br>';
+                    $rs = sql_query($sql,1);
+                    for ($i=0; $row=sql_fetch_array($rs); $i++) {
+                        // print_r2($row);
+                        // wr_9 serialized 추출
+                        $row['sried'] = get_serialized($row['wr_9']);
+                        // print_r2($row['sried']);
+                        echo '
+                        <tr class="'.$row['tr_class'].'">
+                            <td class="">'.$row['sried']['mms_name'].'</td><!-- 구분 -->
+                            <td class="">'.$row['wr_subject'].'</td><!-- 부품명 -->
+                            <td class="text_center">'.$row['wr_4'].'</td><!-- 수량 -->
+                        </tr>
+                        ';
+                    }
+                    if ($i == 0)
+                        echo '<tr class="tr_empty"><td class="td_empty" colspan="6">자료가 없습니다.</td></tr>';
+                    ?>
+                </tbody>
+                </table>
+
+            </div><!-- .div_info_body -->
+
+        </div><!-- .div_r -->
     </div><!-- .div_wrapper -->
 
 

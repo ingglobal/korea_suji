@@ -22,7 +22,7 @@ echo $g5['container_sub_title'];
 // update_item_sum_by_status(160379);
 
 $sql_common = " FROM {$g5_table_name} AS ".$pre."
-                    LEFT JOIN {$g5['bom_table']} AS bom USING(bom_idx)
+                    LEFT JOIN {$g5['bom_table']} AS bom ON itm.bom_idx = bom.bom_idx
 ";
 
 $where = array();
@@ -59,8 +59,9 @@ if ($ser_trm_line) {
 
 // 최종 WHERE 생성
 if ($where)
-    $sql_search = ' WHERE '.implode(' AND ', $where);
+    $sql_search = ' HAVING '.implode(' AND ', $where);
 
+$sql_groupby = ' GROUP BY itm.itm_date, itm.bom_part_no, itm.itm_status ';
 
 if (!$sst) {
     $sst = $pre."_idx";
@@ -72,8 +73,13 @@ $rows = $config['cf_page_rows'];
 if (!$page) $page = 1; // 페이지가 없으면 첫 페이지 (1 페이지)
 $from_record = ($page - 1) * $rows; // 시작 열을 구함
 
-$sql = " SELECT SQL_CALC_FOUND_ROWS DISTINCT ".$pre.".*
+$sql = " SELECT SQL_CALC_FOUND_ROWS 
+                    DISTINCT ".$pre.".*
+                    , bom.bom_name
+                    , SUM(itm.itm_count) AS itm_cnt
+                    , SUM(itm.itm_weight) AS itm_wt
 		{$sql_common}
+		{$sql_groupby}
 		{$sql_search}
         {$sql_order}
 		LIMIT {$from_record}, {$rows} 
@@ -89,14 +95,14 @@ $listall = '<a href="'.$_SERVER['SCRIPT_NAME'].'" class="ov_listall">전체목�
 // 각 항목명 및 항목 설정값 정의, 형식: 항목명, colspan, rowspan, 정렬링크여부(타이틀클릭)
 $items1 = array(
     "itm_idx"=>array("번호",0,0,1)
-    ,"bom_idx"=>array("품명",0,0,0)
+    ,"bom_name"=>array("품명",0,0,0)
     ,"bom_part_no"=>array("파트번호",0,0,0)
     ,"mms_idx"=>array("MMS_idx",0,0,0)
     ,"trm_idx_line"=>array("라인",0,0,0)
-    ,"itm_price"=>array("단가",0,0,0)
     ,"itm_status"=>array("상태",0,0,0)
-    ,"itm_count"=>array("생산량",0,0,0)
-    ,"itm_date"=>array("날짜",0,0,1)
+    ,"itm_cnt"=>array("톤백수량",0,0,0)
+    ,"itm_wt"=>array("무게(kg)",0,0,0)
+    ,"itm_date"=>array("통계일",0,0,1)
 );
 /*
 $items1 = array(
