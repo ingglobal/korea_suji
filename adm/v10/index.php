@@ -37,8 +37,8 @@ add_javascript('<script src="'.G5_USER_URL.'/js/slick-1.8.1/slick/slick.min.js">
     <a href="javascript:" class="icon_x10">x10</a>
     <a href="javascript:" class="icon_x12">x12</a>
     <a href="javascript:" class="icon_x15">x15</a>
-    <a href="./dashboard_setting.php?file_name=<?=$g5['file_name']?>" class="icon_setting">setting</a>
-    <a href="javascript:" class="icon_max">max</a>
+    <a href="./dashboard_setting.php?file_name=<?=$g5['file_name']?>" class="icon_setting"><span>setting</span></a>
+    <a href="javascript:" class="icon_max"><span>max</span></a>
 </div>
 <ul class="list_wrapper">
     <?php
@@ -250,13 +250,13 @@ if($i>0) {
 
 <!-- Data Infomation -->
 <div class="mms_icons graph_icons">
-    <a href="javascript:" class="icon_x1">x1</a>
-    <a href="javascript:" class="icon_x2">x2</a>
-    <a href="javascript:" class="icon_x3">x3</a>
-    <a href="javascript:" class="icon_x4">x4</a>
-    <a href="javascript:" class="icon_x5">x5</a>
-    <a href="javascript:" class="icon_graph">graph</a>
-    <a href="javascript:" class="icon_max">max</a>
+    <a href="javascript:" class="icon_x1"><span>x1</span></a>
+    <a href="javascript:" class="icon_x2"><span>x2</span></a>
+    <a href="javascript:" class="icon_x3"><span>x3</span></a>
+    <a href="javascript:" class="icon_x4"><span>x4</span></a>
+    <a href="javascript:" class="icon_x5"><span>x5</span></a>
+    <a href="javascript:" class="icon_graph"><span>graph</span></a>
+    <a href="javascript:" class="icon_max"><span>max</span></a>
 </div>
 <div class="mms_wrapper">
     <!-- MMS info Area -->
