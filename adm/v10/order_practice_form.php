@@ -116,13 +116,22 @@ include_once ('./_head.php');
 		</td>
     </tr>
     <tr>
-        <th scope="row">생산시작일</th>
-		<td><?=${$pre}['orp_start_date']?></td>
+        <?php
+        $ar['id'] = 'orp_start_date';
+        $ar['name'] = '생산시작일';
+        $ar['type'] = 'input';
+        $ar['width'] = '95px';
+        $ar['readonly'] = 'readonly';
+        $ar['required'] = 'required';
+        $ar['value'] = ${$pre}[$ar['id']];
+        echo create_td_input($ar);
+        unset($ar);
+        ?>
         <?php
         $ar['id'] = 'orp_done_date';
         $ar['name'] = '생산종료일';
         $ar['type'] = 'input';
-        $ar['width'] = '80px';
+        $ar['width'] = '95px';
         $ar['readonly'] = 'readonly';
         $ar['required'] = 'required';
         $ar['value'] = ${$pre}[$ar['id']];
@@ -153,7 +162,7 @@ include_once ('./_head.php');
 
 <script>
 $(function() {
-    $("input[name=orp_done_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+    $("input[name=orp_start_date],input[name=orp_done_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
 
         
     // 생산자

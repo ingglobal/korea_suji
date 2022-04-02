@@ -447,10 +447,12 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/css/kpi1.css"
             </div><!-- .div_info_body -->
             <?php
             $amount_price = num_to_han($amount_output_price);
-            // print_r2($amount_price);
+            // print_r2($target);
+            //$sum_target_val = ()
             ?>
             <script>
             // 매출액, 목표달성율, 불량율 입력
+            // console.log($('#sub_sales').length);
             $('#sum_sales').text('<?=number_format($amount_price[0],1)?>');
             $('#sum_sales').closest('li').find('.unit').text('<?=$amount_price[1]?>');
             $('#sum_target').text('<?=number_format(($amount_output/$target['total']*100),1)?>');
