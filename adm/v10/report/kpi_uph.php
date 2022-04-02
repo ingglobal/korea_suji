@@ -25,7 +25,7 @@ echo $g5['container_sub_title'];
 $sql2 = "   SELECT mms_idx, mms_name
             FROM {$g5['mms_table']}
             WHERE com_idx = '".$_SESSION['ss_com_idx']."'
-            ORDER BY mms_idx       
+            ORDER BY mms_idx
 ";
 // echo $sql2.'<br>';
 $result2 = sql_query($sql2,1);
@@ -153,7 +153,7 @@ for($i=0;$row=sql_fetch_array($rs);$i++){
     // print_r2($offwork[$i]);
     // echo '<br>----------------------------------------<br>';
 
-    
+
 }
 // print_r2($mms_date);
 // print_r2($offwork);
@@ -244,7 +244,7 @@ $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
 $sql = " SELECT SQL_CALC_FOUND_ROWS mms_idx, bom_part_no, itm_date
             , SUM(itm_weight) AS output_sum
             , CASE WHEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) <> NULL
-                        AND ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) != '0000-00-00 00:00:00' 
+                        AND ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date ) != '0000-00-00 00:00:00'
                         THEN ( SELECT MIN(mtr_melt_dt) FROM {$g5['material_table']} WHERE mtr_input_date = itm_date )
                     ELSE MIN(itm_reg_dt)
                 END
@@ -358,11 +358,12 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
         // ";
         // $row2 = sql_fetch($sql2,1);
         // $row['period'] = $row2;
-        $msql = " SELECT MIN(mtr_melt_dt) AS min_melt_dt FROM {$g5['material_table']} 
-                WHERE oop_idx = '{$row['oop_idx']}' 
+        $msql = " SELECT MIN(mtr_melt_dt) AS min_melt_dt FROM {$g5['material_table']}
+                WHERE oop_idx = '{$row['oop_idx']}'
                     AND mtr_input_date = '{$row['itm_date']}'
                     AND mtr_type = 'half'
                     AND mtr_status = 'melt'
+					AND mtr_melt_dt != '0000-00-00 00:00:00'
         ";
         // echo $msql."<br>";
         $met = sql_fetch($msql);
@@ -463,7 +464,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
             }
             // echo $row['offwork'][$i].'<br>';
             // echo '<br>--------------------------------------------------<br>';
-    
+
         }
         // print_r2($row['offworks'][$i]); // 공제시간 전체 배열
         // echo '<br>=====================================================================<br>';
@@ -539,7 +540,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
                     // echo $row['downtime1'][$i][$j].' <== downtime changed.<br>';
                     // print_r2($row['downtime1'][$i]);
                     // echo $row['downtime1'][$i].'<br>';
-                    
+
                 }
             }
             // echo '<br>---------------------------<br>';
@@ -554,7 +555,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
             }
         }
         // echo $row['downtime'][$i].'<br>';
-            
+
 
         // 비가동(downtime) 추출 2차 (24시 이후)
         if( $row['itm_end_his2'] ) {
@@ -584,17 +585,17 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
             $rs2 = sql_query($sql2,1);
             for ($j=0; $row2=sql_fetch_array($rs2); $j++) {
                 // print_r2($row2);
-    
+
                 // 비가동 시간(초), 일단 추출해 놓고 공제시간 돌면서 해당 사항 있으면 공제
                 $row['downtime2'][$i][$j] = $row2['dta_end_dt'] - $row2['dta_start_dt'];
                 // echo $row['downtime2'][$i][$j].' downtime original<br>';
-    
+
                 // 공제시간 배열 전체를 돌면서 중복을 제거해야 함
                 if(is_array($row['offworks'][$i])) {
                     foreach($row['offworks'][$i] as $k1=>$v1) {
                         // print_r2($v1);
                         // echo $v1['start'].'~'.$v1['end'].' 원본<br>';
-    
+
                         // 완전 포함인 경우는 무조건 중복이므로 제외해야 함
                         if( $row2['dta_start_his'] <= $row['offworks'][$i][$k1]['start'] && $row2['dta_end_his'] >= $row['offworks'][$i][$k1]['end'] ) {
                             // echo '3<br>';
@@ -616,11 +617,11 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
                         // echo $row['downtime2'][$i][$j].' <== downtime changed.<br>';
                         // print_r2($row['downtime2'][$i]);
                         // echo $row['downtime2'][$i].'<br>';
-                        
+
                     }
                 }
                 // echo '<br>---------------------------<br>';
-    
+
             }
             // echo '<br>==================================================================<br>';
             // print_r2($row['downtime2'][$i]);
@@ -638,7 +639,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/timepicker
 
         // 링크
         $row['ahref'] = '<a href="?'.$qstr.'&sfl=dta_mmi_no&stx='.$row['dta_mmi_no'].'">';
-        
+
         $bg = 'bg'.($i%2);
     ?>
     <tr class="<?php echo $bg; ?> tr_<?=$row['dmn_status']?>">
@@ -724,7 +725,7 @@ $(function(e) {
         },
         mouseleave: function () {
             $('tr[tr_id='+$(this).attr('tr_id')+']').find('td').css('background','unset');
-        }    
+        }
     });
 
 });
