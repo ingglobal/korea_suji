@@ -236,6 +236,7 @@ function sch_submit(f){
 	<tbody>
     <?php
     for ($i=0; $row=sql_fetch_array($result); $i++) {
+        // print_r2($row);
         // arm_keys 값을 배열에 추가
         $row = array_merge($row, get_keys($row['arm_keys'],'~'));
 
