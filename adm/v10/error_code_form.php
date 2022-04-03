@@ -309,8 +309,8 @@ label[disabled] {color:#fff;}
 		<td colspan="3">
 			<?php
             $ar['prefix'] = 'cod';
-            $ar['com_idx'] = $com['com_idx'];
-            $ar['value'] = $cod['cod_send_type'];
+            $ar['com_idx'] = $_SESSION['ss_com_idx'];
+            $ar['value'] = $com['com_send_type'];
             echo set_send_type($ar);
             unset($ar);
 			// $set_values = explode(',', preg_replace("/\s+/", "", $g5['setting']['set_send_type']));

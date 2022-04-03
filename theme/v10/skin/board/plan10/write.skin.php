@@ -232,9 +232,10 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style2.css">', 
         <label for="wr_subject" class="sound_only">메시지발송설정</label>
         <div id="autosave_wrapper write_div">
         <?php
+            $com = get_table_meta('company','com_idx',$_SESSION['ss_com_idx']);
             $ar['prefix'] = 'wr';
-            $ar['com_idx'] = $write['wr_1'];
-            $ar['value'] = $write['wr_send_type'];
+            $ar['com_idx'] = $_SESSION['ss_com_idx'];
+            $ar['value'] = $com['com_send_type'];
             echo set_send_type($ar);
             unset($ar);
 			?>
