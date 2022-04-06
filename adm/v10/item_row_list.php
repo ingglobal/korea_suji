@@ -228,6 +228,7 @@ $('.data_blank').on('click',function(e){
         <th scope="col">품별순서</th>
         <th scope="col">무게(kg)</th>
         <th scope="col">등록일시</th>
+        <th scope="col">수정일시</th>
         <th scope="col">출하여부</th>
         <th scope="col">상태</th>
         <th scope="col">관리</th>
@@ -293,6 +294,14 @@ $('.data_blank').on('click',function(e){
                 <?=substr($row['itm_reg_dt'],0,19)?>
             <?php } ?>
         </td><!-- 등록일시 -->
+        <td class="td_itm_upt_dt">
+            <?php if($is_admin){ ?>
+                <input type="text" name="itm_update_dt[<?=$row['itm_idx']?>]" value="<?=$row['itm_update_dt']?>" class="frm_input" style="width:160px;text-align:center;">
+            <?php } else { ?>
+                <input type="hidden" name="itm_update_dt[<?=$row['itm_idx']?>]" value="<?=$row['itm_update_dt']?>">
+                <?=substr($row['itm_update_dt'],0,19)?>
+            <?php } ?>
+        </td><!-- 수정일시 -->
         <td class="td_itm_delivery">
             <?php
                 echo ($row['itm_delivery']) ? '<span style="color:skyblue;">출하</span>' : '';
@@ -310,7 +319,7 @@ $('.data_blank').on('click',function(e){
     <?php
     }
     if ($i == 0)
-        echo "<tr><td colspan='14' class=\"empty_table\">자료가 없습니다.</td></tr>";
+        echo "<tr><td colspan='15' class=\"empty_table\">자료가 없습니다.</td></tr>";
     ?>
     </tbody>
     </table>
