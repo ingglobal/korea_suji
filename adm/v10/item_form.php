@@ -57,6 +57,7 @@ include_once ('./_head.php');
 <input type="hidden" name="token" value="">
 <input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
 <input type="hidden" name="sca" value="<?php echo $sca ?>">
+<?php if($w == 'u'){ ?><input type="hidden" name="itm_update_dt" value="<?=${$pre}['itm_update_dt']?>"><?php } ?>
 
 <div class="local_desc01 local_desc" style="display:none;">
     <p>가격 변경 이력을 관리합니다. (가격 변동 날짜 및 가격을 지속적으로 기록하고 관리합니다.)</p>

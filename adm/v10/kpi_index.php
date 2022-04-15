@@ -225,7 +225,7 @@ $(function(e){
 	// $('.tab_list li').eq(<?=$tab_idx?>).trigger('click');
 	frame_loading(0);
 
-    $("input[name$=_date]").datepicker({
+    $("input[name=st_date]").datepicker({
         closeText: "닫기",
         currentText: "오늘",
         monthNames: ["1월","2월","3월","4월","5월","6월", "7월","8월","9월","10월","11월","12월"],
@@ -236,7 +236,21 @@ $(function(e){
         dateFormat: "yy-mm-dd",
         showButtonPanel: true,
         yearRange: "c-99:c+99",
-        //maxDate: "+0d"
+        onSelect: function(selectedDate){$("input[name=en_date]").datepicker('option','minDate',selectedDate);} 
+    });
+
+	$("input[name=en_date]").datepicker({
+        closeText: "닫기",
+        currentText: "오늘",
+        monthNames: ["1월","2월","3월","4월","5월","6월", "7월","8월","9월","10월","11월","12월"],
+        monthNamesShort: ["1월","2월","3월","4월","5월","6월", "7월","8월","9월","10월","11월","12월"],
+        dayNamesMin:['일','월','화','수','목','금','토'],
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        showButtonPanel: true,
+        yearRange: "c-99:c+99",
+        onSelect:function(selectedDate){$("input[name=st_date]").datepicker('option','maxDate',selectedDate); }
     });
 
 	// iFrame높이 자동(자식창의 높이에 따라 맞춤)

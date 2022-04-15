@@ -66,7 +66,7 @@ else if ($w == 'u') {
                 {$sql_common}
                 {$error_search}
                 {$delivery_search}
-                , ".$pre."_update_dt = '".G5_TIME_YMDHIS."'
+                , ".$pre."_update_dt = '".${$pre}[$pre.'_update_dt']."'
             WHERE ".$pre."_idx = '".${$pre."_idx"}."'
 	";
     // echo $sql.'<br>';

@@ -267,9 +267,9 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_URL.'/js/jquery-nic
 <!-- selections -->
 <form id="form01" name="form01" class="form01" onsubmit="return sch_submit(this);" method="get">
 	<input type="hidden" name="com_idx" value="<?=$com['com_idx']?>" class="frm_input">
-	<input type="text" name="st_date" id="st_date" value="<?=$st_date?>" class="frm_input">
+	<input type="text" name="st_date" id="st_date" value="<?=$st_date?>" class="frm_input" style="width:100px;">
 	<span class="text01">~</span>
-	<input type="text" name="en_date" id="en_date" value="<?=$en_date?>" class="frm_input">
+	<input type="text" name="en_date" id="en_date" value="<?=$en_date?>" class="frm_input" style="width:100px;">
 	<div class="text02 prev_month"><i class="fa fa-chevron-left"></i></div>
 	<div class="text02 this_month" s_ymd="<?=$st_ymd?>" e_ymd="<?=$en_ymd?>">이번달</div>
 	<div class="text02 next_month"><i class="fa fa-chevron-right"></i></div>
@@ -387,7 +387,7 @@ $(function(e){
 	});
 
 
-    $("input[name$=_date]").datepicker({
+    $("input[name=st_date]").datepicker({
         closeText: "닫기",
         currentText: "오늘",
         monthNames: ["1월","2월","3월","4월","5월","6월", "7월","8월","9월","10월","11월","12월"],
@@ -398,7 +398,22 @@ $(function(e){
         dateFormat: "yy-mm-dd",
         showButtonPanel: true,
         yearRange: "c-99:c+99",
-        //maxDate: "+0d"
+        onSelect: function(selectedDate){$("input[name=en_date]").datepicker('option','minDate',selectedDate);} 
+    });
+
+
+    $("input[name=en_date]").datepicker({
+        closeText: "닫기",
+        currentText: "오늘",
+        monthNames: ["1월","2월","3월","4월","5월","6월", "7월","8월","9월","10월","11월","12월"],
+        monthNamesShort: ["1월","2월","3월","4월","5월","6월", "7월","8월","9월","10월","11월","12월"],
+        dayNamesMin:['일','월','화','수','목','금','토'],
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        showButtonPanel: true,
+        yearRange: "c-99:c+99",
+        onSelect:function(selectedDate){$("input[name=st_date]").datepicker('option','maxDate',selectedDate); }
     });
 
 });
