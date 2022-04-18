@@ -167,12 +167,12 @@ $('.date_blank').on('click',function(e){
     <caption><?php echo $g5['title']; ?> 목록</caption>
     <thead>
     <tr>
-        <!--
+        
         <th scope="col" id="bom_list_chk">
             <label for="chkall" class="sound_only">전체</label>
             <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
         </th>
-        -->
+        
         <th scope="col"><?php echo subject_sort_link('ord_idx') ?>번호</a></th>
         <th scope="col">수주일</th>
         <th scope="col">제품</th>
@@ -291,14 +291,13 @@ $('.date_blank').on('click',function(e){
     ?>
 
     <tr class="<?php echo $bg; ?>" tr_id="<?php echo $row['ord_idx'] ?>">
-        <!--
+        
         <td class="td_chk">
             <input type="hidden" name="ord_idx[<?php ;//echo $row['ord_idx']; ?>]" value="<?php ;//echo $row['ord_idx'] ?>" id="ord_idx_<?php ;//echo $i ?>">
             <label for="chk_<?php ;//echo $i; ?>">
             <input type="checkbox" name="chk[]" value="<?php ;//echo $row['ord_idx'] ?>" id="chk_<?php ;//echo $i ?>">
             </label>
         </td>
-        -->
         <td class="td_num"><?php echo $row['ord_idx']; ?></td>
         <td class="td_ord_reg_dt">
             <?php if($row['ord_date'] == G5_TIME_YMD){ ?>
@@ -338,12 +337,12 @@ $('.date_blank').on('click',function(e){
 </div>
 
 <div class="btn_fixed_top">
-    <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
-       <a href="./order_form.php" id="member_add" class="btn btn_01">수주추가입력</a>
-    <?php } ?>
-    <?php if ($is_admin){ //(!auth_check($auth[$sub_menu],'w')) { ?>
+    <?php if (!auth_check($auth[$sub_menu],'w')) { //($is_admin){ //(!auth_check($auth[$sub_menu],'w')) { ?>
     <!--input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02"-->
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
+    <?php } ?>
+    <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
+        <a href="./order_form.php" id="member_add" class="btn btn_01">수주추가입력</a>
     <?php } ?>
 
 </div>
