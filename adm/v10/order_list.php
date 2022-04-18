@@ -92,7 +92,7 @@ $result = sql_query($sql);
 .td_bom_part_no, .td_com_name, .td_bom_maker
 ,.td_bom_items, .td_bom_items_title {text-align:left !important;}
 .span_bom_price {margin-left:20px;}
-.span_ori_count:before {content:'×';}
+.span_bom_price:before {content:'×';}
 .td_bom_items {color:#818181 !important;}
 .span_bom_part_no {margin-left:10px;}
 .span_bom_price b, .span_ori_count b {color:#737132;font-weight:normal;}
@@ -174,11 +174,11 @@ $('.date_blank').on('click',function(e){
         </th>
         -->
         <th scope="col"><?php echo subject_sort_link('ord_idx') ?>번호</a></th>
-        <th scope="col">수주금액</th>
+        <th scope="col">수주일</th>
         <th scope="col">제품</th>
         <th scope="col">출하계획</th>
         <!--th scope="col">실행계획</th-->
-        <th scope="col">수주일</th>
+        <th scope="col">수주금액</th>
         <th scope="col">수주상태</th>
         <th scope="col">관리</th>
     </tr>
@@ -238,8 +238,8 @@ $('.date_blank').on('click',function(e){
             $row['item_list'][] = '<div class="div_item">
                                         <span class="span_bom_name">'.$bom_mod.'('.$row1['ori_idx'].')</span>
                                         <span class="span_bom_part_no">'.$row1['bom_part_no'].'</span>
-                                        <span class="span_bom_price"><b>'.number_format($row1['bom_price']).'</b>원</span>
                                         <span class="span_ori_count"><b><span class="'.$cnt_blick.'">&nbsp;'.number_format($row1['ori_count']).'</span></b> kg</span>
+                                        <span class="span_bom_price"><b>'.number_format($row1['bom_price']).'</b>원</span>
                                     </div>';
         }
 		
@@ -300,22 +300,6 @@ $('.date_blank').on('click',function(e){
         </td>
         -->
         <td class="td_num"><?php echo $row['ord_idx']; ?></td>
-        <td class="td_ord_price" style="text-align:right;">
-            <?=number_format($row['ord_price'])?> 원<br>
-            총 <?=number_format($total_cnt1)?> 건
-        </td><!-- 수주금액 -->
-        <td class="td_com_name"><!-- 제품 -->
-            <?=implode(" ",$row['item_list'])?>
-        </td>
-        <td class="td_ord_ship_date">
-            <a href="<?=(($create)?'javascript:':$oro_url)?>" class="<?=(($create)?'oroButton':'')?>" link="<?=$oro_url?>"><?=$oro_btn?></a>
-            <?php if($oro_add_url){ ?>
-            <br><a href="javascript:" link="<?=$oro_add_url?>" class="oroButton"><?=$oro_add_btn?></a>
-            <?php } ?>
-        </td><!-- 출하 -->
-        <!--td class="td_practice_cnt">
-            
-        </td-->
         <td class="td_ord_reg_dt">
             <?php if($row['ord_date'] == G5_TIME_YMD){ ?>
                 <strong style="color:skyblue;"><?=$row['ord_date']?></strong>
@@ -323,6 +307,22 @@ $('.date_blank').on('click',function(e){
                 <?=$row['ord_date']?>
             <?php } ?>
         </td><!-- 수주일 -->
+        <td class="td_com_name"><!-- 제품 -->
+            <?=implode(" ",$row['item_list'])?>
+        </td>
+        <td class="td_ord_ship_date">
+            <a href="<?=(($create)?'javascript:':$oro_url)?>" class="<?=(($create)?'oroButton':'')?>" link="<?=$oro_url?>"><?=$oro_btn?></a>
+            <?php if($oro_add_url){ ?>
+                <br><a href="javascript:" link="<?=$oro_add_url?>" class="oroButton"><?=$oro_add_btn?></a>
+            <?php } ?>
+        </td><!-- 출하 -->
+        <!--td class="td_practice_cnt">
+        
+        </td-->
+        <td class="td_ord_price" style="text-align:right;">
+            <?=number_format($row['ord_price'])?> 원<br>
+            총 <?=number_format($total_cnt1)?> 건
+        </td><!-- 수주금액 -->
         <td class="td_ord_status"><?=$g5['set_ord_status_value'][$row['ord_status']]?></td><!-- 수주상태 -->
         <td class="td_mng">
 			<?=$s_mod?>
@@ -339,7 +339,7 @@ $('.date_blank').on('click',function(e){
 
 <div class="btn_fixed_top">
     <?php if (!auth_check($auth[$sub_menu],'d')) { ?>
-       <a href="./order_form.php" id="member_add" class="btn btn_01">추가하기</a>
+       <a href="./order_form.php" id="member_add" class="btn btn_01">수주추가입력</a>
     <?php } ?>
     <?php if ($is_admin){ //(!auth_check($auth[$sub_menu],'w')) { ?>
     <!--input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02"-->

@@ -13,7 +13,9 @@ if ($w == '') {
     
 }
 else if ($w == 'u') {
-    $sql = " SELECT * FROM {$g5['order_table']} WHERE ord_idx = '{$ord_idx}' ";
+    $sql = " SELECT *
+                    ,( SELECT SUM(ori_count) FROM {$g5['order_item_table']} WHERE ord_idx = ord.ord_idx AND ori_status NOT IN('delete','del','trash') ) AS sum_weight
+             FROM {$g5['order_table']} AS ord WHERE ord_idx = '{$ord_idx}' ";
     $ord = sql_fetch($sql);
     $csql = sql_fetch(" SELECT com_name FROM {$g5['company_table']} WHERE com_idx = '{$ord['com_idx_customer']}' ");
     $ord['com_name_customer'] = $csql['com_name'];
@@ -48,6 +50,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
 .div_title .bom_title {color:#00ffe7;font-weight:bold;}
 .bom_detail:before {content:"(";margin-left:10px;}
 .bom_detail:after {content:")";}
+.total_weight{color:yellow;font-size:1.2em;}
 #del-item {margin-top:-6px;}
 #nestable3 {padding:10px 20px;min-height:616px;}
 .div_bom_list {min-height:600px;padding:10px 20px;}
@@ -104,9 +107,13 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
     </tr>
     <tr>
         <th scope="row"><label for="ord_date">수주일</label></th>
-        <td colspan="3">
+        <td>
             <input type="text" name="ord_date" id="ord_date" value="<?=$ord['ord_date']?>" readonly required class="date frm_input readonly required" style="width:130px;">
             <span id="sp_notice" class="<?=(($ord['ord_date'])?'':'sp_error')?>"><?=(($ord['ord_date'])?'':'수주일을 입력해 주세요.')?></span>
+        </td>
+        <th scope="row"><label for="ord_date">총수주무게</label></th>
+        <td>
+            <strong class="total_weight"><?=number_format($ord['sum_weight'])?></strong> kg
         </td>
     </tr>
 	</tbody>
@@ -121,9 +128,9 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
     <div class="div_wrapper div_left">
         <div class="div_title">
             <?php if($row['com_name']){ ?>
-            <span class="ord_title"><?=$row['com_name']?></span>의 수주 설정
+            <span class="ord_title"><?=$row['com_name']?></span>의 수주수량입력
             <?php }else{ ?>
-            수주설정
+            수주수량입력
             <?php } ?>
             <a href="javascript:" id="del-item" class="btn_03 btn float_right"> 초기화</a>
         </div>
@@ -179,7 +186,7 @@ add_stylesheet('<link rel="stylesheet" href="'.G5_USER_ADMIN_CSS_URL.'/nestable.
     </div>
     <div class="div_wrapper div_right float_right">
         <div class="div_title">
-            <span class="bom_title2">제품 리스트</span>
+            <span class="bom_title2">수주제품선택</span>
         </div>
         <div class="div_bom_list">
             <iframe id="frame_bom_list" src="./order_item_list.php?file_name=<?=$g5['file_name']?>" frameborder="0" scrolling="no"></iframe>
@@ -448,13 +455,18 @@ function add_item(bom_idx, bom_name, bom_part_no, com_name, bom_price, bom_price
 function totalCalculatePrice(){
     var item_list = $('#nestable3 .dd-item .dd3-content .add_items');
     var totalprice = 0;
+    var totalweight = 0;
     if(item_list.length > 0){
         item_list.each(function(){
             var soge = Number($(this).find('.bom_price').attr('price')) * Number($(this).find('.span_count').find('.bit_count').text());
+            var swet = Number($(this).find('.span_count').find('.bit_count').text());
             totalprice += soge;
+            totalweight += swet;
         });
     }
+    // console.log(totalweight);
     $('#ord_price').val(thousand_comma(totalprice));
+    $('.total_weight').text(thousand_comma(totalweight));
     //console.log(thousand_comma(totalprice));
 }
 //################################### //상품목록 종료 ######################################

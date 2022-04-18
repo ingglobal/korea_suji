@@ -395,7 +395,7 @@ $('.data_blank').on('click',function(e){
 
 <div class="btn_fixed_top">
     <?php if (!auth_check($auth[$sub_menu],'w')) { ?>
-    <input type="button" name="act_button" value="실행계획묶음등록" onclick="modalOpen();" id="orp_bundle" class="btn btn_03">
+    <input type="button" name="act_button" value="생산계획묶음등록" onclick="modalOpen();" id="orp_bundle" class="btn btn_03">
     <!--input type="submit" name="act_button" value="실행계획개별등록" onclick="document.pressed=this.value" class="btn btn_03"-->
     <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
     <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
@@ -411,7 +411,7 @@ $('.data_blank').on('click',function(e){
 
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?schrows='.$schrows.'&'.$qstr.'&amp;page='); ?>
 
-<div id="modal01" title="실행계획묶음등록" style="display:none;">
+<div id="modal01" title="생산계획묶음등록" style="display:none;">
     <form name="form02" id="form02" autocomplete="off">
         <table>
         <tbody>
@@ -705,7 +705,7 @@ function form01_submit(f)
 
     //alert(document.pressed);return false;
 
-    if(document.pressed == "실행계획묶음등록"){
+    if(document.pressed == "생산계획묶음등록"){
         for(var i=0; i<f.elements.length; i++){
             //alert(1);return;
             if(f.elements[i].name == "chk[]" && f.elements[i].checked){
@@ -758,7 +758,7 @@ function form01_submit(f)
 // document.getElementById('form01').submit();
 function modalOpen(){
     if (!is_checked("chk[]")) {
-        alert("실행계획묶음등록하실 항목을 하나 이상 선택하세요.");
+        alert("생산계획묶음등록하실 항목을 하나 이상 선택하세요.");
         return false;
     }
     $( "#modal01" ).dialog( "open" );
@@ -835,7 +835,7 @@ function form02_submit(f) {
     //$('<input type="hidden" name="orp_end_date" value="'+orp_end_date+'">').insertBefore(tkn_obj);
     //$('<input type="hidden" name="orp_status" value="'+orp_status+'">').insertBefore(tkn_obj);
     tkn_obj.val(get_ajax_token());
-    document.pressed = '실행계획묶음등록';
+    document.pressed = '생산계획묶음등록';
     var form01 = document.getElementById('form01');
     $('#form01').removeAttr('onsubmit');
     form01_submit(form01);
@@ -859,7 +859,7 @@ function form03_submit(f) {
     $('<input type="hidden" name="orp_no_old" value="'+orp_no_old+'">').insertBefore(tkn_obj);
     //$('<input type="hidden" name="orp_status" value="'+orp_status+'">').insertBefore(tkn_obj);
     tkn_obj.val(get_ajax_token());
-    document.pressed = '실행계획묶음등록';
+    document.pressed = '생산계획묶음등록';
     var form01 = document.getElementById('form01');
     $('#form01').removeAttr('onsubmit');
     form01_submit(form01);
