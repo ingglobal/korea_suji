@@ -353,7 +353,8 @@ $('.date_blank').on('click',function(e){
 <?php echo get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, '?'.$qstr.'&amp;page='); ?>
 
 <script>
-$("input[name*=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+$("input[name=ord_date_from]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", onSelect: function(selectedDate){$("input[name=ord_date_to]").datepicker('option','minDate',selectedDate);} });
+$("input[name=ord_date_to]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", onSelect: function(selectedDate){$("input[name=ord_date_to]").datepicker('option','maxDate',selectedDate);} });
 
 $('.oroButton').on('click',function(){
     if(!confirm('데이터량에 따라 다소 시간이 걸릴수 있으니\n잠시만 기다려 주십시오.')){

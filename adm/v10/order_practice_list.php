@@ -279,7 +279,8 @@ $('.data_blank').on('click',function(e){
 
 
 <script>
-$("input[name*=_date],input[id*=_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99" });
+$("input[name=orp_start_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", onSelect: function(selectedDate){$("input[name=orp_done_date]").datepicker('option','minDate',selectedDate);} });
+$("input[name=orp_done_date]").datepicker({ changeMonth: true, changeYear: true, dateFormat: "yy-mm-dd", showButtonPanel: true, yearRange: "c-99:c+99", onSelect: function(selectedDate){$("input[name=orp_start_date]").datepicker('option','maxDate',selectedDate);} });
 
 
 var first_no = '';
