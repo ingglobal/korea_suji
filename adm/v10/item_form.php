@@ -57,7 +57,6 @@ include_once ('./_head.php');
 <input type="hidden" name="token" value="">
 <input type="hidden" name="<?=$pre?>_idx" value="<?php echo ${$pre."_idx"} ?>">
 <input type="hidden" name="sca" value="<?php echo $sca ?>">
-<?php if($w == 'u'){ ?><input type="hidden" name="itm_update_dt" value="<?=${$pre}['itm_update_dt']?>"><?php } ?>
 
 <div class="local_desc01 local_desc" style="display:none;">
     <p>가격 변경 이력을 관리합니다. (가격 변동 날짜 및 가격을 지속적으로 기록하고 관리합니다.)</p>
@@ -138,6 +137,13 @@ include_once ('./_head.php');
         </td>
     </tr>
     <tr>
+        <th>수정일시</th>
+        <td colspan="3">
+            <p style="padding-bottom:10px;">반드시 아래와 같은 날짜일시 형식으로 입력해야 합니다.<br><strong style="color:orange;"><?=G5_TIME_YMDHIS?></strong></p>
+            <input type="text" name="itm_update_dt" value="<?=${$pre}['itm_update_dt']?>" required class="frm_input required" style="width:160px;text-align:right;">
+        </td>
+    </tr>
+    <tr>
         <th>메모</th>
         <td colspan="3">
             <textarea name="itm_memo" class="frm_input" rows="7"><?=${$pre}['itm_memo']?></textarea>
@@ -198,6 +204,7 @@ function chk_Number(object){
 }
 
 function form01_submit(f) {
+
     if(!f.itm_name.value) {
         alert('상품을 선태해 주세요.');
         f.itm_name.focus();
@@ -222,6 +229,19 @@ function form01_submit(f) {
         return false;
     }
 
+    if(!f.itm_update_dt.value){
+        alert('수정일시를 입력해 주세요.');
+        f.itm_update_dt.focus();
+        return false;
+    }
+
+    var dt_pattern = /\d{4}-\d{2}-\d{2}\s\d{2}\:\d{2}\:\d{2}/;
+    if(!dt_pattern.test(f.itm_update_dt.value)){
+        alert('날짜일시 형식에 맞지 않습니다.');
+        f.itm_update_dt.value = '<?=${$pre}['itm_update_dt']?>';
+        f.itm_update_dt.focus();
+        return false;
+    }
     return true;
 }
 

@@ -62,11 +62,20 @@ else if ($w == 'u') {
     $error_search = (preg_match('/^error_/', ${$pre."_status"})) ? ", itm_defect = '1', itm_defect_type = '".$g5['set_itm_status_ng2_reverse'][${$pre."_status"}]."' " : ", itm_defect = '0', itm_defect_type = '0' ";
 	$delivery_search = (${$pre."_status"} == 'delivery') ? ", itm_delivery = '1' " : ", itm_delivery = '0' ";
 
+    $update_chk_sql = " SELECT itm_update_dt FROM {$g5['item_table']} WHERE itm_idx = '".${$pre."_idx"}."' ";
+    $update_result = sql_fetch($update_chk_sql);
+    $update_dt = ($_POST['itm_update_dt'] == $update_result['itm_update_dt']) ? G5_TIME_YMDHIS : $_POST['itm_update_dt'];
+    // echo $_POST['itm_update_dt'].'-'.$update_result['itm_update_dt'];echo "<br>";
+    // echo $update_dt;
+    // exit;
+
+    // $sql_common .= ", itm_update_dt = '".$update_dt."' ";
+    // echo $sql_common;exit;
     $sql = "UPDATE {$g5_table_name} SET
                 {$sql_common}
                 {$error_search}
                 {$delivery_search}
-                , ".$pre."_update_dt = '".${$pre}[$pre.'_update_dt']."'
+                , ".$pre."_update_dt = '".$update_dt."'
             WHERE ".$pre."_idx = '".${$pre."_idx"}."'
 	";
     // echo $sql.'<br>';
