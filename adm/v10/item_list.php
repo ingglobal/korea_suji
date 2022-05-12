@@ -227,7 +227,7 @@ $('.data_blank').on('click',function(e){
         <td class="td_itm_cat" style="text-align:left;color:orange;">
             <?php if($row['bct_name_tree']){ ?>
             <span class="sp_cat"><?=$row['bct_name_tree']?></span>
-            <?php } ?>    
+            <?php } ?>
         </td><!-- 카테고리 -->
         <td class="td_itm_name"><?=$row['itm_name']?></td><!-- 품명 -->
         <td class="td_itm_part_no"><?=$row['bom_part_no']?></td><!-- 파트넘버 -->
