@@ -34,6 +34,10 @@ else if($getData[0]['bom_part_no']) {
 	// print_r2($ims);exit;
 	$bom = get_table_meta('bom','bom_idx',$getData[0]['bom_idx']);
 	$arr = $getData[0];
+	if(!$arr['bom_idx_parent']){ //만약 부모bom_idx를 보내오지 못했을때 bom_item테이블에서 부모bom_idx를 찾아서 넣지
+		$p = get_table_meta('bom_item','bom_idx_child',$arr['bom_idx']);
+		$arr['bom_idx_parent'] = $p['bom_idx']; //$arr['bom_idx']의 부모 bom_idx
+	}
 	$mtr_lot = substr($arr['mtr_barcode'],0,6);
 	$shift = item_shif_date_return2(G5_TIME_YMDHIS);
 	$sql = " INSERT INTO {$g5['material_table']} SET
