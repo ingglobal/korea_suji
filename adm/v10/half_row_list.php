@@ -197,6 +197,7 @@ $('.data_blank').on('click',function(e){
 <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
 <input type="hidden" name="stx" value="<?php echo $stx ?>">
 <input type="hidden" name="page" value="<?php echo $page ?>">
+<input type="hidden" name="mtr_static_date" value="<?php echo $mtr_static_date ?>">
 <input type="hidden" name="token" value="">
 
 <div class="tbl_head01 tbl_wrap">
