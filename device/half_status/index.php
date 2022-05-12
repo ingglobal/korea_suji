@@ -53,21 +53,23 @@ else if(($getData[0]['type'] && $getData[0]['mtr_idx']) || ($getData[0]['type'] 
         //환경변수 cf_current_oop_idx = 해당 oop_idx, cf_current_mtr_idx = 해당 mtr_idx를 저장
         sql_query(" UPDATE {$g5['config_table']} SET cf_current_oop_idx = '{$sch_res['oop_idx']}', cf_current_mtr_idx = '{$sch_res['mtr_idx']}' ",1);
 
+        $p = get_table_meta('order_practice','orp_idx',$sch_res['orp_idx']);
+        $trm_idx_loc = $p['trm_idx_line']; //기존 데이터 $getData[0]['trm_idx_location']
         //해당 mtr_idx의 레코드의 mtr_status = melt로 변경
         $sql = " UPDATE {$g5['material_table']} SET
-						trm_idx_location = '{$getData[0]['trm_idx_location']}'
+						trm_idx_location = '{$trm_idx_loc}'
                         , mtr_history = CONCAT(mtr_history,'\n".$getData[0]['type']."|".$sch_res['mtr_input_date']."|".G5_TIME_YMDHIS."')
                         , mtr_status = '{$getData[0]['type']}'
                         , mtr_melt_dt = '".G5_TIME_YMDHIS."'
                         , mtr_update_dt = '".G5_TIME_YMDHIS."'
                     WHERE {$mtr_sch} ";
         sql_query($sql,1);
-
+        /*
 		$orp_sql = " UPDATE {$g5['order_practice_table']} SET 
 							trm_idx_line = '{$getData[0]['trm_idx_location']}'
 						WHERE orp_idx = '{$sch_res['orp_idx']}' ";
 		sql_query($orp_sql,1);
-
+        */
         $result_arr['message'] = 'Updated melt OK!';
 
         update_item_sum2(); //material 변경사항을 반영하기 위해 item_sum테이블 업데이트함
