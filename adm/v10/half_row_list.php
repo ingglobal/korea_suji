@@ -22,7 +22,7 @@ $where[] = " itm.mtr_status NOT IN ('delete','trash','used') AND itm.com_idx = '
 // 검색어 설정
 if ($stx != "") {
     switch ($sfl) {
-		case ( $sfl == 'bom_idx' || $sfl == 'mtr_idx' || $sfl == 'mtr_borcode' || $sfl == 'mtr_lot' || $sfl == 'mtr_defect_type' || $sfl == 'trm_idx_location' ) :
+		case ( $sfl == 'bom_idx' || $sfl == 'mtr_idx' || $sfl == 'mtr_borcode' || $sfl == 'mtr_name' || $sfl == 'mtr_defect_type' || $sfl == 'trm_idx_location' ) :
 			$where[] = " {$sfl} = '".trim($stx)."' ";
             break;
 		case ( $sfl == 'bct_id' ) :
@@ -128,15 +128,14 @@ echo $g5['container_sub_title'];
 </select-->
 <select name="trm_idx_location" id="trm_idx_location">
     <option value="">::라인선택::</option>
-    <option value="1">1라인</option>
-    <option value="2">2라인</option>
+    <?=$line_form_options?>
 </select>
 <select name="mtr2_status" id="mtr2_status">
     <option value="">::상태선택::</option>
     <?=$g5['set_half_status_value_options']?>
 </select>
 <?php
-$mtr_static_date = ($mtr_static_date) ? $mtr_static_date : G5_TIME_YMD;
+// $mtr_static_date = ($mtr_static_date) ? $mtr_static_date : G5_TIME_YMD;
 ?>
 <label for="mtr_static_date"><strong class="sound_only">입고일 필수</strong>
 <i class="fa fa-times" aria-hidden="true"></i>
@@ -146,9 +145,12 @@ $mtr_static_date = ($mtr_static_date) ? $mtr_static_date : G5_TIME_YMD;
 <?php
 $sfl = ($sfl == '') ? 'mtr_name' : $sfl;
 ?>
-$('#sfl').val('<?=$sfl?>');
-$('#shift').val('<?=$shift?>');
-$('#mtr2_status').val('<?=$mtr2_status?>');
+<?php if($trm_idx_location){ ?>
+    $('#trm_idx_location').val('<?=$trm_idx_location?>');
+<?php } ?>
+<?php if($mtr2_status){ ?>
+    $('#mtr2_status').val('<?=$mtr2_status?>');
+<?php } ?>
 </script>
 <input type="submit" class="btn_submit" value="검색">
 
