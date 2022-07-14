@@ -2208,16 +2208,16 @@ function form_tag($name='',$f=array(),$w=''){
 //KOSMO에 log데이터 전송 함수
 if(!function_exists('send_kosmo_log')){
 	function send_kosmo_log(){
-		global $g5, $board, $sub_menu, $is_member, $member, $w, $stx, $mb;
+		global $g5, $board, $sub_menu, $is_member, $member, $w, $sfl, $stx, $mb;
 	
-		if(!$is_member)
-			return;
+		// if(!$is_member)
+		// 	return;
 	
 		// if(!$g5['setting']['set_userlog_crtfckey'])
 		// 	return;
 	
-		if(!$member['mb_id'])
-			return;
+		// if(!$member['mb_id'])
+		// 	return;
 	
 		if($board['bo_1']){
 			$access_menu_cd = $board['bo_1'];
@@ -2236,14 +2236,14 @@ if(!function_exists('send_kosmo_log')){
 			else if($w == 'd') $user_status = '삭제';
 		}
 		else if(preg_match('/list$/i',$g5['file_name']) || preg_match('/board$/i',$g5['file_name'])){
-			if($stx) $user_status = '검색';
+			if($stx || $sfl || count($_GET)) $user_status = '검색';
 		}
 		else{
-			if($g5['file_name'] == 'login_check'){
+			if($g5['file_name'] === 'login_check' && $mb['mb_id']){
 				// print_r2($member);exit;
 				$user_status = '접속';
 			}
-			else if($g5['file_name'] == 'logout'){
+			else if($g5['file_name'] === 'logout'){
 				// print_r2($g5);exit;
 				$user_status = '종료';
 			}
